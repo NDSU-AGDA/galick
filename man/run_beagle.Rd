@@ -4,7 +4,7 @@
 \alias{run_beagle}
 \title{Run beagle with a specified file}
 \usage{
-run_beagle(gt, out, n_threads)
+run_beagle(gt, out, n_threads, impute)
 }
 \description{
 Run beagle with a specified file

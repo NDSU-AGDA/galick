@@ -12,7 +12,7 @@ NULL
 
 #' Run beagle with a specified file
 #' @export
-run_beagle <- function(gt, out, n_threads) invisible(.Call(wrap__run_beagle, gt, out, n_threads))
+run_beagle <- function(gt, out, n_threads, impute) invisible(.Call(wrap__run_beagle, gt, out, n_threads, impute))
 
 
 # nolint end
