@@ -2,10 +2,48 @@
 % Please edit documentation in R/extendr-wrappers.R
 \name{run_beagle}
 \alias{run_beagle}
-\title{Run beagle with a specified file}
+\title{Run Beagle with a specified file.}
 \usage{
-run_beagle(gt, out, n_threads, impute)
+run_beagle(gt, out, n_threads, burnin, iterations, phase_states, impute)
 }
 \description{
-Run beagle with a specified file
+This function uses Beagle software to perform genotype phasing and/or imputation.
+Beagle is a tool for phasing genotypes, estimating haplotypes, and imputing ungenotyped markers.
 }
+\section{Parameters}{
+\itemize{
+\item \code{gt}: The path to the input genotype file (VCF format).
+\item \code{out}: The prefix for the output file.
+\item \code{n_threads}: (Optional) Specifies the number of computational threads that will be used (default: number of CPU cores).
+\item \code{burnin}: (Optional) Maximum number of burnin iterations to estimate the initial haplotype frequency model for genotype phasing (default: 3).
+\item \code{iterations}: (Optional) Number of iterations used to estimate genotype phase (default: 12). Higher values increase computation time but improve accuracy.
+\item \code{phase_states}: (Optional) Number of model states used to estimate genotype phase (default: 280).
+\item \code{impute}: (Optional) Whether to impute markers present in the reference panel but absent in the target (default: true).
+}
+}
+
+\section{Beagle Phasing Parameters}{
+\itemize{
+\item \code{burnin}: Number of burnin iterations (default: 3).
+\item \code{iterations}: Number of iterations for phasing (default: 12).
+\item \code{phase_states}: Number of model states for phasing (default: 280).
+}
+}
+
+\section{Beagle Imputation Parameters}{
+\itemize{
+\item \code{impute}: If true, markers from the reference panel missing in the target will be imputed (default: true).
+}
+}
+
+\section{Examples}{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{run_beagle("input.vcf", "output", Some(4), Some(5), Some(15), Some(300), Some(true))
+}\if{html}{\out{</div>}}
+
+The above example will run Beagle using 4 threads, 5 burnin iterations, 15 phasing iterations, 300 phase states, and with imputation enabled.
+}
+
+\section{Errors}{
+This function will panic if the \code{BEAGLE_PATH} environment variable is not defined or if the Beagle command fails to execute.
+}
+

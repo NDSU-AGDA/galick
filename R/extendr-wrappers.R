@@ -10,9 +10,39 @@
 #' @useDynLib beagler, .registration = TRUE
 NULL
 
-#' Run beagle with a specified file
+#' Run Beagle with a specified file.
+#'
+#' This function uses Beagle software to perform genotype phasing and/or imputation.
+#' Beagle is a tool for phasing genotypes, estimating haplotypes, and imputing ungenotyped markers.
+#'
+#' # Parameters
+#' - `gt`: The path to the input genotype file (VCF format).
+#' - `out`: The prefix for the output file.
+#' - `n_threads`: (Optional) Specifies the number of computational threads that will be used (default: number of CPU cores).
+#' - `burnin`: (Optional) Maximum number of burnin iterations to estimate the initial haplotype frequency model for genotype phasing (default: 3).
+#' - `iterations`: (Optional) Number of iterations used to estimate genotype phase (default: 12). Higher values increase computation time but improve accuracy.
+#' - `phase_states`: (Optional) Number of model states used to estimate genotype phase (default: 280).
+#' - `impute`: (Optional) Whether to impute markers present in the reference panel but absent in the target (default: true).
+#'
+#' # Beagle Phasing Parameters
+#' - `burnin`: Number of burnin iterations (default: 3).
+#' - `iterations`: Number of iterations for phasing (default: 12).
+#' - `phase_states`: Number of model states for phasing (default: 280).
+#'
+#' # Beagle Imputation Parameters
+#' - `impute`: If true, markers from the reference panel missing in the target will be imputed (default: true).
+#'
+#' # Examples
+#' ```r
+#' run_beagle("input.vcf", "output", Some(4), Some(5), Some(15), Some(300), Some(true))
+#' ```
+#'
+#' The above example will run Beagle using 4 threads, 5 burnin iterations, 15 phasing iterations, 300 phase states, and with imputation enabled.
+#'
+#' # Errors
+#' This function will panic if the `BEAGLE_PATH` environment variable is not defined or if the Beagle command fails to execute.
 #' @export
-run_beagle <- function(gt, out, n_threads, impute) invisible(.Call(wrap__run_beagle, gt, out, n_threads, impute))
+run_beagle <- function(gt, out, n_threads, burnin, iterations, phase_states, impute) invisible(.Call(wrap__run_beagle, gt, out, n_threads, burnin, iterations, phase_states, impute))
 
 
 # nolint end
