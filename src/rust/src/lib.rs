@@ -32,9 +32,9 @@ use std::process::Command;
 ///
 /// # Errors
 /// This function will panic if the `BEAGLE_PATH` environment variable is not defined or if the Beagle command fails to execute.
-/// @export
+#[doc(hidden)]
 #[extendr]
-fn run_beagle(
+fn run_beagle_internal(
     gt: &str,
     out: &str,
     n_threads: Option<u32>,
@@ -71,5 +71,5 @@ fn run_beagle(
 // See corresponding C code in `entrypoint.c`.
 extendr_module! {
     mod beagler;
-    fn run_beagle;
+    fn run_beagle_internal;
 }

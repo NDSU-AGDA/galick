@@ -41,8 +41,7 @@ NULL
 #'
 #' # Errors
 #' This function will panic if the `BEAGLE_PATH` environment variable is not defined or if the Beagle command fails to execute.
-#' @export
-run_beagle <- function(gt, out, n_threads, burnin, iterations, phase_states, impute) invisible(.Call(wrap__run_beagle, gt, out, n_threads, burnin, iterations, phase_states, impute))
+run_beagle_internal <- function(gt, out, n_threads, burnin, iterations, phase_states, impute) invisible(.Call(wrap__run_beagle_internal, gt, out, n_threads, burnin, iterations, phase_states, impute))
 
 
 # nolint end

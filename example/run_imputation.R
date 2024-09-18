@@ -1,12 +1,12 @@
 library(beagler)
-genomic_file_path <- "/Users/didier.murilloflorez/Desktop/Genomic_selection_fles/2021_NDSU_AYT.vcf"
+genomic_file_path <- Sys.getenv("FILE_PATH")
 run_beagle(
  gt = genomic_file_path,
  out = "imputed_2021_NDSU_AYT",
  n_threads = 1,
  impute = TRUE,
- burnin = NULL,
- iterations = 10,
+ burnin = 3,
+ iterations = 12,
  phase_states = 280
 )
 
@@ -14,6 +14,4 @@ run_beagle(
 # gunzip imputed_genotypes.vcf.gz
 # or
 # gunzip -c imputed_2021_NDSU_AYT.vcf.gz > imputed_2021_NDSU_AYT.vcf
-
-
 

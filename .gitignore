@@ -5,3 +5,8 @@
 src/*.o
 src/*.so
 src/*.dll
+# Ignore all .log files
+*.log
+# Ignore all .vcf files
+*.vcf
+*.gz
