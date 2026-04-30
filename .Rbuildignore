@@ -1,0 +1,16 @@
+^src/$
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^\.github$
+^beagler_roadmap\.md$
+^CLAUDE\.md$
+^AGENTS\.md$
+^example$
+^data_example$
+^vignettes/precomputed/
+^tests/fixtures/large/
+^README\.Rmd$
+^docs$
+^site$
+^mkdocs\.yml$

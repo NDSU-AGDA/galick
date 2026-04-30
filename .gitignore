@@ -1,0 +1,21 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+src/*.o
+src/*.so
+src/*.dll
+*.log
+*.Rcheck/
+.*Rcheck/
+*.tar.gz
+/tmp/
+/scratch/
+example/
+data_example/
+# Fixtures under inst/extdata/ and tests/testthat/fixtures/ are NOT ignored.
+
+# MkDocs build output
+/site/
+.cache/

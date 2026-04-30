@@ -1,0 +1,132 @@
+site_name: beagler
+site_description: Genotype Validation, Conversion, Repair, and Beagle Imputation Workflows
+site_url: https://didiermurillof.github.io/beagleR/
+repo_url: https://github.com/DidierMurilloF/beagleR
+repo_name: DidierMurilloF/beagleR
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: en
+  logo: assets/logo.png
+  favicon: assets/logo.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.tracking
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/DidierMurilloF/beagleR
+  generator: false
+  status:
+    new: recently added
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      title: On this page
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+
+nav:
+  - Home: index.md
+  - Get started:
+    - Installation: getting-started/installation.md
+    - Quick tour: getting-started/quick-tour.md
+    - The result classes: getting-started/result-classes.md
+  - Reference:
+    - reference/index.md
+    - Validate: reference/validate.md
+    - Convert (to VCF): reference/convert-to-vcf.md
+    - Convert (from VCF): reference/convert-from-vcf.md
+    - Repair: reference/repair.md
+    - Run Beagle: reference/run-beagle.md
+    - Chromosome workflows: reference/chromosome-workflows.md
+    - PLINK bridge: reference/plink-bridge.md
+    - Reports: reference/reports.md
+    - Benchmarking: reference/benchmarking.md
+  - Examples:
+    - examples/index.md
+    - CSV to VCF: examples/csv-to-vcf.md
+    - HapMap to VCF: examples/hapmap-to-vcf.md
+    - Validate and repair: examples/validate-and-repair.md
+    - Run Beagle: examples/run-beagle.md
+    - Chromosome-parallel imputation: examples/chromosome-parallel.md
+    - Benchmark accuracy: examples/benchmark-accuracy.md
+  - About:
+    - Roadmap: about/roadmap.md
+    - Conventions: about/conventions.md
+    - Changelog: about/changelog.md

@@ -1,0 +1,144 @@
+# Chromosome-parallel imputation
+
+Split a multi-chromosome VCF, run Beagle on each chromosome in
+parallel, and merge the outputs.
+
+!!! note "Beagle required"
+
+    Like the [Run Beagle](run-beagle.md) example, this needs Beagle
+    on `BEAGLE_PATH` or in the user cache.
+
+## Build a multi-chrom VCF
+
+```r
+library(beagler)
+
+vcf <- tempfile(fileext = ".vcf")
+writeLines(c(
+  "##fileformat=VCFv4.2",
+  "##contig=<ID=chr1>",
+  "##contig=<ID=chr2>",
+  "##contig=<ID=chr3>",
+  "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">",
+  "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\ts1\ts2\ts3",
+  "chr1\t100\trs1\tA\tT\t.\tPASS\t.\tGT\t0/0\t0/1\t1/1",
+  "chr1\t200\trs2\tC\tG\t.\tPASS\t.\tGT\t0/1\t1/1\t0/0",
+  "chr1\t300\trs3\tG\tT\t.\tPASS\t.\tGT\t0/0\t0/1\t1/1",
+  "chr2\t50\trs4\tT\tA\t.\tPASS\t.\tGT\t1/1\t0/0\t0/1",
+  "chr2\t100\trs5\tA\tC\t.\tPASS\t.\tGT\t0/0\t1/1\t0/1",
+  "chr3\t75\trs6\tG\tT\t.\tPASS\t.\tGT\t0/1\t0/1\t1/1"
+), vcf)
+```
+
+## Just split
+
+If you only want per-chromosome files (e.g. to hand off to a
+different tool), use `split_vcf_by_chrom()` directly:
+
+```r
+split_dir <- tempfile("beagler_split_")
+res <- split_vcf_by_chrom(vcf, split_dir)
+res$chrom_paths
+#>      chr1                       chr2                       chr3
+#> ".../chr1.vcf"             ".../chr2.vcf"             ".../chr3.vcf"
+```
+
+`chrom_filter` keeps a subset:
+
+```r
+split_vcf_by_chrom(vcf, split_dir,
+                   chrom_filter = c("chr1", "chr3"),
+                   overwrite = TRUE)
+```
+
+## Run Beagle per chromosome
+
+`run_beagle_by_chrom()` splits internally, then calls `run_beagle()`
+once per chromosome:
+
+=== "Sequential"
+
+    ```r
+    out_dir <- tempfile("beagler_imp_")
+    dir.create(out_dir)
+    
+    results <- run_beagle_by_chrom(
+      gt = vcf,
+      out_dir = out_dir,
+      mode = "phase",
+      nthreads = 2L
+    )
+    ```
+
+=== "mclapply (UNIX)"
+
+    ```r
+    results <- run_beagle_by_chrom(
+      gt = vcf,
+      out_dir = out_dir,
+      mode = "phase",
+      nthreads = 2L,
+      parallel = "mclapply",
+      workers = 4L
+    )
+    ```
+
+=== "future"
+
+    ```r
+    library(future)
+    plan(multisession, workers = 4)
+    
+    results <- run_beagle_by_chrom(
+      gt = vcf,
+      out_dir = out_dir,
+      mode = "phase",
+      nthreads = 2L,
+      parallel = "future"
+    )
+    ```
+
+The result is a named list of `beagler_run` objects:
+
+```r
+names(results)
+#> [1] "chr1" "chr2" "chr3"
+results$chr1$status
+#> [1] 0
+results$chr2$output_paths
+#> [1] ".../imputed/chr2/imputed.vcf.gz"
+```
+
+## Resume after a failure
+
+If the run was interrupted (or one chromosome failed and you fixed
+the input), call `run_beagle_by_chrom()` again with the same
+`out_dir`. Successful chromosomes are skipped:
+
+```r
+# Suppose chr2 failed; you fixed it and rerun:
+results <- run_beagle_by_chrom(vcf, out_dir, mode = "phase",
+                               nthreads = 2L)
+# chr1 and chr3 reuse their previous run records (status == 0,
+# input SHA-256 matches). Only chr2 actually executes.
+```
+
+The check is twofold: existing `run_record.json` with `status == 0`
+**and** the recorded input SHA-256 still matches the current
+per-chromosome split. The hash check guards against silent edits.
+
+## Merge
+
+```r
+merged <- tempfile(fileext = ".vcf.gz")
+merge_beagle_outputs(results, merged)
+
+validate_vcf(merged, target = "beagle")$ok
+#> [1] TRUE
+
+vcf_to_dosage(merged) |> dim()
+#> [1] 3 6      # 3 samples, 6 markers across 3 chromosomes
+```
+
+`merge_beagle_outputs()` accepts `.vcf` or `.vcf.gz` for the output
+extension. Pure R; no `bcftools` dependency.

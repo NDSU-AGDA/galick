@@ -1,0 +1,6 @@
+sample_id,rs1,rs2,rs3,rs4,rs5,rs6,rs7,rs8,rs9,rs10,rs11,rs12,rs13,rs14,rs15,rs16,rs17,rs18,rs19,rs20
+s1,A,H,A,B,A,B,B,H,B,H,H,H,B,A,H,A,A,B,H,A
+s2,A,H,A,B,B,H,B,A,B,H,A,H,A,B,A,H,A,A,A,H
+s3,A,A,H,A,A,A,H,A,A,H,H,A,H,B,H,A,B,A,A,B
+s4,A,B,H,A,A,H,H,H,A,H,B,A,A,A,H,H,H,H,A,A
+s5,H,B,H,B,H,H,H,H,H,B,H,A,A,A,H,B,H,B,A,H

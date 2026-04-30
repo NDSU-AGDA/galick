@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beagler.dev/schemas/run_record/1.0.0",
+  "title": "beagler run record",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "command",
+    "versions",
+    "runtime_sec",
+    "status",
+    "started_at",
+    "ended_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version of this run record. Bumped on breaking changes."
+    },
+    "command": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Full argv as a vector. No shell composition."
+    },
+    "versions": {
+      "type": "object",
+      "required": ["beagler", "r", "os"],
+      "properties": {
+        "beagler": { "type": "string" },
+        "r": { "type": "string" },
+        "os": { "type": "string" },
+        "beagle": { "type": "string" },
+        "java": { "type": "string" },
+        "bcftools": { "type": "string" },
+        "tabix": { "type": "string" },
+        "plink": { "type": "string" }
+      }
+    },
+    "args": {
+      "type": "object",
+      "description": "Function-specific arguments."
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "runtime_sec": { "type": "number", "minimum": 0 },
+    "status": { "type": "integer" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "ended_at": { "type": "string", "format": "date-time" }
+  }
+}

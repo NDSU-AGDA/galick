@@ -1,0 +1,93 @@
+---
+title: "Validate and Repair for Beagle"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Validate and Repair for Beagle}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+`validate_vcf()` reports VCF-shape and Beagle-target problems; `repair_vcf()`
+fixes the row-level ones the validator flagged. Both refuse to write
+anything until the input is reasonable.
+
+## A dirty starting point
+
+`inst/extdata/tiny_dirty.vcf` ships nine records with deliberately broken
+features: invalid POS, multiallelic ALT, REF == ALT, duplicate IDs,
+duplicate `(chrom, pos)`, non-diploid GT, missing IDs, and a `GT:DP`
+FORMAT line.
+
+```{r}
+library(beagler)
+
+dirty <- system.file("extdata", "tiny_dirty.vcf", package = "beagler")
+cat(readLines(dirty), sep = "\n")
+```
+
+## Validate against the Beagle target
+
+```{r}
+v <- validate_vcf(dirty, target = "beagle")
+v$ok
+v$errors$code
+```
+
+The codes tell you exactly what `repair_vcf()` will need to address.
+
+## Repair
+
+```{r}
+clean <- tempfile(fileext = ".vcf")
+result <- repair_vcf(dirty, clean)
+result$ok
+result$summary$step_summary
+```
+
+Each step records its `n_in` / `n_out` / `n_changed`. Steps that did
+something also surface as `$warnings`:
+
+```{r}
+result$warnings$code
+```
+
+## Re-validate
+
+```{r}
+validate_vcf(clean, target = "beagle")$ok
+```
+
+## Re-write minimal VCF
+
+The output is a *minimal* VCF: `repair_vcf()` keeps only `CHROM`, `POS`,
+`ID`, `REF`, `ALT`, and `FORMAT=GT`, regardless of what the input
+carried. The `GT:DP` cells in the dirty file get rewritten to GT-only:
+
+```{r}
+cat(readLines(clean)[6:10], sep = "\n")
+```
+
+## Step selection
+
+By default `repair_vcf()` runs all five steps. You can pick a subset; if
+that subset is insufficient to make the output pass
+`validate_vcf(target = "beagle")`, the function returns
+`repair_vcf_remaining_*` errors and writes nothing.
+
+```{r}
+out <- tempfile(fileext = ".vcf")
+result <- repair_vcf(dirty, out, steps = c("drop_invalid_records"))
+result$ok
+result$errors$code
+file.exists(out)
+```
+
+## Chromosome-style normalization
+
+Pass `chrom_style = "numeric"` (or `"chr_prefixed"`) to rewrite labels
+in the output and use the normalized form for duplicate detection. This
+catches `chr1` + `1` collisions that `as_is` would miss.
