@@ -60,7 +60,11 @@ read_hapmap <- function(path) {
 
   alleles_split <- strsplit(as.character(raw$alleles), "/", fixed = TRUE)
   ref_alt <- do.call(rbind, lapply(alleles_split, function(x) {
-    if (length(x) >= 2L) c(x[1], x[2]) else c(NA_character_, NA_character_)
+    if (length(x) >= 2L) {
+      c(x[1], paste(x[-1], collapse = ","))
+    } else {
+      c(x[1], ".")
+    }
   }))
 
   gt_matrix <- as.matrix(raw[, sample_cols, drop = FALSE])

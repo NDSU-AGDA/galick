@@ -90,13 +90,31 @@ flowchart LR
 
 ## What's in v0.1.0
 
-21 user-facing functions:
+The package also includes loss-aware genotype export and general VCF merge
+workflows:
+
+```r
+# Lossless export keeps phase and arbitrary ploidy
+export_genotypes("calls.vcf", "calls.hmp.txt", format = "hapmap")
+
+# Merge the same marker set across different samples
+merge_vcf(
+  c("cohort_a.vcf", "cohort_b.vcf"),
+  "cohort_merged.vcf",
+  mode = "by_sample",
+  sample_collision = "error"
+)
+```
+
+25 user-facing functions:
 
 | Area | Functions |
 |---|---|
 | **Validate** | `validate_genotype_table()` · `validate_marker_map()` · `validate_vcf()` · `validate_reference_match()` |
 | **Convert (to VCF)** | `csv_to_vcf()` · `hapmap_to_vcf()` |
 | **Convert (from VCF)** | `vcf_to_dosage()` · `vcf_to_hardcalls()` |
+| **Export** | `export_genotypes()` · `detect_chrom_ploidy()` · `detect_genotype_ploidy()` |
+| **VCF merge** | `merge_vcf()` |
 | **Repair** | `repair_vcf()` |
 | **Run Beagle** | `run_beagle()` · `install_beagle()` · `beagle_version()` |
 | **Chromosome workflows** | `split_vcf_by_chrom()` · `run_beagle_by_chrom()` · `merge_beagle_outputs()` |

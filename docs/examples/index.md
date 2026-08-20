@@ -1,8 +1,8 @@
 # Examples
 
-End-to-end walkthroughs. All examples use the bundled fixtures from
-`inst/extdata/` so you can run them as soon as you've installed
-beagler.
+End-to-end walkthroughs. Examples use bundled fixtures from
+`inst/extdata/` or create small self-contained inputs, so you can run
+them as soon as you've installed beagler.
 
 <div class="grid cards" markdown>
 
@@ -48,5 +48,12 @@ beagler.
 
     Mask 10 % of genotypes, impute, and compute concordance rate /
     dosage R² / RMSE on the cells we hid.
+
+-   :material-swap-horizontal:{ .lg .middle } [**Export and merge VCFs**](export-and-merge.md)
+
+    ---
+
+    Export VCF to six exchange formats, enforce polyploid safeguards,
+    and merge callsets by samples or markers with allele reindexing.
 
 </div>

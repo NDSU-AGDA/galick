@@ -126,6 +126,7 @@ nav:
     - Run Beagle: examples/run-beagle.md
     - Chromosome-parallel imputation: examples/chromosome-parallel.md
     - Benchmark accuracy: examples/benchmark-accuracy.md
+    - Export and merge VCFs: examples/export-and-merge.md
   - About:
     - Roadmap: about/roadmap.md
     - Conventions: about/conventions.md

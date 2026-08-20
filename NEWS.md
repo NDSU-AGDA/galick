@@ -1,8 +1,21 @@
 # beagler 0.1.0
 
-First public release. 21 user-facing exports across validation,
+First public release. 25 user-facing exports across validation,
 conversion, repair, Beagle execution, dosage / hardcall extraction,
 PLINK bridge, chromosome workflows, and masked-genotype benchmarking.
+
+## Genotype export and VCF merge
+
+- `export_genotypes()` adds pure-R VCF, PLINK PED/MAP, HapMap, CSV/TSV,
+  and dosage export. VCF and HapMap retain arbitrary ploidy, phase, and
+  partial missingness. PLINK and dosage refuse polyploid GT unless the
+  caller explicitly selects `downcode = "first_two"`.
+- `merge_vcf()` adds explicit `by_sample` and `by_marker` callset merges.
+  It preserves duplicate records with occurrence ordinals, reindexes GT
+  against union ALT lists, reports dropped REF mismatches, and supports
+  error, suffix, or strict coalesce policies for sample collisions.
+- `detect_chrom_ploidy()` and `detect_genotype_ploidy()` keep chromosome
+  naming inference separate from the allele-slot count used to gate export.
 
 ## Validate
 

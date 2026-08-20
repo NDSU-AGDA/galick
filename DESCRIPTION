@@ -37,6 +37,7 @@ RoxygenNote: 7.3.2
 SystemRequirements: Java (>= 8); Beagle (>= 5.x); optional bcftools, tabix, plink
 Imports:
     cli,
+    data.table,
     jsonlite,
     processx,
     tibble,
@@ -48,6 +49,7 @@ Suggests:
     knitr,
     lintr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    vcfR
 VignetteBuilder: knitr
 Config/testthat/edition: 3
