@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "backend": "AlphaSimR",
+  "version": "2.1.0",
+  "r_version": "4.5.3",
+  "settings": {
+    "v": 1,
+    "p": 0,
+    "quadProb": 0,
+    "nThreads": 1
+  },
+  "n_gametes": 10000,
+  "n_selfed_lines": 1500,
+  "implementation_sha256": "d5feea538cb6d59f8d77d5e83fdf37c3f7786bfc578dddef8523f4525f7eb000",
+  "validation_script_sha256": "1755ab28df88b6d23d92e87c6c5f1bfe1c7ed3023ce244501039b888b23fda55",
+  "seeds": [5081, 6091, 7011, 8011, 9011, 10011, 11011, 12011],
+  "map_m": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+  "alpha_recombination": [0, 0.0877, 0.1562, 0.2176, 0.2638, 0.3071, 0.3413, 0.369, 0.3948, 0.4137, 0.4326],
+  "own_recombination": [0, 0.0907, 0.168, 0.2311, 0.2776, 0.3178, 0.3508, 0.3803, 0.4087, 0.4282, 0.4408],
+  "alpha_tetraploid_gametes": [0.1741, 0.6593, 0.1666],
+  "own_tetraploid_gametes": [0.1696, 0.6665, 0.1639],
+  "alpha_f2": [0.252, 0.4995, 0.2485],
+  "own_f2": [0.2493, 0.4998, 0.2509],
+  "alpha_heterozygosity": [1, 0.493090909090909, 0.242666666666667, 0.126787878787879, 0.0617575757575758, 0.0326060606060606],
+  "own_heterozygosity": [1, 0.512666666666667, 0.266666666666667, 0.133333333333333, 0.0706666666666667, 0.0353333333333333],
+  "tolerances": {
+    "recombination": 0.025,
+    "between_engines": 0.04,
+    "segregation": 0.03,
+    "selfing": 0.04
+  }
+}

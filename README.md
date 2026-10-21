@@ -116,7 +116,7 @@ merge_vcf(
 )
 ```
 
-26 user-facing functions:
+27 user-facing functions:
 
 | Area | Functions |
 |---|---|
@@ -131,8 +131,16 @@ merge_vcf(
 | **PLINK bridge** | `vcf_to_plink()` · `plink_to_vcf()` |
 | **Reports** | `imputation_report()` |
 | **Benchmarking** | `mask_genotypes()` · `compare_imputed_vs_true()` · `benchmark_imputation()` · `evaluate_imputation()` |
+| **Simulation** | `simulate_vcf()` |
 
 ## Documentation
+
+`simulate_vcf()` creates founder-conditioned linked genotypes, complete truth
+and references, observed targets, pedigree and diagnostics. It uses a supplied
+phased founder VCF and cM map, with no new runtime dependencies. Diploid outbred,
+F2 and selfed scenarios are supported; tetraploid support is restricted to
+random-bivalent outbred inheritance, not polyploid Beagle imputation.
+See `vignette("simulate-vcf", package = "beagler")`.
 
 `evaluate_imputation()` compares two to four Beagle configurations using paired
 held-out calls or an actual marker panel. Tuning samples select a configuration;
@@ -162,7 +170,7 @@ https://github.com/DidierMurilloF/beagleR
 
 ## Status
 
-beagler is at **v0.1.0**, the first public release. The 26 exported functions and S3 result classes form the v0.1.x public API. Please validate the workflow on representative data before production use.
+beagler is at **v0.1.0**, the first public release. The 27 exported functions and S3 result classes form the v0.1.x public API. Please validate the workflow on representative data before production use.
 
 Bug reports and feature requests are very welcome — please open an [issue on GitHub](https://github.com/DidierMurilloF/beagleR/issues) with a reproducible example.
 

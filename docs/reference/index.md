@@ -18,6 +18,7 @@ important options.
 | [PLINK bridge](plink-bridge.md) | Convert between VCF and PLINK BED/BIM/FAM. | `vcf_to_plink` · `plink_to_vcf` |
 | [Reports](reports.md) | Markdown summaries. | `imputation_report` |
 | [Benchmarking](benchmarking.md) | Mask, impute, compare and evaluate configurations. | `mask_genotypes` · `compare_imputed_vs_true` · `benchmark_imputation` · `evaluate_imputation` |
+| [Simulation](simulation.md) | Founder-conditioned linked breeding genotypes. | `simulate_vcf` |
 
 ## Object model
 

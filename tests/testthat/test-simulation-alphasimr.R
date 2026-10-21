@@ -1,0 +1,12 @@
+test_that("archived independent AlphaSimR comparisons meet predeclared tolerances", {
+  x <- jsonlite::fromJSON(test_path("fixtures", "simulation-alphasimr.json"))
+  expect_equal(x$backend, "AlphaSimR")
+  expect_equal(x$version, "2.1.0")
+  expect_equal(x$settings$v, 1)
+  expect_equal(x$settings$quadProb, 0)
+  expect_equal(x$n_gametes, 10000)
+  expect_lt(max(abs(x$alpha_recombination - x$own_recombination)), 0.035)
+  expect_lt(max(abs(x$alpha_tetraploid_gametes - x$own_tetraploid_gametes)), 0.04)
+  expect_lt(max(abs(x$alpha_f2 - x$own_f2)), 0.04)
+  expect_lt(max(abs(x$alpha_heterozygosity - x$own_heterozygosity)), 0.04)
+})

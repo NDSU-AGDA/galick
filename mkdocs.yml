@@ -118,6 +118,7 @@ nav:
     - PLINK bridge: reference/plink-bridge.md
     - Reports: reference/reports.md
     - Benchmarking: reference/benchmarking.md
+    - Simulation: reference/simulation.md
   - Examples:
     - examples/index.md
     - CSV to VCF: examples/csv-to-vcf.md
