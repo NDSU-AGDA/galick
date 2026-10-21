@@ -34,9 +34,11 @@ License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-SystemRequirements: Java (>= 8); Beagle (>= 5.x); optional bcftools, tabix, plink
+SystemRequirements: Java (>= 8); Beagle (>= 5.x); optional bcftools, tabix,
+    bgzip (required for compressed VCF export), plink
 Imports:
     cli,
+    data.table,
     jsonlite,
     processx,
     tibble,
@@ -48,6 +50,7 @@ Suggests:
     knitr,
     lintr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    vcfR
 VignetteBuilder: knitr
 Config/testthat/edition: 3

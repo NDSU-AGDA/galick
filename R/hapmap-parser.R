@@ -49,7 +49,8 @@ read_hapmap <- function(path) {
   }
 
   standard_meta <- c("rs#", "alleles", "chrom", "pos", "strand", "assembly#",
-                     "center", "protLSID", "assayLSID", "panel", "QCcode")
+                     "center", "protLSID", "assayLSID", "panel", "panelLSID",
+                     "QCcode")
   sample_cols <- setdiff(names(raw), standard_meta)
   if (length(sample_cols) == 0L) {
     cli::cli_abort(
@@ -60,7 +61,11 @@ read_hapmap <- function(path) {
 
   alleles_split <- strsplit(as.character(raw$alleles), "/", fixed = TRUE)
   ref_alt <- do.call(rbind, lapply(alleles_split, function(x) {
-    if (length(x) >= 2L) c(x[1], x[2]) else c(NA_character_, NA_character_)
+    if (length(x) >= 2L) {
+      c(x[1], paste(x[-1], collapse = ","))
+    } else {
+      c(x[1], ".")
+    }
   }))
 
   gt_matrix <- as.matrix(raw[, sample_cols, drop = FALSE])
