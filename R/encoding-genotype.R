@@ -12,7 +12,7 @@ NULL
 # `012` and `centered` overlap on {0, 1}. Disambiguation rule: `-1` is unique
 # to `centered`, so the detector prefers `centered` when `-1` is observed and
 # `012` otherwise.
-ENCODING_ALPHABETS <- list(
+encoding_alphabets <- list(
   AHB = c("A", "H", "B"),
   `012` = c("0", "1", "2"),
   centered = c("-1", "0", "1"),
@@ -41,7 +41,7 @@ detect_genotype_encoding <- function(x,
   }
 
   fits <- vapply(
-    ENCODING_ALPHABETS,
+    encoding_alphabets,
     function(alpha) all(observed %in% alpha),
     logical(1)
   )
@@ -57,11 +57,11 @@ detect_genotype_encoding <- function(x,
         fitting <- setdiff(fitting, "centered")
       }
     }
-    sizes <- vapply(ENCODING_ALPHABETS, length, integer(1))
+    sizes <- vapply(encoding_alphabets, length, integer(1))
     return(fitting[which.min(sizes[fitting])])
   }
 
-  all_recognized_tokens <- unique(unlist(ENCODING_ALPHABETS, use.names = FALSE))
+  all_recognized_tokens <- unique(unlist(encoding_alphabets, use.names = FALSE))
   if (all(observed %in% all_recognized_tokens)) {
     return("mixed")
   }

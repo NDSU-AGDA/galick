@@ -21,11 +21,11 @@ run_beagle(
 )
 }
 \arguments{
-\item{gt}{Path to plain \code{.vcf} target genotype file.}
+\item{gt}{Path to a \code{.vcf} or \code{.vcf.gz} target genotype file.}
 
 \item{out}{Output prefix (no extension).}
 
-\item{ref}{Optional \code{.vcf.gz} reference panel (must have \code{.tbi} index).}
+\item{ref}{Optional \code{.vcf} or \code{.vcf.gz} phased reference panel.}
 
 \item{map}{Optional PLINK-format genetic map (\verb{<chrom>.map} per Beagle).}
 
@@ -43,8 +43,8 @@ run_beagle(
 \item{java}{Optional path; auto-discovered if \code{NULL}.}
 
 \item{extra_args}{Character vector of extra Beagle arguments, passed
-verbatim \emph{after} the package's defaults (so the user can override them).
-No validation; the caller is responsible.}
+as unique \code{key=value} strings. Typed arguments cannot be overridden.
+Other option names and values are checked by Beagle.}
 
 \item{run_dir}{Directory for \code{stdout.log}, \code{stderr.log}, \code{run_record.json}.
 Auto-created if \code{NULL}.}
@@ -67,10 +67,9 @@ come back as a \code{beagler_run} with \code{status != 0}.
 
 v0.1.0 limitations:
 \itemize{
-\item \code{gt} must be plain \code{.vcf}. v0.1.0's \code{\link[=validate_vcf]{validate_vcf()}} does not decompress;
-\code{gunzip} your file first if needed.
-\item \code{ref} must be \code{.vcf.gz} (BGZF) with a sibling \code{.tbi} index. Beagle
-requires tabix-indexed reference panels.
+\item Targets and references may be \code{.vcf} or \code{.vcf.gz}; no index is required.
+References must be fully called, phased diploid genotypes with disjoint
+sample IDs and compatible shared variants. Binary bref3 is unsupported.
 \item \code{out} is a Beagle output \strong{prefix}, not a filename. Passing \code{.vcf} or
 \code{.vcf.gz} is rejected. Beagle writes \verb{<out>.vcf.gz}.
 }

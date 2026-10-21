@@ -10,16 +10,15 @@
 #' come back as a `beagler_run` with `status != 0`.
 #'
 #' v0.1.0 limitations:
-#' - `gt` must be plain `.vcf`. v0.1.0's [validate_vcf()] does not decompress;
-#'   `gunzip` your file first if needed.
-#' - `ref` must be `.vcf.gz` (BGZF) with a sibling `.tbi` index. Beagle
-#'   requires tabix-indexed reference panels.
+#' - Targets and references may be `.vcf` or `.vcf.gz`; no index is required.
+#'   References must be fully called, phased diploid genotypes with disjoint
+#'   sample IDs and compatible shared variants. Binary bref3 is unsupported.
 #' - `out` is a Beagle output **prefix**, not a filename. Passing `.vcf` or
 #'   `.vcf.gz` is rejected. Beagle writes `<out>.vcf.gz`.
 #'
-#' @param gt Path to plain `.vcf` target genotype file.
+#' @param gt Path to a `.vcf` or `.vcf.gz` target genotype file.
 #' @param out Output prefix (no extension).
-#' @param ref Optional `.vcf.gz` reference panel (must have `.tbi` index).
+#' @param ref Optional `.vcf` or `.vcf.gz` phased reference panel.
 #' @param map Optional PLINK-format genetic map (`<chrom>.map` per Beagle).
 #' @param mode `"impute"` (default) sets `impute=true` in Beagle args;
 #'   `"phase"` sets `impute=false`.
@@ -29,8 +28,8 @@
 #' @param beagle_jar Optional path; auto-discovered if `NULL`.
 #' @param java Optional path; auto-discovered if `NULL`.
 #' @param extra_args Character vector of extra Beagle arguments, passed
-#'   verbatim *after* the package's defaults (so the user can override them).
-#'   No validation; the caller is responsible.
+#'   as unique `key=value` strings. Typed arguments cannot be overridden.
+#'   Other option names and values are checked by Beagle.
 #' @param run_dir Directory for `stdout.log`, `stderr.log`, `run_record.json`.
 #'   Auto-created if `NULL`.
 #' @param overwrite Refuse to clobber `<out>.vcf.gz` unless `TRUE`.
@@ -38,18 +37,18 @@
 #' @return A `beagler_run` S3 object.
 #' @export
 run_beagle <- function(gt,
-                      out,
-                      ref = NULL,
-                      map = NULL,
-                      mode = c("impute", "phase"),
-                      nthreads = 1L,
-                      memory_gb = 4L,
-                      seed = NULL,
-                      beagle_jar = NULL,
-                      java = NULL,
-                      extra_args = character(),
-                      run_dir = NULL,
-                      overwrite = FALSE) {
+                       out,
+                       ref = NULL,
+                       map = NULL,
+                       mode = c("impute", "phase"),
+                       nthreads = 1L,
+                       memory_gb = 4L,
+                       seed = NULL,
+                       beagle_jar = NULL,
+                       java = NULL,
+                       extra_args = character(),
+                       run_dir = NULL,
+                       overwrite = FALSE) {
   the_call <- match.call()
   mode <- match.arg(mode)
 
@@ -102,39 +101,24 @@ run_beagle <- function(gt,
         class = "beagler_error_run_beagle_invalid_input"
       )
     }
-    if (!grepl("\\.vcf\\.gz$", ref, ignore.case = TRUE)) {
+    if (!grepl("\\.vcf(\\.gz)?$", ref, ignore.case = TRUE)) {
       cli::cli_abort(
         c(
-          "{.arg ref} must be a {.val .vcf.gz} (BGZF-compressed) file.",
-          i = "Beagle requires BGZF + tabix-indexed reference panels.",
-          i = "Run {.code bgzip ref.vcf && tabix -p vcf ref.vcf.gz} first."
-        ),
-        class = "beagler_error_run_beagle_invalid_input"
-      )
-    }
-    if (!file.exists(paste0(ref, ".tbi"))) {
-      cli::cli_abort(
-        c(
-          "{.arg ref} is not tabix-indexed: {.file {paste0(ref, '.tbi')}} not found.",
-          i = "Run {.code tabix -p vcf {ref}} to create it."
+          "{.arg ref} must be a {.val .vcf} or {.val .vcf.gz} file.",
+          i = "Binary bref3 references are not supported by this VCF validator."
         ),
         class = "beagler_error_run_beagle_invalid_input"
       )
     }
   }
 
-  if (!is.null(map) && !file.exists(map)) {
+  if (!is.null(map) && (!is.character(map) || length(map) != 1L ||
+                          is.na(map) || !file.exists(map))) {
     cli::cli_abort(
       "{.arg map} not found: {.file {map}}",
       class = "beagler_error_run_beagle_invalid_input"
     )
   }
-
-  java_path <- find_java(java)
-  java_version <- detect_java_version(java_path)
-
-  beagle_path <- find_beagle_jar(beagle_jar)
-  beagle_ver <- detect_beagle_version(beagle_path, java_path)
 
   gt_validation <- validate_vcf(gt, target = "beagle")
   blocking <- gt_validation$errors$code
@@ -148,6 +132,19 @@ run_beagle <- function(gt,
       class = "beagler_error_run_beagle_invalid_input"
     )
   }
+  if (!is.null(ref)) {
+    preflight <- validate_reference_match(gt, ref, require_phased = TRUE)
+    if (!preflight$ok || preflight$summary$n_markers_shared == 0L) {
+      cli::cli_abort("Reference preflight failed: {.val {preflight$errors$code}}.",
+        class = "beagler_error_run_beagle_invalid_input"
+      )
+    }
+  }
+  job <- prepare_beagle_job(
+    gt, out, ref, map, mode, nthreads, memory_gb,
+    seed, beagle_jar, java, extra_args
+  )
+  java_path <- job$java
 
   if (is.null(run_dir)) {
     run_dir <- tempfile("beagler_run_")
@@ -157,21 +154,41 @@ run_beagle <- function(gt,
   }
   run_dir <- normalize_path_safe(run_dir, must_exist = TRUE)
 
-  args <- build_beagle_argv(
-    beagle_jar = beagle_path,
-    gt = gt,
-    out = out,
-    ref = ref,
-    map = map,
-    mode = mode,
-    nthreads = nthreads,
-    memory_gb = memory_gb,
-    seed = seed,
-    extra_args = extra_args
-  )
+  args <- job$argv
 
   stdout_log <- file.path(run_dir, "stdout.log")
   stderr_log <- file.path(run_dir, "stderr.log")
+  existing <- c(expected_output, paste0(expected_output, c(".tbi", ".csi")))
+  existing <- existing[file.exists(existing)]
+  backups <- vapply(existing, function(path) {
+    tempfile("beagler_previous_", tmpdir = dirname(path))
+  }, character(1))
+  moved <- logical(length(existing))
+  output_committed <- FALSE
+  output_started <- FALSE
+  on.exit({
+    if (output_committed) {
+      unlink(backups)
+    } else {
+      if (output_started) {
+        unlink(c(expected_output, paste0(expected_output, c(".tbi", ".csi"))))
+      }
+      for (i in which(moved)) {
+        if (!file.rename(backups[i], existing[i])) {
+          warning("Could not restore previous output; backup retained at ", backups[i])
+        }
+      }
+    }
+  }, add = TRUE)
+  for (i in seq_along(existing)) {
+    moved[i] <- file.rename(existing[i], backups[i])
+    if (!moved[i]) {
+      cli::cli_abort("Could not stage previous output {.file {existing[i]}}.",
+        class = "beagler_error_run_beagle_invalid_input"
+      )
+    }
+  }
+  output_started <- TRUE
   started_at <- format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3Z", tz = "UTC")
 
   result <- run_cli(
@@ -184,33 +201,41 @@ run_beagle <- function(gt,
   ended_at <- format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3Z", tz = "UTC")
 
   output_paths <- if (file.exists(expected_output)) expected_output else character()
-
-  index_action <- attempt_index(expected_output, output_paths)
-
-  inputs <- list(list(path = gt, sha256 = unname(tools::sha256sum(gt))))
-  if (!is.null(ref)) {
-    inputs[[length(inputs) + 1L]] <- list(
-      path = ref, sha256 = unname(tools::sha256sum(ref))
+  output_valid <- FALSE
+  if (result$status == 0L && length(output_paths)) {
+    output_valid <- tryCatch(
+      {
+        validation <- validate_vcf(expected_output, target = "beagle")
+        validation$ok && validation$summary$n_records > 0L
+      },
+      error = function(e) FALSE
     )
   }
-  if (!is.null(map)) {
-    inputs[[length(inputs) + 1L]] <- list(
-      path = map, sha256 = unname(tools::sha256sum(map))
+  if (result$status == 0L && !output_valid) {
+    result$status <- 1L
+    cat("\nBeagle output is missing, empty or invalid.\n",
+      file = stderr_log,
+      append = TRUE
     )
   }
+  output_committed <- result$status == 0L && output_valid
+  if (!output_committed) output_paths <- character()
+
+  index_action <- if (result$status == 0L) {
+    attempt_index(expected_output, output_paths)
+  } else {
+    "skipped_failed_run"
+  }
+
+  inputs <- unname(job$files[intersect(c("gt", "ref", "map"), names(job$files))])
   outputs <- lapply(output_paths, function(p) {
-    list(path = p, sha256 = unname(tools::sha256sum(p)))
+    list(path = p, sha256 = file_sha256(p))
   })
 
-  versions <- compact_list(list(
-    beagler = as.character(utils::packageVersion("beagler")),
-    r = as.character(getRversion()),
-    os = R.version$os,
-    beagle = beagle_ver$raw,
-    java = java_version$raw,
+  versions <- compact_list(c(job$versions, list(
     bcftools = if (!is.null(find_bcftools())) "available" else NULL,
     tabix = if (!is.null(find_tabix())) "available" else NULL
-  ))
+  )))
 
   args_record <- compact_list(list(
     gt = gt,
@@ -222,6 +247,8 @@ run_beagle <- function(gt,
     memory_gb = as.integer(memory_gb),
     seed = if (!is.null(seed)) as.integer(seed) else NULL,
     extra_args = as.list(extra_args),
+    job_fingerprint = job$fingerprint,
+    output_validated = output_valid,
     index_action = index_action
   ))
 
@@ -259,7 +286,7 @@ run_beagle <- function(gt,
 #'
 #' Always emits, in order: JVM heap, `-jar`, jar path, then Beagle's
 #' `key=value` arguments. `extra_args` is appended verbatim *after* package
-#' defaults so users can override.
+#' defaults; the public runner rejects overrides of typed arguments.
 #'
 #' @keywords internal
 #' @noRd
@@ -300,12 +327,16 @@ attempt_index <- function(expected_output, output_paths) {
   tabix <- find_tabix()
   if (!is.null(tabix)) {
     res <- run_cli(tabix, c("-p", "vcf", expected_output))
-    if (res$status == 0L) return("tabix")
+    if (res$status == 0L) {
+      return("tabix")
+    }
   }
   bcftools <- find_bcftools()
   if (!is.null(bcftools)) {
     res <- run_cli(bcftools, c("index", "-t", expected_output))
-    if (res$status == 0L) return("bcftools")
+    if (res$status == 0L) {
+      return("bcftools")
+    }
   }
   "skipped"
 }

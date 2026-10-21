@@ -2,6 +2,11 @@
 
 ## Vision
 
+Release hardening: require R >= 4.1 and use the CRAN `digest` dependency for
+portable file SHA-256 checks. Benchmarking requires exact allele alignment and
+reports missing predictions; chromosome resume fingerprints all computational
+inputs and settings, and concatenation validates every expected job.
+
 **beagler** is an R toolkit for converting, validating, repairing, imputing, and exporting plant- and animal-breeding genotype data using **Beagle** and **PLINK** as external command-line tools.
 
 The package focuses on **genotype preprocessing and imputation workflows**. It is not a downstream-analysis package.

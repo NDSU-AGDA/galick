@@ -1,6 +1,8 @@
 make_bridge_vcf <- function() {
-  path <- withr::local_tempfile(fileext = ".vcf",
-                                 .local_envir = parent.frame())
+  path <- withr::local_tempfile(
+    fileext = ".vcf",
+    .local_envir = parent.frame()
+  )
   writeLines(c(
     "##fileformat=VCFv4.2",
     "##contig=<ID=1>",

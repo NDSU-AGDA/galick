@@ -1,6 +1,8 @@
 make_multi_chrom_vcf <- function() {
-  path <- withr::local_tempfile(fileext = ".vcf",
-                                 .local_envir = parent.frame())
+  path <- withr::local_tempfile(
+    fileext = ".vcf",
+    .local_envir = parent.frame()
+  )
   writeLines(c(
     "##fileformat=VCFv4.2",
     "##contig=<ID=chr1>",
@@ -39,7 +41,8 @@ test_that("split_vcf_by_chrom respects chrom_filter", {
   vcf <- make_multi_chrom_vcf()
   out_dir <- withr::local_tempdir()
   res <- split_vcf_by_chrom(vcf, out_dir,
-                            chrom_filter = c("chr1", "chr3"))
+    chrom_filter = c("chr1", "chr3")
+  )
   expect_setequal(names(res$chrom_paths), c("chr1", "chr3"))
 })
 
@@ -111,17 +114,22 @@ test_that("merge_beagle_outputs concatenates per-chrom outputs", {
   v <- validate_vcf(merged)
   expect_true(v$ok)
   expect_equal(v$summary$n_records, 5L)
-  expect_setequal(unique(v$summary$chromosome_summary$chrom),
-                  c("chr1", "chr2", "chr3"))
+  expect_setequal(
+    unique(v$summary$chromosome_summary$chrom),
+    c("chr1", "chr2", "chr3")
+  )
 })
 
 test_that("merge_beagle_outputs writes .vcf.gz when output extension matches", {
+  skip_if(Sys.which("bgzip") == "", "bgzip required for compressed output")
   vcf <- make_multi_chrom_vcf()
   out_dir <- withr::local_tempdir()
   res <- split_vcf_by_chrom(vcf, out_dir)
   fake_runs <- lapply(res$chrom_paths, function(p) {
-    beagler:::new_beagler_run(status = 0L, runtime_sec = 0.1,
-                              command = "fake", output_paths = p)
+    beagler:::new_beagler_run(
+      status = 0L, runtime_sec = 0.1,
+      command = "fake", output_paths = p
+    )
   })
   merged <- withr::local_tempfile(fileext = ".vcf.gz")
   merge_beagle_outputs(fake_runs, merged)

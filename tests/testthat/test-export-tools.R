@@ -37,7 +37,8 @@ test_that("BGZF exports are readable by tabix and bcftools", {
   query <- run_cli(Sys.which("tabix"), c(out, "1:10-10"))
   expect_equal(query$status, 0L, info = query$stderr)
   expect_match(
-    query$stdout, "1\t10\tone\tA\tG\t.\tPASS\t.\tGT:PS\t1|0:10", fixed = TRUE
+    query$stdout, "1\t10\tone\tA\tG\t.\tPASS\t.\tGT:PS\t1|0:10",
+    fixed = TRUE
   )
   export_genotypes(input, out, "vcf", overwrite = TRUE)
   expect_false(file.exists(paste0(out, ".tbi")))

@@ -1,6 +1,8 @@
 make_dose_vcf <- function() {
-  path <- withr::local_tempfile(fileext = ".vcf",
-                                 .local_envir = parent.frame())
+  path <- withr::local_tempfile(
+    fileext = ".vcf",
+    .local_envir = parent.frame()
+  )
   writeLines(c(
     "##fileformat=VCFv4.2",
     "##contig=<ID=chr1>",
@@ -71,5 +73,6 @@ test_that("vcf_to_dosage reads .vcf.gz transparently", {
 test_that("vcf_to_dosage aborts on bad input", {
   expect_error(vcf_to_dosage(NULL), class = "beagler_error_vcf_to_dosage_invalid_input")
   expect_error(vcf_to_dosage("/no-such-file.vcf"),
-               class = "beagler_error_vcf_to_dosage_invalid_input")
+    class = "beagler_error_vcf_to_dosage_invalid_input"
+  )
 })

@@ -7,7 +7,8 @@
 validate_reference_match(
   target_vcf,
   reference_vcf,
-  chrom_style = c("auto", "numeric", "chr_prefixed", "as_is")
+  chrom_style = c("auto", "numeric", "chr_prefixed", "as_is"),
+  require_phased = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,9 @@ validate_reference_match(
 \code{"auto"} keeps labels as-is and warns on mismatched style; \code{"numeric"}
 / \code{"chr_prefixed"} normalize before comparison; \code{"as_is"} is identical
 to \code{"auto"} minus the warning.}
+
+\item{require_phased}{Require a nonempty diploid, phased, fully called
+reference and disjoint sample IDs, as used by \code{\link[=run_beagle]{run_beagle()}}.}
 }
 \value{
 A \code{beagler_result} S3 object.

@@ -61,15 +61,14 @@ mask_genotypes <- function(vcf,
     )
   }
   if (!is.numeric(fraction) || length(fraction) != 1L ||
-      is.na(fraction) || fraction <= 0 || fraction >= 1) {
+        is.na(fraction) || fraction <= 0 || fraction >= 1) {
     cli::cli_abort(
       "{.arg fraction} must be a single number strictly between 0 and 1.",
       class = "beagler_error_mask_genotypes_invalid_input"
     )
   }
 
-  parsed <- parse_vcf_raw(vcf)
-  rec <- extract_vcf_records(parsed)
+  rec <- read_genotype_records(vcf)
 
   if (nrow(rec$gt_matrix) == 0L) {
     cli::cli_abort(
@@ -91,9 +90,9 @@ mask_genotypes <- function(vcf,
   }
 
   is_missing <- is.na(rec$gt_matrix) |
-    rec$gt_matrix == "./." |
-    rec$gt_matrix == ".|." |
+    grepl(".", rec$gt_matrix, fixed = TRUE) |
     !nzchar(rec$gt_matrix)
+  dim(is_missing) <- dim(rec$gt_matrix)
 
   eligibility_mask <- outer(marker_eligible, sample_eligible, FUN = "&") &
     !is_missing

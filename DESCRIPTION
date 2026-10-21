@@ -27,10 +27,14 @@ Authors@R:
 Description: An R toolkit for plant- and animal-breeding genotype workflows:
     convert CSV and HapMap genotype tables to VCF, validate and repair VCFs
     for Beagle, run Beagle imputation and phasing from R, and capture
-    structured run records. Beagle and PLINK are external command-line tools
+    structured run records. Simulate linked breeding genotypes conditional
+    on phased founder haplotypes and genetic maps using explicit diploid
+    and random-bivalent autotetraploid inheritance models.
+    Beagle and PLINK are external command-line tools
     invoked from R; the package focuses on preprocessing and imputation,
     not downstream analyses.
 License: GPL (>= 3)
+Depends: R (>= 4.1.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
@@ -39,6 +43,7 @@ SystemRequirements: Java (>= 8); Beagle (>= 5.x); optional bcftools, tabix,
 Imports:
     cli,
     data.table,
+    digest,
     jsonlite,
     processx,
     tibble,

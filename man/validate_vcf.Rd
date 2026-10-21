@@ -11,8 +11,7 @@ validate_vcf(
 )
 }
 \arguments{
-\item{vcf}{Path to a plain \code{.vcf} file. \code{.vcf.gz} is rejected in v0.1.0
-(M5 does not decompress; M7 handles BGZF).}
+\item{vcf}{Path to a plain, gzip or BGZF-compressed VCF.}
 
 \item{target}{\code{"general"}, \code{"beagle"}, or \code{"plink"}. Each adds tool-
 specific checks; some codes (\code{vcf_no_samples}, \code{vcf_multiallelic})
@@ -27,7 +26,7 @@ at chunk boundaries).}
 A \code{beagler_result} S3 object.
 }
 \description{
-Reads a plain \code{.vcf} file via the tolerant internal \code{parse_vcf_raw()} and
+Reads a \code{.vcf} or \code{.vcf.gz} via the tolerant internal \code{parse_vcf_raw()} and
 reports shape, structural, and semantic issues. Always-on checks cover the VCF
 v4.2 essentials; \code{target = "beagle"} and \code{target = "plink"} add tool-
 specific stricter checks.

@@ -88,17 +88,23 @@ detect_java_version <- function(java) {
 parse_java_version_output <- function(text) {
   joined <- paste(text, collapse = "\n")
   m <- regmatches(joined, regexpr('"[0-9._]+"', joined))
-  if (length(m) == 0L) return(NULL)
+  if (length(m) == 0L) {
+    return(NULL)
+  }
   raw <- gsub('"', "", m[1])
   parts <- strsplit(raw, "[._]")[[1]]
   parts <- parts[nzchar(parts)]
-  if (length(parts) == 0L) return(NULL)
+  if (length(parts) == 0L) {
+    return(NULL)
+  }
   if (parts[1] == "1" && length(parts) >= 2L) {
     major <- suppressWarnings(as.integer(parts[2]))
   } else {
     major <- suppressWarnings(as.integer(parts[1]))
   }
-  if (is.na(major)) return(NULL)
+  if (is.na(major)) {
+    return(NULL)
+  }
   minor <- if (length(parts) >= 2L) suppressWarnings(as.integer(parts[2])) else 0L
   if (is.na(minor)) minor <- 0L
   list(major = major, minor = minor, raw = raw)
@@ -184,14 +190,20 @@ detect_beagle_version <- function(beagle_jar, java) {
 parse_beagle_version_output <- function(text) {
   joined <- paste(text, collapse = "\n")
   m <- regmatches(joined, regexpr("\\(version[ \t]+[0-9.]+\\)", joined))
-  if (length(m) == 0L) return(NULL)
+  if (length(m) == 0L) {
+    return(NULL)
+  }
   raw <- gsub("[()]", "", m[1])
   raw <- sub("^version[ \t]+", "", raw)
   parts <- strsplit(raw, ".", fixed = TRUE)[[1]]
   parts <- parts[nzchar(parts)]
-  if (length(parts) == 0L) return(NULL)
+  if (length(parts) == 0L) {
+    return(NULL)
+  }
   major <- suppressWarnings(as.integer(parts[1]))
-  if (is.na(major)) return(NULL)
+  if (is.na(major)) {
+    return(NULL)
+  }
   minor <- if (length(parts) >= 2L) suppressWarnings(as.integer(parts[2])) else 0L
   if (is.na(minor)) minor <- 0L
   list(major = major, minor = minor, raw = raw)
@@ -221,7 +233,9 @@ find_plink <- function(plink = NULL) {
     return(normalize_path_safe(plink, must_exist = TRUE))
   }
   via <- Sys.which("plink")
-  if (nzchar(via)) return(unname(via))
+  if (nzchar(via)) {
+    return(unname(via))
+  }
   cli::cli_abort(
     c(
       "Could not find {.code plink}.",

@@ -31,7 +31,7 @@ beagle_version()
 If you don't have Beagle yet:
 
 ```{r, eval = FALSE}
-install_beagle()           # downloads pinned 5.4 jar to user cache
+install_beagle() # downloads pinned 5.4 jar to user cache
 ```
 
 That writes the JAR to `tools::R_user_dir("beagler", "cache")`. Override
@@ -78,15 +78,17 @@ jsonlite::fromJSON(run$run_record)$versions
 
 ## Reference panels
 
-Reference panels for `ref =` must be `.vcf.gz` (BGZF) with a sibling
-`.tbi` index. Beagle can't read plain `.vcf` references.
+Reference panels for `ref =` may be plain `.vcf` or compressed `.vcf.gz`;
+an index is not required. Calls must be complete, phased and diploid,
+with disjoint target/reference sample IDs and matching shared variants.
+Declared assembly metadata must agree; no reference FASTA is checked.
 
 ```{r, eval = FALSE}
 run_beagle(
   gt,
   out_prefix,
-  ref = "panel.vcf.gz",        # must have panel.vcf.gz.tbi
-  map = "genetic_map.txt",     # PLINK genetic map (cM)
+  ref = "panel.vcf.gz",
+  map = "genetic_map.txt", # PLINK genetic map (cM)
   mode = "impute",
   nthreads = 4L
 )

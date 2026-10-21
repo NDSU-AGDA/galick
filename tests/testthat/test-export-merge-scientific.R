@@ -217,7 +217,8 @@ test_that("coalescing unphased equivalent calls counts each sample once", {
   phased <- scientific_vcf("s", "1\t10\tone\tA\tG\t.\tPASS\t.\tGT\t0|1")
   expect_error(
     merge_vcf(c(a, phased), tempfile(fileext = ".vcf"),
-              sample_collision = "coalesce"),
+      sample_collision = "coalesce"
+    ),
     class = "beagler_error_merge_phase_conflict"
   )
 })

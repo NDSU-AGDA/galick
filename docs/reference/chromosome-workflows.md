@@ -49,11 +49,10 @@ Beagle filters them by chromosome internally.
 
 ### Resume logic
 
-If a previous run left a `<out_dir>/<chrom>/run_record.json` with
-`status == 0` AND its recorded input SHA-256 matches the current
-per-chromosome `gt`, that chromosome is skipped and the cached
-`beagler_run` is returned. The hash check guards against silent data
-churn (someone edits the input but the run record is still around).
+A cache hit requires a successful run record, matching input/reference/map
+hashes, identical computational settings and Java/JAR identity, and a matching
+output checksum with valid, nonempty VCF content. Old records without a complete
+fingerprint are rerun. The cached `beagler_run` is returned only after these checks.
 
 ```r
 # First call: runs all chromosomes
@@ -93,8 +92,10 @@ merge_beagle_outputs(
 ```
 
 Concatenates the `output_paths` from a list of `beagler_run` objects
-into a single `.vcf` or `.vcf.gz`. The first non-empty input
-contributes the header; subsequent inputs contribute body rows only.
+into a single `.vcf` or `.vcf.gz`. Every expected run must have succeeded with
+an existing valid output and disjoint chromosome coverage. Sample sets must
+match and columns are aligned by name. Compatible headers and FORMAT fields,
+including DS/GP, are retained; incompatible dictionaries are rejected.
 
 ```r
 results <- run_beagle_by_chrom("panel.vcf", "imputed", nthreads = 4L)
@@ -106,6 +107,5 @@ merge_beagle_outputs(results, merged)
 validate_vcf(merged, target = "beagle")$ok
 ```
 
-Pure R (uses `gzfile()` for `.vcf.gz` IO). A `bcftools concat` fast
-path is forward-compatible (the `bcftools` argument is currently
-ignored).
+Compressed output requires `bgzip` and uses indexable BGZF. The `bcftools`
+argument is currently ignored. Plain VCF output needs no external tool.

@@ -54,8 +54,10 @@ plink_to_vcf <- function(plink_prefix, vcf, plink = NULL, overwrite = FALSE) {
 
   plink_path <- find_plink(plink)
   out_prefix <- sub("\\.vcf$", "", vcf, ignore.case = TRUE)
-  args <- c("--bfile", plink_prefix, "--recode", "vcf",
-            "--out", out_prefix)
+  args <- c(
+    "--bfile", plink_prefix, "--recode", "vcf",
+    "--out", out_prefix
+  )
   result <- run_cli(plink_path, args = args)
 
   output_paths <- if (file.exists(vcf)) vcf else character()

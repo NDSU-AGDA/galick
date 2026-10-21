@@ -66,13 +66,15 @@ test_that("by_sample handles sample collisions only by named policy", {
 
   expect_error(
     merge_vcf(c(a, b), withr::local_tempfile(fileext = ".vcf"),
-              mode = "by_sample"),
+      mode = "by_sample"
+    ),
     class = "beagler_error_merge_sample_collision"
   )
 
   suffix_output <- withr::local_tempfile(fileext = ".vcf")
   suffix_report <- merge_vcf(
-    c(a, b), suffix_output, mode = "by_sample", sample_collision = "suffix"
+    c(a, b), suffix_output,
+    mode = "by_sample", sample_collision = "suffix"
   )
   expect_equal(
     beagler:::read_genotype_vcf(suffix_output)$samples,
@@ -82,7 +84,8 @@ test_that("by_sample handles sample collisions only by named policy", {
 
   coalesce_output <- withr::local_tempfile(fileext = ".vcf")
   coalesce_report <- merge_vcf(
-    c(a, b), coalesce_output, mode = "by_sample",
+    c(a, b), coalesce_output,
+    mode = "by_sample",
     sample_collision = "coalesce"
   )
   coalesced <- beagler:::read_genotype_vcf(coalesce_output)

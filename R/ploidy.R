@@ -13,11 +13,15 @@ detect_subgenome_labels <- function(vcf) {
     read_genotype_vcf(vcf)
   }
   chrom <- unique(as.character(x$fixed$CHROM))
-  if (length(chrom) == 0L) return(character())
+  if (length(chrom) == 0L) {
+    return(character())
+  }
 
   labels <- sub("^(?i:chr)", "", chrom, perl = TRUE)
   has_subgenome <- grepl("^[0-9]+[A-Za-z](?:[._-].*)?$", labels)
-  if (!any(has_subgenome)) return(character())
+  if (!any(has_subgenome)) {
+    return(character())
+  }
 
   subgenomes <- toupper(sub(
     "^[0-9]+([A-Za-z])(?:[._-].*)?$",
@@ -45,7 +49,9 @@ detect_genotype_ploidy <- function(vcf) {
   }
   calls <- as.character(x$gt)
   calls <- calls[!is.na(calls) & nzchar(calls) & calls != "."]
-  if (length(calls) == 0L) return(NA_integer_)
+  if (length(calls) == 0L) {
+    return(NA_integer_)
+  }
 
   ploidies <- vapply(strsplit(calls, "[/|]"), length, integer(1))
   as.integer(max(ploidies))

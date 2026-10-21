@@ -29,8 +29,7 @@ vcf_to_dosage <- function(vcf, samples = NULL, markers = NULL) {
     )
   }
 
-  parsed <- parse_vcf_raw(vcf)
-  rec <- extract_vcf_records(parsed)
+  rec <- read_genotype_records(vcf)
 
   n_markers <- nrow(rec$gt_matrix)
   n_samples <- length(rec$samples)

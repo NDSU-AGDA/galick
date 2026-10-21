@@ -51,10 +51,10 @@ print.beagler_run <- function(x, ...) {
   } else {
     sprintf("status %d", x$status)
   }
-  cli::cli_h1("beagler_run: {status_str}")
+  cli::cli_h1(sprintf("beagler_run: %s", status_str))
 
   rt <- if (is.na(x$runtime_sec)) "NA" else sprintf("%.2f sec", x$runtime_sec)
-  cli::cli_text("Runtime: {rt}")
+  cli::cli_text(sprintf("Runtime: %s", rt))
 
   if (length(x$command) > 0L) {
     cli::cli_text("Command: {paste(x$command, collapse = ' ')}")

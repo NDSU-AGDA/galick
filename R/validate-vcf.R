@@ -1,6 +1,6 @@
 #' Validate a VCF file
 #'
-#' Reads a plain `.vcf` file via the tolerant internal `parse_vcf_raw()` and
+#' Reads a `.vcf` or `.vcf.gz` via the tolerant internal `parse_vcf_raw()` and
 #' reports shape, structural, and semantic issues. Always-on checks cover the VCF
 #' v4.2 essentials; `target = "beagle"` and `target = "plink"` add tool-
 #' specific stricter checks.
@@ -9,8 +9,7 @@
 #' raise immediately. Data-quality problems are returned in `$errors` /
 #' `$warnings` so the result remains inspectable.
 #'
-#' @param vcf Path to a plain `.vcf` file. `.vcf.gz` is rejected in v0.1.0
-#'   (M5 does not decompress; M7 handles BGZF).
+#' @param vcf Path to a plain, gzip or BGZF-compressed VCF.
 #' @param target `"general"`, `"beagle"`, or `"plink"`. Each adds tool-
 #'   specific checks; some codes (`vcf_no_samples`, `vcf_multiallelic`)
 #'   shift severity by target.
@@ -277,7 +276,7 @@ validate_vcf <- function(vcf,
     }
 
     format_issues <- check_format_and_gt(
-      format_field, sample_cells, n_samples, good_rows
+      format_field, sample_cells, n_samples, good_rows, alt
     )
     errors <- c(errors, format_issues$errors)
     warnings <- c(warnings, format_issues$warnings)
@@ -351,7 +350,9 @@ empty_chromosome_summary <- function() {
 #' @keywords internal
 #' @noRd
 build_chromosome_summary <- function(chrom, pos, scanned_partial) {
-  if (length(chrom) == 0L) return(empty_chromosome_summary())
+  if (length(chrom) == 0L) {
+    return(empty_chromosome_summary())
+  }
   unique_chroms <- unique(chrom)
   rows <- lapply(unique_chroms, function(ch) {
     ch_pos <- pos[chrom == ch]
@@ -404,7 +405,8 @@ check_sortedness <- function(chrom, pos, row_numbers) {
 #' separated by `/` or `|`).
 #' @keywords internal
 #' @noRd
-check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbers) {
+check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbers,
+                                alt = NULL) {
   errors <- list()
   warnings <- list()
   if (n_samples == 0L) {
@@ -450,7 +452,11 @@ check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbe
       next
     }
     gt_tokens <- vapply(cell_subfields, function(s) s[gt_idx[i]], character(1))
-    bad_gt <- !grepl(gt_token_re, gt_tokens)
+    bad_gt <- if (is.null(alt)) {
+      !grepl(gt_token_re, gt_tokens)
+    } else {
+      !vapply(gt_tokens, valid_gt_for_alt, logical(1), alt = alt[i])
+    }
     if (any(bad_gt)) {
       bad_gt_rows <- c(bad_gt_rows, row_numbers[i])
     }

@@ -168,7 +168,9 @@ as.data.frame.beagler_result <- function(x, ...) {
     combined <- cbind(combined, flat)
   } else {
     combined$where <- vapply(combined$where, function(w) {
-      if (length(w) == 0L) return("")
+      if (length(w) == 0L) {
+        return("")
+      }
       jsonlite::toJSON(w, auto_unbox = TRUE)
     }, character(1))
   }
@@ -184,17 +186,25 @@ as.data.frame.beagler_result <- function(x, ...) {
 #' @keywords internal
 #' @noRd
 flatten_where <- function(where_list) {
-  if (length(where_list) == 0L) return(NULL)
+  if (length(where_list) == 0L) {
+    return(NULL)
+  }
   all_keys <- unique(unlist(lapply(where_list, names)))
-  if (length(all_keys) == 0L) return(NULL)
+  if (length(all_keys) == 0L) {
+    return(NULL)
+  }
 
   same_keys <- vapply(where_list, function(w) setequal(names(w), all_keys), logical(1))
-  if (!all(same_keys)) return(NULL)
+  if (!all(same_keys)) {
+    return(NULL)
+  }
 
   all_scalar <- vapply(where_list, function(w) {
     all(vapply(w, function(v) length(v) == 1L && is.atomic(v), logical(1)))
   }, logical(1))
-  if (!all(all_scalar)) return(NULL)
+  if (!all(all_scalar)) {
+    return(NULL)
+  }
 
   cols <- lapply(all_keys, function(k) {
     vapply(where_list, function(w) {

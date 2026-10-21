@@ -75,7 +75,7 @@ merge_discarded_fields <- function(inputs, mode) {
 #' Give independent input phase blocks distinct integer identifiers
 #' @keywords internal
 #' @noRd
-namespace_phase_sets <- function(inputs) {
+namespace_phase_sets <- function(inputs, preserve_fields = FALSE) {
   next_id <- 0L
   for (j in seq_along(inputs)) {
     x <- inputs[[j]]
@@ -90,7 +90,18 @@ namespace_phase_sets <- function(inputs) {
       ps[phased, k] <- as.character(next_id + ids)
       next_id <- next_id + length(unique(keys))
     }
-    inputs[[j]]$format_fields <- if (any(ps != ".")) list(PS = ps) else list()
+    if (preserve_fields) {
+      if (any(ps != ".")) {
+        inputs[[j]]$format_fields$PS <- ps
+        phased_rows <- rowSums(ps != ".") > 0L
+        for (row in which(phased_rows)) {
+          fields <- strsplit(inputs[[j]]$formats[row], ":", fixed = TRUE)[[1]]
+          inputs[[j]]$formats[row] <- paste(unique(c(fields, "PS")), collapse = ":")
+        }
+      }
+    } else {
+      inputs[[j]]$format_fields <- if (any(ps != ".")) list(PS = ps) else list()
+    }
   }
   inputs
 }

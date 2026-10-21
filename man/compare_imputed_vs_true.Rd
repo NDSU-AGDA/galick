@@ -2,29 +2,35 @@
 % Please edit documentation in R/compare-imputed-vs-true.R
 \name{compare_imputed_vs_true}
 \alias{compare_imputed_vs_true}
-\title{Compare an imputed VCF to a truth VCF}
+\title{Compare imputed calls or expected dosage with verified genotypes}
 \usage{
-compare_imputed_vs_true(imputed_vcf, true_vcf, masked_vcf = NULL)
+compare_imputed_vs_true(
+  imputed_vcf,
+  true_vcf,
+  masked_vcf = NULL,
+  field = c("GT", "DS")
+)
 }
 \arguments{
 \item{imputed_vcf}{Path to the imputed VCF.}
 
-\item{true_vcf}{Path to the reference / truth VCF (typically the
-original VCF before \code{\link[=mask_genotypes]{mask_genotypes()}}).}
+\item{true_vcf}{Path to the truth VCF.}
 
-\item{masked_vcf}{Optional path to the masked VCF — if provided, only
-cells that were \code{./.} here AND non-missing in \code{true_vcf} count
-toward the comparison.}
+\item{masked_vcf}{Optional complete, allele-matched truth copy with held-out
+GT cells marked missing. Only those cells are eligible.}
+
+\item{field}{\code{"GT"} for ALT copy counts or \code{"DS"} for expected ALT dosage.
+DS never falls back to GT. Evaluation requires diploid biallelic calls.}
 }
 \value{
-A \code{beagler_result} with these in \verb{$summary}:
-\code{n_compared}, \code{n_concordant}, \code{concordance_rate}, \code{dosage_r2},
-\code{rmse}.
+A \code{beagler_result} with eligible, evaluated and missing counts,
+completion, unconditional and conditional GT concordance, RMSE,
+mean defined per-marker \code{dosage_r2}, \code{pooled_dosage_r2}, and \code{per_marker}.
+GT concordance is never obtained by rounding DS.
 }
 \description{
-Computes per-cell accuracy statistics on shared \verb{(sample, marker)}
-positions. Cells where either side is missing are excluded.
-If \code{masked_vcf} is provided, the comparison is restricted to cells that
-were missing in the masked VCF (i.e. the cells imputation actually had
-to fill in).
+Aligns records by CHROM, POS, REF and ALT without guessing allele flips.
+Missing predictions and absent output records remain in the eligible-cell
+denominator. Truth is always GT; \code{field} selects prediction values.
+Correlations are computed per marker; undefined cases are reported explicitly.
 }

@@ -1,8 +1,6 @@
 # Project conventions
 
-These conventions are pulled from `AGENTS.md` in the repository, which
-is the authoritative source. They override anything you might infer
-from older versions of the code.
+These conventions describe the package's current development practices.
 
 ## Object model
 
@@ -46,6 +44,7 @@ these specifics:
   comments. Reserve comments for the *why*: non-obvious invariants,
   workarounds for upstream bugs, cross-references to Beagle quirks.
 - Double quotes for strings.
+- The lint gate uses a 120-character line limit, including VCF fixture strings.
 
 ## Errors and warnings
 
@@ -69,14 +68,14 @@ these specifics:
 
 - roxygen2 for every function in `R/`.
 - `@export` only the user-facing API. The v0.1.0 public surface is
-  fixed at 21 exported functions.
+  currently contains 27 exported functions.
 - Runnable examples by default; use `\dontrun{}` only when an
   example genuinely requires an external tool.
 
 ## Dependencies
 
 - v0.1.0 R dependencies are CRAN-only: `cli`, `data.table`,
-  `jsonlite`, `processx`, `R.utils`, `tibble`, `vroom`, `withr`.
+  `digest`, `jsonlite`, `processx`, `tibble`, `vroom`, `withr`.
 - Adding a dependency requires a `DESCRIPTION` update and a roadmap
   note.
 - For VCF / BGZF I/O, prefer shelling out to `bcftools` / `tabix` /

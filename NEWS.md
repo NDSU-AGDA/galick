@@ -1,8 +1,47 @@
 # beagler 0.1.0
 
-First public release. 25 user-facing exports across validation,
+First public release. 27 user-facing exports across validation,
 conversion, repair, Beagle execution, dosage / hardcall extraction,
 PLINK bridge, chromosome workflows, and masked-genotype benchmarking.
+
+## Founder-conditioned simulation
+
+- `simulate_vcf()` adds dependency-free Haldane meiosis and forward breeding
+  simulation from phased founders and a supplied cM map. Diploid scenarios
+  include within-population random mating, biparental F2 and selfed lineages.
+- Random-bivalent autotetraploid inheritance is limited to outbred populations;
+  quadrivalents, double reduction, preferential pairing and allopolyploids are
+  unsupported. Polyploid Beagle/evaluation restrictions remain unchanged.
+- Bundles include complete truth/reference VCFs, unphased observed targets,
+  pedigrees, replay-checked recombination events, calibrated heterogeneous
+  missingness, controlled calling errors, LD diagnostics and hashed provenance.
+- Independent AlphaSimR 2.1.0 comparisons are archived with a reproducible
+  development script. AlphaSimR is not a runtime dependency.
+
+## Configuration evaluation
+
+- `evaluate_imputation()` compares two to four Beagle configurations using
+  paired sporadic masks or physical array thinning, separate tuning/test sample
+  partitions, a fixed run budget and shared resource settings. It selects by
+  tuning RMSE with complete predictions and group safeguards, then confirms
+  against a baseline without test-set reranking.
+- `beagler_evaluation` retains group and per-marker metrics, failure diagnostics,
+  held-out manifests, frozen selection and versioned, hashed experiment records.
+  A runnable vignette covers paired comparison and failed confirmation.
+
+## Release validation fixes
+
+- Benchmark alignment now requires compatible coordinates and REF/ALT,
+  distinguishes GT from DS, retains missing predictions in coverage counts,
+  and reports per-marker correlations with undefined cases explicitly.
+- Chromosome resume verifies a complete input/settings/runtime fingerprint,
+  output checksum and VCF validity. Legacy cache records are rerun.
+- Chromosome concatenation rejects failed or incomplete jobs, aligns sample
+  columns, reconciles headers, retains DS/GP and writes BGZF when compressed.
+- GT allele indices are checked against ALT. Reference preflight checks
+  duplicate coordinates, declared assemblies, phasing and sample overlap.
+  Plain reference VCFs are supported without a mandatory tabix index.
+- SHA-256 uses portable `digest`; the minimum supported R version is 4.1.
 
 ## Genotype export and VCF merge
 

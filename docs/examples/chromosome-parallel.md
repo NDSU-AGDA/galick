@@ -120,12 +120,12 @@ the input), call `run_beagle_by_chrom()` again with the same
 results <- run_beagle_by_chrom(vcf, out_dir, mode = "phase",
                                nthreads = 2L)
 # chr1 and chr3 reuse their previous run records (status == 0,
-# input SHA-256 matches). Only chr2 actually executes.
+# complete job fingerprint and output checksum match). Only chr2 executes.
 ```
 
-The check is twofold: existing `run_record.json` with `status == 0`
-**and** the recorded input SHA-256 still matches the current
-per-chromosome split. The hash check guards against silent edits.
+Resume requires success, a matching complete job fingerprint (inputs, reference,
+map, settings and runtime), an output checksum match and valid VCF content.
+Changing any computational input invalidates the cached chromosome.
 
 ## Merge
 
@@ -141,4 +141,6 @@ vcf_to_dosage(merged) |> dim()
 ```
 
 `merge_beagle_outputs()` accepts `.vcf` or `.vcf.gz` for the output
-extension. Pure R; no `bcftools` dependency.
+extension. Compressed output requires `bgzip`; no `bcftools` dependency.
+All expected jobs must have succeeded, with matching sample sets and compatible
+headers. Sample order is aligned and DS/GP fields are retained.

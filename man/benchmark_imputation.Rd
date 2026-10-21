@@ -10,6 +10,7 @@ benchmark_imputation(
   fraction = 0.1,
   seed = NULL,
   mode = c("impute", "phase"),
+  field = c("GT", "DS"),
   ...
 )
 }
@@ -25,6 +26,8 @@ benchmark_imputation(
 \item{mode}{Beagle mode passed to \code{\link[=run_beagle]{run_beagle()}} (\code{"impute"} or
 \code{"phase"}).}
 
+\item{field}{Prediction field to evaluate: GT counts or expected DS dosage.}
+
 \item{...}{Extra args forwarded to \code{\link[=run_beagle]{run_beagle()}} (e.g. \code{nthreads},
 \code{memory_gb}, \code{ref}, \code{map}).}
 }
@@ -33,12 +36,14 @@ A list with three elements: \code{mask} (a \code{beagler_result}),
 \code{run} (a \code{beagler_run}), and \code{comparison} (a \code{beagler_result}).
 }
 \description{
-Convenience orchestrator: copies \code{vcf} as the truth, masks a fraction
+Convenience orchestrator: treats \code{vcf} as the truth, masks a fraction
 of its non-missing GT cells with \code{\link[=mask_genotypes]{mask_genotypes()}}, runs
 \code{\link[=run_beagle]{run_beagle()}} on the masked file (phasing-only by default), and
 compares the imputed output to the truth via
 \code{\link[=compare_imputed_vs_true]{compare_imputed_vs_true()}}.
 }
 \details{
-Requires Java + Beagle (resolved internally).
+Requires Java + Beagle (resolved internally). The seed controls both
+masking and Beagle. Random-cell masking does not establish accuracy for
+population, family or array transfer. Keep truth samples out of references.
 }

@@ -63,7 +63,8 @@ read_vcf_minimal <- function(path) {
       format = character(),
       samples = samples,
       gt_matrix = matrix(
-        character(), nrow = 0L, ncol = length(samples),
+        character(),
+        nrow = 0L, ncol = length(samples),
         dimnames = list(NULL, samples)
       )
     ))

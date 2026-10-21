@@ -35,15 +35,19 @@
 #' @export
 repair_vcf <- function(vcf,
                        output_vcf,
-                       steps = c("drop_invalid_records", "filter_biallelic",
-                                 "fix_marker_ids", "remove_duplicates", "sort"),
+                       steps = c(
+                         "drop_invalid_records", "filter_biallelic",
+                         "fix_marker_ids", "remove_duplicates", "sort"
+                       ),
                        chrom_style = c("auto", "numeric", "chr_prefixed", "as_is"),
                        overwrite = FALSE) {
   the_call <- match.call()
   chrom_style <- match.arg(chrom_style)
 
-  valid_steps <- c("drop_invalid_records", "filter_biallelic",
-                   "fix_marker_ids", "remove_duplicates", "sort")
+  valid_steps <- c(
+    "drop_invalid_records", "filter_biallelic",
+    "fix_marker_ids", "remove_duplicates", "sort"
+  )
   bad_steps <- setdiff(steps, valid_steps)
   if (length(bad_steps) > 0L) {
     cli::cli_abort(
@@ -118,8 +122,10 @@ repair_vcf <- function(vcf,
           "Step '%s': %d record(s) in -> %d record(s) out (%d changed/dropped).",
           step, n_before, n_after, n_changed
         ),
-        where = list(step = step, n_changed = as.integer(n_changed),
-                     n_in = as.integer(n_before), n_out = as.integer(n_after))
+        where = list(
+          step = step, n_changed = as.integer(n_changed),
+          n_in = as.integer(n_before), n_out = as.integer(n_after)
+        )
       )
     }
   }
@@ -226,7 +232,9 @@ empty_step_summary <- function() {
 #' @keywords internal
 #' @noRd
 step_summary_tibble <- function(rows) {
-  if (length(rows) == 0L) return(empty_step_summary())
+  if (length(rows) == 0L) {
+    return(empty_step_summary())
+  }
   tibble::tibble(
     step = vapply(rows, `[[`, character(1), "step"),
     n_in = vapply(rows, `[[`, integer(1), "n_in"),
@@ -388,8 +396,7 @@ subset_record_set <- function(record_set, keep) {
 #' @keywords internal
 #' @noRd
 apply_repair_step <- function(record_set, step) {
-  switch(
-    step,
+  switch(step,
     drop_invalid_records = step_drop_invalid_records(record_set),
     filter_biallelic = step_filter_biallelic(record_set),
     fix_marker_ids = step_fix_marker_ids(record_set),
@@ -406,7 +413,9 @@ apply_repair_step <- function(record_set, step) {
 #' @noRd
 step_drop_invalid_records <- function(record_set) {
   n <- length(record_set$chrom)
-  if (n == 0L) return(list(record_set = record_set, n_changed = 0L))
+  if (n == 0L) {
+    return(list(record_set = record_set, n_changed = 0L))
+  }
 
   bad_struct <- !record_set$col_count_ok
 
@@ -488,7 +497,9 @@ step_fix_marker_ids <- function(record_set) {
 #' @noRd
 step_remove_duplicates <- function(record_set) {
   n <- length(record_set$chrom)
-  if (n == 0L) return(list(record_set = record_set, n_changed = 0L))
+  if (n == 0L) {
+    return(list(record_set = record_set, n_changed = 0L))
+  }
 
   ids <- record_set$id
   non_missing_ids <- !is.na(ids) & ids != "." & nzchar(trimws(ids))
@@ -512,7 +523,9 @@ step_remove_duplicates <- function(record_set) {
 #' @noRd
 step_sort <- function(record_set) {
   n <- length(record_set$chrom)
-  if (n == 0L) return(list(record_set = record_set, n_changed = 0L))
+  if (n == 0L) {
+    return(list(record_set = record_set, n_changed = 0L))
+  }
 
   order_idx <- order(record_set$chrom, record_set$pos)
   was_unsorted <- !identical(order_idx, seq_along(order_idx))

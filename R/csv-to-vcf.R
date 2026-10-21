@@ -38,8 +38,10 @@ csv_to_vcf <- function(csv,
                        marker_map,
                        output_vcf,
                        sample_col = NULL,
-                       encoding = c("auto", "AHB", "012", "centered",
-                                    "AABB", "VCF", "REFHET", "IUPAC"),
+                       encoding = c(
+                         "auto", "AHB", "012", "centered",
+                         "AABB", "VCF", "REFHET", "IUPAC"
+                       ),
                        ploidy = 2L,
                        chrom_style = c("auto", "numeric", "chr_prefixed", "as_is"),
                        ahb_ref = c("A", "B"),
@@ -224,7 +226,7 @@ read_marker_map_input <- function(marker_map) {
     return(marker_map)
   }
   if (is.character(marker_map) && length(marker_map) == 1L && !is.na(marker_map) &&
-      file.exists(marker_map)) {
+        file.exists(marker_map)) {
     return(as.data.frame(
       vroom::vroom(
         marker_map,

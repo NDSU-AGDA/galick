@@ -48,7 +48,8 @@ test_that("detect_genotype_encoding returns 'unknown' for empty after strip", {
   expect_equal(beagler:::detect_genotype_encoding(c(NA_character_, NA_character_)), "unknown")
   expect_equal(
     beagler:::detect_genotype_encoding(c("", ".", "--", "N"),
-                                       missing_codes = c(NA, ".", "--", "", "N")),
+      missing_codes = c(NA, ".", "--", "", "N")
+    ),
     "unknown"
   )
 })

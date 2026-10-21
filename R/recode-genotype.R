@@ -43,15 +43,14 @@ recode_to_vcf_gt <- function(x,
 
   if (any(!is_missing)) {
     to_recode <- s[!is_missing]
-    out[!is_missing] <- switch(
-      encoding,
-      AHB      = recode_ahb(to_recode, ahb_ref),
-      `012`    = recode_012(to_recode),
+    out[!is_missing] <- switch(encoding,
+      AHB = recode_ahb(to_recode, ahb_ref),
+      `012` = recode_012(to_recode),
       centered = recode_centered(to_recode),
-      AABB     = recode_aabb(to_recode, aabb_ref_homo),
-      VCF      = recode_vcf(to_recode),
-      REFHET   = recode_refhet(to_recode),
-      IUPAC    = recode_iupac(to_recode, ref = ref, alt = alt),
+      AABB = recode_aabb(to_recode, aabb_ref_homo),
+      VCF = recode_vcf(to_recode),
+      REFHET = recode_refhet(to_recode),
+      IUPAC = recode_iupac(to_recode, ref = ref, alt = alt),
       cli::cli_abort(
         "Unknown encoding: {.val {encoding}}",
         class = "beagler_error_invalid_genotype_token"
@@ -138,8 +137,8 @@ recode_iupac <- function(x, ref, alt) {
   ref <- toupper(ref)
   alt <- toupper(alt)
   if (!ref %in% c("A", "C", "G", "T") ||
-      !alt %in% c("A", "C", "G", "T") ||
-      ref == alt) {
+        !alt %in% c("A", "C", "G", "T") ||
+        ref == alt) {
     cli::cli_abort(
       "IUPAC needs distinct biallelic SNP {.arg ref}/{.arg alt} from A/C/G/T.",
       class = "beagler_error_invalid_genotype_token"

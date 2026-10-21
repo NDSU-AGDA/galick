@@ -18,7 +18,7 @@ It deliberately stays out of downstream analysis. GRMs, GWAS, mixed models, and 
 
 ## Why beagler?
 
-- 🛡️ **Strict-fail validation.** Issues are aggregated into one inspectable `beagler_result`; no partial output ever lands. Programmer mistakes raise immediately, data issues come back as `$errors` you can inspect.
+- 🛡️ **Inspectable validation.** Issues are aggregated into a `beagler_result`. Programmer mistakes raise immediately; data issues come back as `$errors`. Repairs report record removals explicitly.
 - 📜 **Real audit trail.** Every Beagle run emits a v1.0.0 JSON record with input/output SHA-256s, the full argv, and tool versions — what regulatory and IP-conscious breeding programs actually need.
 - 🔁 **Resumable chromosome workflows.** When chromosome 7 fails three hours into a million-marker run, only chromosome 7 re-runs. Hash-checked resume guards against silent data churn.
 - 🧬 **Honest with the format.** Seven encodings (`AHB`, `012`, `centered`, `AABB`, `VCF`, `REFHET`, `IUPAC`), TASSEL HapMap support with proper IUPAC decoding, BGZF input, chromosome-style normalization (`chr1` ↔ `1`).
@@ -33,7 +33,7 @@ pak::pak("DidierMurilloF/beagleR")
 remotes::install_github("DidierMurilloF/beagleR")
 ```
 
-You'll also need Java ≥ 8 and the Beagle JAR. Fastest setup:
+R >= 4.1 is required. You'll also need Java ≥ 8 and the Beagle JAR. Fastest setup:
 
 ```r
 library(beagler)
@@ -59,17 +59,24 @@ csv_to_vcf(
 
 # 2. Validate against Beagle's requirements; repair if needed
 v <- validate_vcf("data.vcf", target = "beagle")
-if (!v$ok) repair_vcf("data.vcf", "data.clean.vcf")
+input_vcf <- "data.vcf"
+if (!v$ok) {
+  repaired <- repair_vcf(input_vcf, "data.clean.vcf")
+  stopifnot(repaired$ok)
+  input_vcf <- repaired$summary$output_path
+  stopifnot(validate_vcf(input_vcf, target = "beagle")$ok)
+}
 
 # 3. Run Beagle (Java + JAR auto-discovered)
 run <- run_beagle(
-  gt       = "data.clean.vcf",
+  gt       = input_vcf,
   out      = "imputed",
   mode     = "impute",
   nthreads = 4L
 )
 
 # 4. Pull results back into R
+stopifnot(run$status == 0L)
 dosage <- vcf_to_dosage("imputed.vcf.gz")
 hard   <- vcf_to_hardcalls("imputed.vcf.gz", encoding = "012")
 ```
@@ -95,6 +102,9 @@ workflows:
 
 ```r
 # Lossless export keeps phase and arbitrary ploidy
+export_genotypes("calls.vcf", "calls.export.vcf", format = "vcf")
+
+# HapMap cannot retain arbitrary ploidy or phase; losses are reported
 export_genotypes("calls.vcf", "calls.hmp.txt", format = "hapmap")
 
 # Merge the same marker set across different samples
@@ -106,7 +116,7 @@ merge_vcf(
 )
 ```
 
-25 user-facing functions:
+27 user-facing functions:
 
 | Area | Functions |
 |---|---|
@@ -120,9 +130,24 @@ merge_vcf(
 | **Chromosome workflows** | `split_vcf_by_chrom()` · `run_beagle_by_chrom()` · `merge_beagle_outputs()` |
 | **PLINK bridge** | `vcf_to_plink()` · `plink_to_vcf()` |
 | **Reports** | `imputation_report()` |
-| **Benchmarking** | `mask_genotypes()` · `compare_imputed_vs_true()` · `benchmark_imputation()` |
+| **Benchmarking** | `mask_genotypes()` · `compare_imputed_vs_true()` · `benchmark_imputation()` · `evaluate_imputation()` |
+| **Simulation** | `simulate_vcf()` |
 
 ## Documentation
+
+`simulate_vcf()` creates founder-conditioned linked genotypes, complete truth
+and references, observed targets, pedigree and diagnostics. It uses a supplied
+phased founder VCF and cM map, with no new runtime dependencies. Diploid outbred,
+F2 and selfed scenarios are supported; tetraploid support is restricted to
+random-bivalent outbred inheritance, not polyploid Beagle imputation.
+See `vignette("simulate-vcf", package = "beagler")`.
+
+`evaluate_imputation()` compares two to four Beagle configurations using paired
+held-out calls or an actual marker panel. Tuning samples select a configuration;
+separate test samples confirm it against a baseline. Results include completion,
+RMSE, group diagnostics, per-marker metrics and hashed experiment records.
+It reports no recommendation when predictions are incomplete, candidates tie,
+or confirmation fails. See `vignette("evaluate-imputation", package = "beagler")`.
 
 📖 **<https://didiermurillof.github.io/beagleR/>**
 
@@ -145,7 +170,7 @@ https://github.com/DidierMurilloF/beagleR
 
 ## Status
 
-beagler is at **v0.1.0**, the first public release. The 21 exported functions and the two S3 classes (`beagler_result`, `beagler_run`) are stable for v0.1.x; breaking changes target v0.2.0 and will land via a deprecation cycle.
+beagler is at **v0.1.0**, the first public release. The 27 exported functions and S3 result classes form the v0.1.x public API. Please validate the workflow on representative data before production use.
 
 Bug reports and feature requests are very welcome — please open an [issue on GitHub](https://github.com/DidierMurilloF/beagleR/issues) with a reproducible example.
 

@@ -43,7 +43,7 @@ and returns one \code{beagler_run} per chromosome.
 }
 \details{
 Resume logic: if a per-chromosome \verb{run_dir/<chrom>/run_record.json}
-reports \code{status == 0} and the recorded input SHA-256 matches the
-current per-chromosome \code{gt}, the chromosome is skipped and the
-previous result is returned.
+reports success, its input, reference, map, runtime and settings fingerprint
+matches, and the output checksum and VCF validation succeed, the previous
+result is returned. Older records without a fingerprint are rerun.
 }

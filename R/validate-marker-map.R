@@ -29,8 +29,10 @@ validate_marker_map <- function(map,
                                 genotype_table = NULL,
                                 marker_ids = NULL,
                                 require_alleles = FALSE,
-                                chrom_style = c("auto", "numeric",
-                                                "chr_prefixed", "as_is")) {
+                                chrom_style = c(
+                                  "auto", "numeric",
+                                  "chr_prefixed", "as_is"
+                                )) {
   the_call <- match.call()
   chrom_style <- match.arg(chrom_style)
 
