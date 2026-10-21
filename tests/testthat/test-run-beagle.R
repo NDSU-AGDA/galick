@@ -87,7 +87,7 @@ test_that("run_beagle accepts gt of .vcf.gz", {
   expect_s3_class(result, "beagler_run")
 })
 
-test_that("run_beagle rejects ref that is not .vcf.gz", {
+test_that("run_beagle rejects an empty reference VCF", {
   skip_if_no_java()
   skip_if_no_beagle()
   gt <- withr::local_tempfile(fileext = ".vcf")

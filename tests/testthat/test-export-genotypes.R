@@ -50,10 +50,14 @@ test_that("VCF export preserves GT semantics, metadata, and valid positions", {
 
   parsed <- beagler:::read_genotype_vcf(output)
   expect_equal(parsed$fixed$ID, c("rs1", "rs2"))
-  expect_equal(unname(parsed$gt[parsed$fixed$ID == "rs1", ]),
-               c("0/0/1/1", "1|0|.|1"))
-  expect_equal(unname(parsed$gt[parsed$fixed$ID == "rs2", ]),
-               c("0|.", "1|0"))
+  expect_equal(
+    unname(parsed$gt[parsed$fixed$ID == "rs1", ]),
+    c("0/0/1/1", "1|0|.|1")
+  )
+  expect_equal(
+    unname(parsed$gt[parsed$fixed$ID == "rs2", ]),
+    c("0|.", "1|0")
+  )
 })
 
 test_that("diploid formats refuse polyploid GT; counts retain all copies", {

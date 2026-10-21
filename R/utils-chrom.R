@@ -15,18 +15,28 @@ NULL
 chrom_style <- function(x) {
   s <- unique(as.character(x))
   s <- s[!is.na(s) & nzchar(s)]
-  if (length(s) == 0L) return("unknown")
+  if (length(s) == 0L) {
+    return("unknown")
+  }
 
   is_chr <- grepl("^chr[0-9A-Za-z]+$", s, ignore.case = TRUE)
   is_num <- grepl("^[0-9]+$", s) & !is_chr
   is_let <- grepl("^[A-Za-z]+$", s) & !is_chr
 
   recognized <- is_chr | is_num | is_let
-  if (!all(recognized)) return("unknown")
+  if (!all(recognized)) {
+    return("unknown")
+  }
 
-  if (all(is_chr)) return("chr_prefixed")
-  if (all(is_num)) return("numeric")
-  if (all(is_let)) return("letter")
+  if (all(is_chr)) {
+    return("chr_prefixed")
+  }
+  if (all(is_num)) {
+    return("numeric")
+  }
+  if (all(is_let)) {
+    return("letter")
+  }
 
   "mixed"
 }
@@ -48,7 +58,9 @@ detect_chrom_style <- function(x) chrom_style(x)
 normalize_chrom_label <- function(x, target = c("numeric", "chr_prefixed", "as_is")) {
   target <- match.arg(target)
   s <- as.character(x)
-  if (target == "as_is") return(s)
+  if (target == "as_is") {
+    return(s)
+  }
 
   na_mask <- is.na(s)
   stripped <- sub("^[Cc][Hh][Rr]", "", s)

@@ -25,8 +25,10 @@
 #' @export
 validate_genotype_table <- function(data,
                                     sample_col = NULL,
-                                    encoding = c("auto", "AHB", "012", "centered",
-                                                 "AABB", "VCF", "REFHET", "IUPAC"),
+                                    encoding = c(
+                                      "auto", "AHB", "012", "centered",
+                                      "AABB", "VCF", "REFHET", "IUPAC"
+                                    ),
                                     ploidy = 2L,
                                     missing_codes = c(NA, ".", "--", "", "N", "NN", "./.")) {
   the_call <- match.call()
@@ -149,7 +151,11 @@ resolve_sample_col <- function(data, sample_col, missing_codes) {
       cli::cli_abort(
         c(
           "Could not auto-detect a sample-id column.",
-          i = "Pass {.arg sample_col} explicitly. Auto-detection requires a character/factor column with no missing values, 100% unique entries, and tokens that do not look like a genotype encoding."
+          i = paste0(
+            "Pass {.arg sample_col} explicitly. Auto-detection requires a ",
+            "character/factor column with no missing values, 100% unique ",
+            "entries, and tokens that do not look like a genotype encoding."
+          )
         ),
         class = "beagler_error_invalid_sample_col"
       )
@@ -227,7 +233,7 @@ determine_encoding_auto <- function(marker_data, missing_codes, errors) {
 #' @keywords internal
 #' @noRd
 determine_encoding_user <- function(marker_data, encoding, missing_codes, errors) {
-  alphabet <- ENCODING_ALPHABETS[[encoding]]
+  alphabet <- encoding_alphabets[[encoding]]
   all_tokens <- unlist(lapply(marker_data, as.character), use.names = FALSE)
   observed <- normalize_observed_tokens(all_tokens, missing_codes)
   out_of_alphabet <- setdiff(observed, alphabet)

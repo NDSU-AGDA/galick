@@ -10,13 +10,19 @@ make_fake_run <- function(run_dir = NULL) {
   rec_path <- beagler:::write_run_record_json(
     run_dir = run_dir,
     command = c("/usr/bin/java", "-jar", "beagle.jar", "gt=in.vcf", "out=out"),
-    versions = list(beagler = "0.1.0", r = "4.5.3", os = "darwin",
-                    beagle = "5.4", java = "17"),
+    versions = list(
+      beagler = "0.1.0", r = "4.5.3", os = "darwin",
+      beagle = "5.4", java = "17"
+    ),
     args = list(gt = "in.vcf", out = "out", mode = "phase"),
-    inputs = list(list(path = "in.vcf",
-                       sha256 = paste0(rep("a", 64), collapse = ""))),
-    outputs = list(list(path = "out.vcf.gz",
-                        sha256 = paste0(rep("b", 64), collapse = ""))),
+    inputs = list(list(
+      path = "in.vcf",
+      sha256 = paste0(rep("a", 64), collapse = "")
+    )),
+    outputs = list(list(
+      path = "out.vcf.gz",
+      sha256 = paste0(rep("b", 64), collapse = "")
+    )),
     runtime_sec = 12.3,
     status = 0L,
     started_at = "2026-04-28T15:00:00Z",
@@ -27,8 +33,10 @@ make_fake_run <- function(run_dir = NULL) {
     status = 0L,
     runtime_sec = 12.3,
     command = c("/usr/bin/java", "-jar", "beagle.jar", "gt=in.vcf", "out=out"),
-    version = list(beagler = "0.1.0", r = "4.5.3", os = "darwin",
-                   beagle = "5.4", java = "17"),
+    version = list(
+      beagler = "0.1.0", r = "4.5.3", os = "darwin",
+      beagle = "5.4", java = "17"
+    ),
     output_paths = "out.vcf.gz",
     stdout_log = stdout_log,
     stderr_log = stderr_log,

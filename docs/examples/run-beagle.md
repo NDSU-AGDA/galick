@@ -102,7 +102,7 @@ To impute against a reference panel, pass `ref = `:
 run_beagle(
   gt = "panel.vcf.gz",
   out = "imputed",
-  ref = "ref.vcf.gz",          # must have ref.vcf.gz.tbi sibling
+  ref = "ref.vcf.gz",          # complete, phased reference calls
   map = "genetic_map.txt",     # PLINK genetic map (cM)
   mode = "impute",
   nthreads = 8L,

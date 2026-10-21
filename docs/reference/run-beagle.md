@@ -30,8 +30,9 @@ Beagle exits non-zero — call `print(run)` to see the captured stderr.
 - `gt` — plain `.vcf` or `.vcf.gz` target genotype file.
 - `out` — output **prefix** (no `.vcf` / `.vcf.gz` suffix).
   Beagle writes `<out>.vcf.gz`.
-- `ref` *(optional)* — `.vcf.gz` reference panel **with** a sibling
-  `.tbi` index. Beagle requires tabix-indexed BGZF reference panels.
+- `ref` *(optional)* — `.vcf` or `.vcf.gz` reference panel; no index is
+  required. Calls must be complete, phased and diploid. Sample IDs must
+  not overlap the target, and shared variant alleles must match.
 - `map` *(optional)* — PLINK-format genetic map (cM positions).
 
 ### Pre-flight
@@ -55,14 +56,14 @@ run_beagle(
 
 ### `extra_args`
 
-Passed verbatim **after** the package's own arguments, so users can
-override defaults:
+Unique `key=value` strings for additional Beagle options. Typed arguments
+(`gt`, `out`, `ref`, `map`, `nthreads`, `seed`, `impute`) cannot be overridden:
 
 ```r
 run_beagle(gt, out, extra_args = c("burnin=10", "iterations=20"))
 ```
 
-No validation; the caller is responsible.
+Beagle validates option names and values beyond those typed arguments.
 
 ### What gets captured
 
@@ -72,8 +73,9 @@ Inside `run_dir` (auto-created if `NULL`):
 - `run_record.json` — v1.0.0 audit JSON with command, versions,
   args, runtime, status, and SHA-256 hashes of inputs and outputs.
 
-The `beagler_run$output_paths` slot lists files Beagle actually
-wrote (`<out>.vcf.gz`, plus `.log` if you keep one).
+The `beagler_run$output_paths` slot lists the validated `<out>.vcf.gz`.
+Failed runs have no successful output path. On a failed overwrite the previous
+VCF and indexes are restored; a stale file cannot satisfy post-flight checks.
 
 ### Indexing
 

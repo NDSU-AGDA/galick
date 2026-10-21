@@ -49,7 +49,7 @@ write_vcf_v4_2 <- function(output_path,
 
   n_markers <- length(chrom)
   if (length(pos) != n_markers || length(id) != n_markers ||
-      length(ref) != n_markers || length(alt) != n_markers) {
+        length(ref) != n_markers || length(alt) != n_markers) {
     cli::cli_abort(
       "Marker metadata vectors must all have the same length.",
       class = "beagler_error_invalid_argument"

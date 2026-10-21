@@ -27,10 +27,9 @@ The output path, invisibly.
 \description{
 Takes a list of \code{beagler_run} objects (typically the output of
 \code{\link[=run_beagle_by_chrom]{run_beagle_by_chrom()}}) and concatenates their VCF outputs into
-\code{output_vcf}. Header is taken from the first non-empty input;
-subsequent inputs contribute body rows only.
+\code{output_vcf}. All supplied runs must have succeeded. Sample columns are
+aligned by name, compatible headers are combined, and FORMAT fields retained.
 }
 \details{
-Pure R (uses \code{gzfile()} for \code{.vcf.gz} IO). A \verb{bcftools concat}
-fast path can be added in v0.2.x.
+Compressed output requires \code{bgzip} and is BGZF, not ordinary gzip.
 }

@@ -90,7 +90,8 @@ fit the chosen alphabet:
 
 ```{r}
 result <- csv_to_vcf(csv_path, map_path, tempfile(fileext = ".vcf"),
-                    encoding = "AHB")
+  encoding = "AHB"
+)
 result$ok
 ```
 

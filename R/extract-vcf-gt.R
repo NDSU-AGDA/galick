@@ -1,3 +1,19 @@
+#' Read verified GT-only marker metadata and a call matrix
+#' @keywords internal
+#' @noRd
+read_genotype_records <- function(path) {
+  x <- read_genotype_vcf(path)
+  assert_resolvable_genotypes(x)
+  list(
+    metadata = data.frame(
+      chrom = x$fixed$CHROM, pos = x$fixed$POS, id = x$fixed$ID,
+      ref = x$fixed$REF, alt = x$fixed$ALT, stringsAsFactors = FALSE
+    ),
+    samples = x$samples,
+    gt_matrix = x$gt
+  )
+}
+
 #' Extract GT-only marker metadata + matrix from a parsed VCF (internal)
 #'
 #' Used by `vcf_to_dosage()`, `vcf_to_hardcalls()`, and other read-back
@@ -83,10 +99,12 @@ extract_vcf_records <- function(parsed) {
 marker_names_from_metadata <- function(metadata) {
   ifelse(
     is.na(metadata$id) | metadata$id == "." | !nzchar(trimws(metadata$id)),
-    sprintf("%s_%s_%s_%s",
-            metadata$chrom,
-            format(metadata$pos, scientific = FALSE, trim = TRUE),
-            metadata$ref, metadata$alt),
+    sprintf(
+      "%s_%s_%s_%s",
+      metadata$chrom,
+      format(metadata$pos, scientific = FALSE, trim = TRUE),
+      metadata$ref, metadata$alt
+    ),
     metadata$id
   )
 }
@@ -101,11 +119,17 @@ marker_names_from_metadata <- function(metadata) {
 #' @keywords internal
 #' @noRd
 gt_to_dosage <- function(gt) {
-  if (is.na(gt) || !nzchar(gt)) return(NA_real_)
+  if (is.na(gt) || !nzchar(gt)) {
+    return(NA_real_)
+  }
   alleles <- strsplit(gt, "[/|]")[[1]]
-  if (any(alleles == ".")) return(NA_real_)
+  if (any(alleles == ".")) {
+    return(NA_real_)
+  }
   als <- suppressWarnings(as.integer(alleles))
-  if (any(is.na(als))) return(NA_real_)
+  if (any(is.na(als))) {
+    return(NA_real_)
+  }
   as.numeric(sum(als > 0L))
 }
 
@@ -114,10 +138,11 @@ gt_to_dosage <- function(gt) {
 #' @noRd
 gt_to_hardcall <- function(gt, encoding) {
   d <- gt_to_dosage(gt)
-  if (is.na(d)) return(NA_character_)
+  if (is.na(d)) {
+    return(NA_character_)
+  }
   d <- as.integer(d)
-  switch(
-    encoding,
+  switch(encoding,
     `012` = as.character(d),
     AHB = c("A", "H", "B")[d + 1L],
     AABB = c("AA", "AB", "BB")[d + 1L],

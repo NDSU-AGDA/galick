@@ -59,9 +59,19 @@ split_vcf_by_chrom <- function(vcf, out_dir,
   body_col_ok <- parsed$body_col_counts == n_expected
 
   keepable <- !is.na(body_chroms) & body_col_ok
+  if (any(!keepable)) {
+    cli::cli_abort("Malformed VCF records cannot be silently omitted during splitting.",
+      class = "beagler_error_split_vcf_invalid_input"
+    )
+  }
   unique_chroms <- unique(body_chroms[keepable])
   if (!is.null(chrom_filter)) {
     unique_chroms <- intersect(unique_chroms, chrom_filter)
+  }
+  if (anyDuplicated(vapply(unique_chroms, safe_chrom_filename, character(1)))) {
+    cli::cli_abort("Chromosome names collide after filename sanitization.",
+      class = "beagler_error_split_vcf_invalid_input"
+    )
   }
 
   paths <- character(length(unique_chroms))
@@ -91,9 +101,9 @@ split_vcf_by_chrom <- function(vcf, out_dir,
 #' and returns one `beagler_run` per chromosome.
 #'
 #' Resume logic: if a per-chromosome `run_dir/<chrom>/run_record.json`
-#' reports `status == 0` and the recorded input SHA-256 matches the
-#' current per-chromosome `gt`, the chromosome is skipped and the
-#' previous result is returned.
+#' reports success, its input, reference, map, runtime and settings fingerprint
+#' matches, and the output checksum and VCF validation succeed, the previous
+#' result is returned. Older records without a fingerprint are rerun.
 #'
 #' @param gt Path to the target VCF.
 #' @param out_dir Top-level output directory; per-chromosome subdirs are
@@ -118,6 +128,14 @@ run_beagle_by_chrom <- function(gt,
                                 workers = 1L,
                                 ...) {
   parallel <- match.arg(parallel)
+  options <- list(...)
+  if (length(options) && (is.null(names(options)) || any(!nzchar(names(options))) ||
+                            anyDuplicated(names(options)) ||
+                            any(names(options) %in% c("gt", "out", "ref", "map", "run_dir", "overwrite")))) {
+    cli::cli_abort("Extra run options must be uniquely named, non-reserved arguments.",
+      class = "beagler_error_run_beagle_by_chrom_invalid_input"
+    )
+  }
 
   if (length(gt) != 1L || !is.character(gt) || is.na(gt) || !file.exists(gt)) {
     cli::cli_abort(
@@ -155,8 +173,17 @@ run_beagle_by_chrom <- function(gt,
     }
     out_prefix <- file.path(chrom_run_dir, "imputed")
 
-    cached <- try_resume_chrom_run(chrom_gt, chrom_run_dir, out_prefix)
-    if (!is.null(cached)) return(cached)
+    job <- do.call(
+      prepare_beagle_job,
+      c(list(gt = chrom_gt, out = out_prefix, ref = ref, map = map), options)
+    )
+    cached <- try_resume_chrom_run(
+      chrom_gt, chrom_run_dir, out_prefix,
+      job$fingerprint
+    )
+    if (!is.null(cached)) {
+      return(cached)
+    }
 
     run_beagle(
       gt = chrom_gt,
@@ -183,18 +210,17 @@ run_beagle_by_chrom <- function(gt,
     lapply(chroms, run_one)
   }
 
-  stats::setNames(results, chroms)
+  structure(results, names = chroms, expected_chromosomes = chroms)
 }
 
 #' Merge per-chromosome Beagle outputs into a single VCF
 #'
 #' Takes a list of `beagler_run` objects (typically the output of
 #' [run_beagle_by_chrom()]) and concatenates their VCF outputs into
-#' `output_vcf`. Header is taken from the first non-empty input;
-#' subsequent inputs contribute body rows only.
+#' `output_vcf`. All supplied runs must have succeeded. Sample columns are
+#' aligned by name, compatible headers are combined, and FORMAT fields retained.
 #'
-#' Pure R (uses `gzfile()` for `.vcf.gz` IO). A `bcftools concat`
-#' fast path can be added in v0.2.x.
+#' Compressed output requires `bgzip` and is BGZF, not ordinary gzip.
 #'
 #' @param run_results A named list of `beagler_run` objects.
 #' @param output_vcf Path to the merged VCF (`.vcf` or `.vcf.gz`).
@@ -231,41 +257,77 @@ merge_beagle_outputs <- function(run_results, output_vcf,
     )
   }
 
-  paths <- unlist(lapply(run_results, function(r) {
-    if (!inherits(r, "beagler_run")) {
+  paths <- vapply(run_results, function(r) {
+    if (!inherits(r, "beagler_run") || !identical(r$status, 0L) ||
+          length(r$output_paths) != 1L || is.na(r$output_paths) ||
+          !file.exists(r$output_paths)) {
       cli::cli_abort(
-        "Each element of {.arg run_results} must be a {.cls beagler_run}.",
+        "Every expected run must have succeeded and have one existing VCF output.",
         class = "beagler_error_merge_beagle_invalid_input"
       )
     }
     r$output_paths
-  }), use.names = FALSE)
-
-  paths <- paths[file.exists(paths)]
-  if (length(paths) == 0L) {
-    cli::cli_abort(
-      "None of the {.cls beagler_run} objects has an existing output file.",
+  }, character(1), USE.NAMES = FALSE)
+  for (path in paths) {
+    checked <- validate_vcf(path)
+    if (!checked$ok || checked$summary$n_records < 1L) {
+      cli::cli_abort("Every chromosome output must contain valid VCF records.",
+        class = "beagler_error_merge_beagle_invalid_input"
+      )
+    }
+  }
+  inputs <- lapply(paths, read_genotype_vcf)
+  expected <- attr(run_results, "expected_chromosomes")
+  observed <- lapply(inputs, function(x) unique(x$fixed$CHROM))
+  if (any(lengths(observed) != 1L) || anyDuplicated(unlist(observed)) ||
+        (!is.null(expected) && !setequal(expected, unlist(observed)))) {
+    cli::cli_abort("Chromosome outputs must cover the expected disjoint chromosomes.",
       class = "beagler_error_merge_beagle_invalid_input"
     )
   }
-
-  first_lines <- read_vcf_lines(paths[1])
-  output_lines <- first_lines
-  if (length(paths) > 1L) {
-    for (p in paths[-1]) {
-      lines <- read_vcf_lines(p)
-      body_only <- lines[!startsWith(lines, "#") & nzchar(lines)]
-      output_lines <- c(output_lines, body_only)
-    }
+  samples <- inputs[[1]]$samples
+  if (any(!vapply(inputs, function(x) setequal(x$samples, samples), logical(1)))) {
+    cli::cli_abort("Chromosome outputs must contain the same samples.",
+      class = "beagler_error_merge_beagle_invalid_input"
+    )
   }
-
-  if (grepl("\\.vcf\\.gz$", output_vcf, ignore.case = TRUE)) {
-    con <- gzfile(output_vcf, "wt")
-    on.exit(close(con), add = TRUE)
-    writeLines(output_lines, con)
-  } else {
-    writeLines(output_lines, output_vcf)
+  for (i in seq_along(inputs)) {
+    assert_resolvable_genotypes(inputs[[i]])
+    index <- match(samples, inputs[[i]]$samples)
+    inputs[[i]]$gt <- inputs[[i]]$gt[, index, drop = FALSE]
+    inputs[[i]]$format_fields <- lapply(
+      inputs[[i]]$format_fields,
+      function(field) field[, index, drop = FALSE]
+    )
+    inputs[[i]]$samples <- samples
   }
+  meta <- merge_vcf_metadata(inputs)
+  inputs <- namespace_phase_sets(inputs, preserve_fields = TRUE)
+  fields <- unique(unlist(lapply(inputs, function(x) names(x$format_fields))))
+  values <- lapply(fields, function(field) {
+    do.call(rbind, lapply(inputs, function(x) {
+      if (is.null(x$format_fields[[field]])) {
+        matrix(".", nrow(x$gt), ncol(x$gt))
+      } else {
+        x$format_fields[[field]]
+      }
+    }))
+  })
+  names(values) <- fields
+  combined <- new_genotype_vcf(
+    data.table::rbindlist(lapply(inputs, `[[`, "fixed")),
+    do.call(rbind, lapply(inputs, `[[`, "gt")), samples, meta,
+    format_fields = values
+  )
+  combined$formats <- unlist(lapply(inputs, `[[`, "formats"), use.names = FALSE)
+  if ("PS" %in% fields) {
+    combined$meta <- combined$meta[!grepl("^##FORMAT=<ID=PS[,>]", combined$meta)]
+    combined$meta <- c(
+      combined$meta,
+      '##FORMAT=<ID=PS,Number=1,Type=Integer,Description="Input-specific phase set">'
+    )
+  }
+  write_genotype_vcf(combined, output_vcf, overwrite)
   invisible(output_vcf)
 }
 
@@ -284,35 +346,59 @@ safe_chrom_filename <- function(ch) {
 #'
 #' @keywords internal
 #' @noRd
-try_resume_chrom_run <- function(chrom_gt, run_dir, out_prefix) {
-  rec_path <- file.path(run_dir, "run_record.json")
-  out_path <- paste0(out_prefix, ".vcf.gz")
-  if (!file.exists(rec_path) || !file.exists(out_path)) {
-    return(NULL)
-  }
-  rec <- tryCatch(
-    jsonlite::fromJSON(rec_path, simplifyVector = FALSE),
-    error = function(e) NULL
-  )
-  if (is.null(rec) || is.null(rec$status) || rec$status != 0L) {
-    return(NULL)
-  }
-  expected_sha <- unname(tools::sha256sum(chrom_gt))
-  recorded_sha <- if (length(rec$inputs) > 0L) rec$inputs[[1]]$sha256 else NULL
-  if (is.null(recorded_sha) || recorded_sha != expected_sha) {
-    return(NULL)
-  }
+try_resume_chrom_run <- function(chrom_gt, run_dir, out_prefix,
+                                 expected_fingerprint = NULL) {
+  tryCatch(
+    {
+      rec_path <- file.path(run_dir, "run_record.json")
+      out_path <- paste0(out_prefix, ".vcf.gz")
+      if (!file.exists(rec_path) || !file.exists(out_path)) {
+        return(NULL)
+      }
+      rec <- tryCatch(
+        jsonlite::fromJSON(rec_path, simplifyVector = FALSE),
+        error = function(e) NULL
+      )
+      if (is.null(rec) || !identical(rec$status, 0L) && !identical(rec$status, 0)) {
+        return(NULL)
+      }
+      rec$command <- as.character(unlist(rec$command, use.names = FALSE))
+      validate_run_record(rec)
+      if (is.null(expected_fingerprint) ||
+            !identical(rec$args$job_fingerprint, expected_fingerprint)) {
+        return(NULL)
+      }
+      expected_sha <- file_sha256(chrom_gt)
+      recorded_sha <- if (length(rec$inputs) > 0L) rec$inputs[[1]]$sha256 else NULL
+      if (is.null(recorded_sha) || recorded_sha != expected_sha) {
+        return(NULL)
+      }
+      if (length(rec$outputs) != 1L ||
+        !identical(
+          normalize_path_safe(rec$outputs[[1]]$path, must_exist = TRUE),
+          normalize_path_safe(out_path, must_exist = TRUE)
+        ) ||
+        !identical(rec$outputs[[1]]$sha256, file_sha256(out_path))) {
+        return(NULL)
+      }
+      valid <- tryCatch(validate_vcf(out_path, target = "beagle"), error = function(e) NULL)
+      if (is.null(valid) || !valid$ok || valid$summary$n_records < 1L) {
+        return(NULL)
+      }
 
-  versions <- if (is.null(rec$versions)) list() else rec$versions
-  command <- if (is.null(rec$command)) character() else as.character(unlist(rec$command))
-  new_beagler_run(
-    status = 0L,
-    runtime_sec = if (is.null(rec$runtime_sec)) NA_real_ else as.numeric(rec$runtime_sec),
-    command = command,
-    version = versions,
-    output_paths = out_path,
-    stdout_log = file.path(run_dir, "stdout.log"),
-    stderr_log = file.path(run_dir, "stderr.log"),
-    run_record = rec_path
+      versions <- if (is.null(rec$versions)) list() else rec$versions
+      command <- if (is.null(rec$command)) character() else as.character(unlist(rec$command))
+      new_beagler_run(
+        status = 0L,
+        runtime_sec = if (is.null(rec$runtime_sec)) NA_real_ else as.numeric(rec$runtime_sec),
+        command = command,
+        version = versions,
+        output_paths = out_path,
+        stdout_log = file.path(run_dir, "stdout.log"),
+        stderr_log = file.path(run_dir, "stderr.log"),
+        run_record = rec_path
+      )
+    },
+    error = function(e) NULL
   )
 }

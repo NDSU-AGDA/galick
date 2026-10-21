@@ -263,13 +263,16 @@ test_that("repair_vcf end-to-end on inst/extdata/tiny_dirty.vcf passes validate_
   output <- withr::local_tempfile(fileext = ".vcf")
   result <- repair_vcf(dirty, output)
 
-  expect_true(result$ok, info = paste("repair_vcf errors:",
-                                      paste(result$errors$code, collapse = ", ")))
+  expect_true(result$ok, info = paste(
+    "repair_vcf errors:",
+    paste(result$errors$code, collapse = ", ")
+  ))
   expect_true(file.exists(output))
 
   v <- validate_vcf(output, target = "beagle")
   expect_equal(nrow(v$errors), 0L,
-               info = paste(v$errors$code, collapse = ", "))
+    info = paste(v$errors$code, collapse = ", ")
+  )
 })
 
 test_that("repair_vcf step_summary tibble has one row per step", {
@@ -279,7 +282,9 @@ test_that("repair_vcf step_summary tibble has one row per step", {
   expect_equal(nrow(result$summary$step_summary), 5L)
   expect_setequal(
     result$summary$step_summary$step,
-    c("drop_invalid_records", "filter_biallelic",
-      "fix_marker_ids", "remove_duplicates", "sort")
+    c(
+      "drop_invalid_records", "filter_biallelic",
+      "fix_marker_ids", "remove_duplicates", "sort"
+    )
   )
 })

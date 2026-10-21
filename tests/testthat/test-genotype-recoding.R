@@ -2,18 +2,24 @@
 # recode_to_vcf_gt() is a real implementation.
 
 test_that("recode_to_vcf_gt maps 012 encoding", {
-  expect_equal(beagler:::recode_to_vcf_gt(c(0L, 1L, 2L), encoding = "012"),
-               c("0/0", "0/1", "1/1"))
+  expect_equal(
+    beagler:::recode_to_vcf_gt(c(0L, 1L, 2L), encoding = "012"),
+    c("0/0", "0/1", "1/1")
+  )
 })
 
 test_that("recode_to_vcf_gt maps centered encoding", {
-  expect_equal(beagler:::recode_to_vcf_gt(c(-1L, 0L, 1L), encoding = "centered"),
-               c("0/0", "0/1", "1/1"))
+  expect_equal(
+    beagler:::recode_to_vcf_gt(c(-1L, 0L, 1L), encoding = "centered"),
+    c("0/0", "0/1", "1/1")
+  )
 })
 
 test_that("recode_to_vcf_gt maps AHB with default ahb_ref = 'A'", {
-  expect_equal(beagler:::recode_to_vcf_gt(c("A", "H", "B"), encoding = "AHB"),
-               c("0/0", "0/1", "1/1"))
+  expect_equal(
+    beagler:::recode_to_vcf_gt(c("A", "H", "B"), encoding = "AHB"),
+    c("0/0", "0/1", "1/1")
+  )
 })
 
 test_that("recode_to_vcf_gt swaps AHB when ahb_ref = 'B'", {

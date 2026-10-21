@@ -72,7 +72,7 @@ test_that("csv_to_vcf reports unmappable markers as a $errors and writes nothing
 
 test_that("csv_to_vcf reports invalid alleles and writes nothing", {
   bad_map <- make_map_data()
-  bad_map$ref[1] <- "AT"  # not A/C/G/T
+  bad_map$ref[1] <- "AT" # not A/C/G/T
   out <- withr::local_tempfile(fileext = ".vcf")
   result <- csv_to_vcf(make_csv_data(), bad_map, out)
 
@@ -108,9 +108,9 @@ test_that("csv_to_vcf overwrites when overwrite = TRUE", {
 
 test_that("csv_to_vcf aggregates upstream errors from M2 and M3 (no write)", {
   bad_csv <- make_csv_data()
-  bad_csv$sample_id <- c("s1", "s1", "s2")  # duplicate sample
+  bad_csv$sample_id <- c("s1", "s1", "s2") # duplicate sample
   bad_map <- make_map_data()
-  bad_map$pos[1] <- -1  # invalid pos
+  bad_map$pos[1] <- -1 # invalid pos
 
   out <- withr::local_tempfile(fileext = ".vcf")
   result <- csv_to_vcf(bad_csv, bad_map, out, sample_col = "sample_id")
@@ -148,8 +148,8 @@ test_that("csv_to_vcf supports 012 encoding round-trip", {
 test_that("csv_to_vcf supports IUPAC encoding round-trip", {
   csv <- data.frame(
     sample_id = c("s1", "s2", "s3"),
-    rs1 = c("A", "W", "T"),  # ref=A alt=T: A->0/0, W->0/1, T->1/1
-    rs2 = c("S", "G", "C"),  # ref=C alt=G: S->0/1, G->1/1, C->0/0
+    rs1 = c("A", "W", "T"), # ref=A alt=T: A->0/0, W->0/1, T->1/1
+    rs2 = c("S", "G", "C"), # ref=C alt=G: S->0/1, G->1/1, C->0/0
     stringsAsFactors = FALSE
   )
   map <- data.frame(

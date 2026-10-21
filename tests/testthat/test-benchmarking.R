@@ -1,6 +1,8 @@
 make_bench_vcf <- function() {
-  path <- withr::local_tempfile(fileext = ".vcf",
-                                 .local_envir = parent.frame())
+  path <- withr::local_tempfile(
+    fileext = ".vcf",
+    .local_envir = parent.frame()
+  )
   writeLines(c(
     "##fileformat=VCFv4.2",
     "##contig=<ID=chr1>",
@@ -99,7 +101,7 @@ test_that("compare_imputed_vs_true penalises mismatches", {
   parsed <- beagler:::parse_vcf_raw(vcf)
   rec <- beagler:::extract_vcf_records(parsed)
   flipped <- rec$gt_matrix
-  flipped[1, ] <- c("1/1", "1/1", "0/0", "1/1")  # flip rs1 cells
+  flipped[1, ] <- c("1/1", "1/1", "0/0", "1/1") # flip rs1 cells
   bad <- withr::local_tempfile(fileext = ".vcf")
   beagler:::write_vcf_v4_2(
     output_path = bad,
@@ -140,8 +142,10 @@ test_that("benchmark_imputation: integration via Beagle", {
     "chr1\t500\trs5\tA\tC\t.\tPASS\t.\tGT\t0/0\t1/1\t0/1\t1/1"
   ), vcf)
   out_dir <- withr::local_tempdir()
-  result <- benchmark_imputation(vcf, out_dir, fraction = 0.2, seed = 42L,
-                                  mode = "phase")
+  result <- benchmark_imputation(vcf, out_dir,
+    fraction = 0.2, seed = 42L,
+    mode = "phase"
+  )
   expect_named(result, c("mask", "run", "comparison"))
   expect_s3_class(result$run, "beagler_run")
   expect_s3_class(result$mask, "beagler_result")

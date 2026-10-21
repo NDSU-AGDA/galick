@@ -3,6 +3,7 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^\.github$
+^\.lintr$
 ^beagler_roadmap\.md$
 ^CLAUDE\.md$
 ^AGENTS\.md$

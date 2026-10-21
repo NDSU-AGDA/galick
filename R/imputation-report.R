@@ -89,12 +89,18 @@ imputation_report <- function(run, file) {
     "",
     "## Logs",
     "",
-    sprintf("- stdout: `%s`",
-            if (length(run$stdout_log) > 0L) run$stdout_log[1] else "n/a"),
-    sprintf("- stderr: `%s`",
-            if (length(run$stderr_log) > 0L) run$stderr_log[1] else "n/a"),
-    sprintf("- run record: `%s`",
-            if (length(run$run_record) > 0L) run$run_record[1] else "n/a")
+    sprintf(
+      "- stdout: `%s`",
+      if (length(run$stdout_log) > 0L) run$stdout_log[1] else "n/a"
+    ),
+    sprintf(
+      "- stderr: `%s`",
+      if (length(run$stderr_log) > 0L) run$stderr_log[1] else "n/a"
+    ),
+    sprintf(
+      "- run record: `%s`",
+      if (length(run$run_record) > 0L) run$run_record[1] else "n/a"
+    )
   )
 
   writeLines(lines, file)

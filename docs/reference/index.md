@@ -17,7 +17,7 @@ important options.
 | [Chromosome workflows](chromosome-workflows.md) | Split / run / merge across chromosomes. | `split_vcf_by_chrom` · `run_beagle_by_chrom` · `merge_beagle_outputs` |
 | [PLINK bridge](plink-bridge.md) | Convert between VCF and PLINK BED/BIM/FAM. | `vcf_to_plink` · `plink_to_vcf` |
 | [Reports](reports.md) | Markdown summaries. | `imputation_report` |
-| [Benchmarking](benchmarking.md) | Mask, impute, compare. | `mask_genotypes` · `compare_imputed_vs_true` · `benchmark_imputation` |
+| [Benchmarking](benchmarking.md) | Mask, impute, compare and evaluate configurations. | `mask_genotypes` · `compare_imputed_vs_true` · `benchmark_imputation` · `evaluate_imputation` |
 
 ## Object model
 

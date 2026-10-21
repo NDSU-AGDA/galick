@@ -6,9 +6,11 @@ make_tiny_vcf_args <- function() {
     ref = c("A", "C", "G"),
     alt = c("T", "G", "A"),
     gt_matrix = matrix(
-      c("0/0", "0/1", "1/1",
+      c(
+        "0/0", "0/1", "1/1",
         "0/1", "1/1", "0/0",
-        "1/1", "0/0", "0/1"),
+        "1/1", "0/0", "0/1"
+      ),
       nrow = 3, byrow = TRUE,
       dimnames = list(NULL, c("s1", "s2", "s3"))
     )

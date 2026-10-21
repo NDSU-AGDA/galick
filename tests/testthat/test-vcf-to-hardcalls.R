@@ -1,6 +1,8 @@
 make_hc_vcf <- function() {
-  path <- withr::local_tempfile(fileext = ".vcf",
-                                 .local_envir = parent.frame())
+  path <- withr::local_tempfile(
+    fileext = ".vcf",
+    .local_envir = parent.frame()
+  )
   writeLines(c(
     "##fileformat=VCFv4.2",
     "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">",
@@ -43,8 +45,10 @@ test_that("vcf_to_hardcalls produces NA for missing GT", {
 
 test_that("vcf_to_hardcalls subsets by samples and markers", {
   vcf <- make_hc_vcf()
-  hc <- vcf_to_hardcalls(vcf, samples = c("s1"), markers = c("rs2"),
-                         encoding = "AHB")
+  hc <- vcf_to_hardcalls(vcf,
+    samples = c("s1"), markers = c("rs2"),
+    encoding = "AHB"
+  )
   expect_equal(dim(hc), c(1L, 1L))
   expect_equal(unname(hc[1, 1]), "B")
 })
