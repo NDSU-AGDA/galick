@@ -1,10 +1,13 @@
 #' Merge VCF callsets by samples or by markers
 #'
-#' `by_sample` combines different sample columns for the same ordered marker
+#' `by_sample` combines different sample columns for the same marker
 #' set. `by_marker` combines different marker rows for the same sample set.
-#' Both modes parse records before merging, preserve duplicate records with an
-#' occurrence ordinal, reindex file-relative allele numbers, and drop REF
-#' mismatches with an explicit report entry.
+#' Both modes preserve phase-set boundaries and validate reference dictionaries.
+#' Sample merges reconcile compatible alleles, recompute AC/AN, union failed
+#' filters, and discard other INFO and QUAL values with a report. Merged FORMAT
+#' retains GT/PS only; omitted fields are reported. Independent phase blocks
+#' receive distinct identifiers. Identical duplicate records retain their
+#' occurrence order; other repeated-coordinate mappings must be unambiguous.
 #'
 #' @param vcfs Character vector of at least two `.vcf` or `.vcf.gz` files.
 #' @param output_vcf Output path ending in `.vcf` or `.vcf.gz`.
@@ -12,6 +15,8 @@
 #' @param sample_collision For `by_sample`, one of `"error"`, `"suffix"`, or
 #'   `"coalesce"`. Coalescing accepts identical calls or fills a fully missing
 #'   call from the other file; conflicting called genotypes are refused.
+#'   Phased calls in colliding samples are refused because independent phase
+#'   orientations cannot be reconciled by selecting one call.
 #' @param overwrite Refuse to replace `output_vcf` unless `TRUE`.
 #'
 #' @return A `beagler_result` whose summary is the merge report.
@@ -48,6 +53,22 @@ merge_vcf <- function(vcfs,
   inputs <- lapply(vcfs, read_genotype_vcf)
   input_names <- make.unique(basename(vcfs))
   names(inputs) <- input_names
+  meta <- merge_vcf_metadata(inputs)
+  discarded <- merge_discarded_fields(inputs, mode)
+  if (mode == "by_sample" && sample_collision == "coalesce") {
+    all_samples <- unlist(lapply(inputs, `[[`, "samples"))
+    duplicates <- unique(all_samples[duplicated(all_samples)])
+    phased_collision <- any(vapply(inputs, function(x) {
+      cols <- x$samples %in% duplicates
+      any(grepl("|", x$gt[, cols, drop = FALSE], fixed = TRUE))
+    }, logical(1)))
+    if (phased_collision) {
+      cli::cli_abort(
+        "Coalescing phased samples requires explicit phase reconciliation.",
+        class = "beagler_error_merge_phase_conflict"
+      )
+    }
+  }
   sites_in <- stats::setNames(
     vapply(inputs, function(x) nrow(x$fixed), integer(1)),
     input_names
@@ -57,18 +78,47 @@ merge_vcf <- function(vcfs,
     input_names
   )
 
+  if (mode == "by_sample") inputs <- align_sample_inputs(inputs)
   unresolved <- drop_unresolvable_sites(inputs, mode)
   inputs <- unresolved$inputs
   ref_mismatch <- drop_ref_mismatch_sites(inputs, mode)
   inputs <- ref_mismatch$inputs
-  dropped <- unique(rbind(unresolved$dropped, ref_mismatch$dropped))
+  dropped <- rbind(unresolved$dropped, ref_mismatch$dropped)
+  if (all(vapply(inputs, function(x) nrow(x$fixed) == 0L, logical(1)))) {
+    return(new_beagler_result(
+      errors = issues_tibble(list(list(
+        code = "merge_no_records_left",
+        message = "No records remain; no output was written.", where = list()
+      ))),
+      summary = list(
+        output_paths = character(), sites_in = sites_in,
+        sites_out = 0L, sites_dropped = dropped
+      ), call = the_call
+    ))
+  }
+  inputs <- namespace_phase_sets(inputs)
 
   combined <- if (mode == "by_sample") {
     merge_vcf_by_sample(inputs, sample_collision)
   } else {
     merge_vcf_by_marker(inputs)
   }
-  combined$vcf$meta <- unique(unlist(lapply(inputs, `[[`, "meta")))
+  meta <- meta[!grepl("^##FORMAT=<", meta)]
+  if (mode == "by_sample") {
+    meta <- meta[!grepl("^##INFO=<", meta)]
+    meta <- c(
+      meta,
+      '##INFO=<ID=AC,Number=A,Type=Integer,Description="Called ALT counts">',
+      '##INFO=<ID=AN,Number=1,Type=Integer,Description="Total called alleles">'
+    )
+  }
+  if ("PS" %in% names(combined$vcf$format_fields)) {
+    meta <- c(meta, paste0(
+      "##FORMAT=<ID=PS,Number=1,Type=Integer,",
+      'Description="Input-specific phase set">'
+    ))
+  }
+  combined$vcf$meta <- meta
   combined$vcf$contigs <- vcf_contig_order(
     combined$vcf$meta,
     combined$vcf$fixed$CHROM
@@ -81,11 +131,28 @@ merge_vcf <- function(vcfs,
     overwrite = overwrite
   )
   warnings <- list()
+  annotations_changed <- length(discarded$format) || length(discarded$info) ||
+    mode == "by_sample"
+  if (annotations_changed) {
+    warnings[[length(warnings) + 1L]] <- list(
+      code = "merge_annotations_reconciled",
+      message = paste(
+        "Merged FORMAT retains GT/PS; sample merges recompute AC/AN",
+        "and omit other INFO and QUAL."
+      ),
+      where = list(
+        format_fields = discarded$format, info_fields = discarded$info,
+        qual_removed = mode == "by_sample"
+      )
+    )
+  }
   if (nrow(dropped) > 0L) {
-    warnings[[1L]] <- list(
+    warnings[[length(warnings) + 1L]] <- list(
       code = "merge_sites_dropped",
-      message = sprintf("%d site record(s) were dropped; see sites_dropped.",
-                        nrow(dropped)),
+      message = sprintf(
+        "%d site record(s) were dropped; see sites_dropped.",
+        nrow(dropped)
+      ),
       where = list(reasons = unique(dropped$reason))
     )
   }
@@ -104,7 +171,9 @@ merge_vcf <- function(vcfs,
       samples_out = length(combined$vcf$samples),
       collisions = combined$collisions,
       genotype_ploidy = detect_genotype_ploidy(combined$vcf),
-      chrom_ploidy = detect_chrom_ploidy(combined$vcf)
+      subgenome_labels = detect_subgenome_labels(combined$vcf),
+      dropped_format_fields = discarded$format,
+      dropped_info_fields = discarded$info
     ),
     call = the_call
   )
@@ -114,7 +183,6 @@ merge_vcf <- function(vcfs,
 #' @keywords internal
 #' @noRd
 drop_unresolvable_sites <- function(inputs, mode) {
-  bad_keys <- character()
   bad_by_file <- vector("list", length(inputs))
   for (j in seq_along(inputs)) {
     x <- inputs[[j]]
@@ -122,28 +190,25 @@ drop_unresolvable_sites <- function(inputs, mode) {
     if (ncol(x$gt) > 0L) {
       for (i in seq_len(nrow(x$fixed))) {
         bad[i] <- any(!vapply(
-          x$gt[i, ], valid_gt_for_alt, logical(1), alt = x$fixed$ALT[i]
+          x$gt[i, ], valid_gt_for_alt, logical(1),
+          alt = x$fixed$ALT[i]
         ))
       }
     }
     bad_by_file[[j]] <- bad
-    if (mode == "by_sample" && any(bad)) {
-      bad_keys <- c(bad_keys, site_alignment_key(x$fixed[bad]))
-    }
   }
-  bad_keys <- unique(bad_keys)
 
   reports <- list()
   for (j in seq_along(inputs)) {
     x <- inputs[[j]]
     bad <- if (mode == "by_sample") {
-      site_alignment_key(x$fixed) %in% bad_keys
+      Reduce(`|`, bad_by_file)
     } else {
       bad_by_file[[j]]
     }
     if (any(bad)) {
       reports[[length(reports) + 1L]] <- drop_rows_report(
-        x$fixed[bad], "unresolvable alleles"
+        x$fixed[bad], "unresolvable alleles", x$source
       )
       inputs[[j]] <- subset_genotype_vcf(x, !bad)
     }
@@ -155,52 +220,18 @@ drop_unresolvable_sites <- function(inputs, mode) {
 #' @keywords internal
 #' @noRd
 drop_ref_mismatch_sites <- function(inputs, mode) {
-  rows <- data.table::rbindlist(lapply(seq_along(inputs), function(j) {
-    fixed <- inputs[[j]]$fixed
-    if (nrow(fixed) == 0L) return(NULL)
-    data.table::data.table(
-      file = j,
-      CHROM = fixed$CHROM,
-      POS = fixed$POS,
-      REF = fixed$REF,
-      position_ordinal = fixed$position_ordinal
-    )
-  }))
-  if (nrow(rows) == 0L) {
+  if (mode == "by_marker" || nrow(inputs[[1]]$fixed) == 0L) {
     return(list(inputs = inputs, dropped = empty_drop_report()))
   }
-
-  if (mode == "by_sample") {
-    grouped <- split(rows, site_alignment_key(rows))
-    is_bad <- vapply(grouped, function(group) {
-      length(unique(group$file)) > 1L && length(unique(group$REF)) > 1L
-    }, logical(1))
-    bad_keys <- names(grouped)[is_bad]
-  } else {
-    by_position <- split(rows, paste(rows$CHROM, rows$POS, sep = "\r"))
-    bad_positions <- vapply(by_position, function(group) {
-      refs <- split(group$REF, group$file)
-      length(refs) > 1L && length(unique(vapply(
-        refs,
-        function(x) paste(sort(unique(x)), collapse = ","),
-        character(1)
-      ))) > 1L
-    }, logical(1))
-    bad_keys <- names(by_position)[bad_positions]
-  }
-
+  bad <- vapply(seq_len(nrow(inputs[[1]]$fixed)), function(i) {
+    length(unique(vapply(inputs, function(x) x$fixed$REF[i], ""))) > 1L
+  }, logical(1))
   reports <- list()
   for (j in seq_along(inputs)) {
     x <- inputs[[j]]
-    key <- if (mode == "by_sample") {
-      site_alignment_key(x$fixed)
-    } else {
-      paste(x$fixed$CHROM, x$fixed$POS, sep = "\r")
-    }
-    bad <- key %in% bad_keys
     if (any(bad)) {
       reports[[length(reports) + 1L]] <- drop_rows_report(
-        x$fixed[bad], "REF mismatch"
+        x$fixed[bad], "REF mismatch", x$source
       )
       inputs[[j]] <- subset_genotype_vcf(x, !bad)
     }
@@ -211,24 +242,7 @@ drop_ref_mismatch_sites <- function(inputs, mode) {
 #' @keywords internal
 #' @noRd
 merge_vcf_by_sample <- function(inputs, sample_collision) {
-  keys <- lapply(inputs, function(x) site_alignment_key(x$fixed))
-  reference_keys <- sort(keys[[1]])
-  same_markers <- vapply(keys, function(key) {
-    identical(sort(key), reference_keys)
-  }, logical(1))
-  if (!all(same_markers)) {
-    cli::cli_abort(
-      paste0(
-        "{.code mode = \"by_sample\"} requires the same marker keys in ",
-        "every file (CHROM, POS, and position ordinal)."
-      ),
-      class = "beagler_error_merge_marker_contract"
-    )
-  }
-
-  aligned <- lapply(seq_along(inputs), function(j) {
-    subset_genotype_vcf(inputs[[j]], match(keys[[1]], keys[[j]]))
-  })
+  aligned <- inputs
   n_sites <- nrow(aligned[[1]]$fixed)
   fixed <- data.table::copy(aligned[[1]]$fixed)
   reindexed <- vector("list", length(aligned))
@@ -270,12 +284,22 @@ merge_vcf_by_sample <- function(inputs, sample_collision) {
     lapply(aligned, `[[`, "samples"),
     sample_collision
   )
+  phase_result <- combine_sample_matrices(
+    lapply(aligned, phase_set_matrix),
+    lapply(aligned, `[[`, "samples"), sample_collision
+  )
+  fixed <- reconcile_merged_fixed(fixed, sample_result$gt, aligned)
   fixed <- refresh_vcf_ordinals(fixed)
   vcf <- new_genotype_vcf(
     fixed,
     sample_result$gt,
     sample_result$samples,
-    aligned[[1]]$meta
+    aligned[[1]]$meta,
+    format_fields = if (any(phase_result$gt != ".")) {
+      list(PS = phase_result$gt)
+    } else {
+      list()
+    }
   )
   list(vcf = vcf, collisions = sample_result$collisions)
 }
@@ -324,9 +348,14 @@ merge_vcf_by_marker <- function(inputs) {
     x$gt[, match(reference_samples, x$samples), drop = FALSE]
   }))
   colnames(gt) <- reference_samples
+  ps <- do.call(rbind, lapply(inputs, function(x) {
+    phase_set_matrix(x)[, match(reference_samples, x$samples), drop = FALSE]
+  }))
   fixed <- refresh_vcf_ordinals(fixed)
   list(
-    vcf = new_genotype_vcf(fixed, gt, reference_samples, inputs[[1]]$meta),
+    vcf = new_genotype_vcf(fixed, gt, reference_samples, inputs[[1]]$meta,
+      format_fields = if (any(ps != ".")) list(PS = ps) else list()
+    ),
     collisions = empty_collision_report()
   )
 }
@@ -380,7 +409,9 @@ combine_sample_matrices <- function(matrices, samples, policy) {
         current <- gt[, target]
         current_missing <- vapply(current, is_fully_missing_gt, logical(1))
         incoming_missing <- vapply(incoming, is_fully_missing_gt, logical(1))
-        conflict <- !current_missing & !incoming_missing & current != incoming
+        same_call <- canonical_unphased_gt(current) ==
+          canonical_unphased_gt(incoming)
+        conflict <- !current_missing & !incoming_missing & !same_call
         if (any(conflict)) {
           cli::cli_abort(
             paste0(
@@ -407,13 +438,17 @@ combine_sample_matrices <- function(matrices, samples, policy) {
 #' @keywords internal
 #' @noRd
 reindex_gt_call <- function(gt, old_ref, old_alt, new_ref, new_alt) {
-  if (is.na(gt) || !nzchar(gt)) return(gt)
+  if (is.na(gt) || !nzchar(gt)) {
+    return(gt)
+  }
   slots <- strsplit(gt, "[/|]")[[1]]
   separators <- regmatches(gt, gregexpr("[/|]", gt))[[1]]
   old_alleles <- vcf_alleles(old_ref, old_alt)
   new_alleles <- vcf_alleles(new_ref, new_alt)
   rewritten <- vapply(slots, function(slot) {
-    if (slot == ".") return(".")
+    if (slot == ".") {
+      return(".")
+    }
     allele <- old_alleles[as.numeric(slot) + 1L]
     index <- match(allele, new_alleles) - 1L
     if (is.na(index)) {
@@ -430,7 +465,9 @@ reindex_gt_call <- function(gt, old_ref, old_alt, new_ref, new_alt) {
 #' @keywords internal
 #' @noRd
 interleave_gt <- function(slots, separators) {
-  if (length(separators) == 0L) return(slots)
+  if (length(separators) == 0L) {
+    return(slots)
+  }
   paste0(
     paste0(c(rbind(slots[-length(slots)], separators)), collapse = ""),
     slots[length(slots)]
@@ -440,19 +477,55 @@ interleave_gt <- function(slots, separators) {
 #' @keywords internal
 #' @noRd
 is_fully_missing_gt <- function(gt) {
-  if (is.na(gt) || !nzchar(gt)) return(TRUE)
+  if (is.na(gt) || !nzchar(gt)) {
+    return(TRUE)
+  }
   all(strsplit(gt, "[/|]")[[1]] == ".")
 }
 
 #' @keywords internal
 #' @noRd
-site_alignment_key <- function(fixed) {
-  paste(
-    fixed$CHROM,
-    format_vcf_pos(fixed$POS),
-    fixed$position_ordinal,
-    sep = "\r"
-  )
+align_sample_inputs <- function(inputs) {
+  reference <- inputs[[1]]$fixed
+  positions <- lapply(inputs, function(x) {
+    paste(x$fixed$CHROM, format_vcf_pos(x$fixed$POS), sep = "\r")
+  })
+  canonical <- lapply(inputs, canonical_marker_keys)
+  groups <- lapply(positions, function(keys) split(seq_along(keys), keys))
+  for (j in seq_along(inputs)) {
+    if (!identical(sort(positions[[1]]), sort(positions[[j]]))) {
+      cli::cli_abort(
+        "Sample merges require the same positions and record multiplicities.",
+        class = "beagler_error_merge_marker_contract"
+      )
+    }
+    index <- integer(nrow(reference))
+    for (group in seq_along(groups[[1]])) {
+      a <- groups[[1]][[group]]
+      b <- groups[[j]][[group]]
+      ids_a <- reference$ID[a]
+      ids_b <- inputs[[j]]$fixed$ID[b]
+      usable_ids <- !any(ids_a %in% c(".", "")) && !anyDuplicated(ids_a) &&
+        !anyDuplicated(ids_b) && setequal(ids_a, ids_b)
+      if (length(a) == 1L) {
+        index[a] <- b
+      } else if (usable_ids) {
+        index[a] <- b[match(ids_a, ids_b)]
+      } else if (setequal(canonical[[1]][a], canonical[[j]][b])) {
+        index[a] <- b[match(canonical[[1]][a], canonical[[j]][b])]
+      } else {
+        cli::cli_abort(
+          paste(
+            "Repeated-coordinate marker alignment is ambiguous;",
+            "normalize or supply unique matching IDs."
+          ),
+          class = "beagler_error_merge_ambiguous_markers"
+        )
+      }
+    }
+    inputs[[j]] <- subset_genotype_vcf(inputs[[j]], index)
+  }
+  inputs
 }
 
 #' @keywords internal
@@ -493,16 +566,21 @@ refresh_vcf_ordinals <- function(fixed) {
 subset_genotype_vcf <- function(x, rows) {
   x$fixed <- x$fixed[rows]
   x$gt <- x$gt[rows, , drop = FALSE]
+  x$format_fields <- lapply(x$format_fields, function(field) {
+    field[rows, , drop = FALSE]
+  })
+  if (!is.null(x$formats)) x$formats <- x$formats[rows]
   x
 }
 
 #' @keywords internal
 #' @noRd
-new_genotype_vcf <- function(fixed, gt, samples, meta) {
+new_genotype_vcf <- function(fixed, gt, samples, meta, format_fields = list()) {
   structure(
     list(
       fixed = fixed,
       gt = gt,
+      format_fields = format_fields,
       meta = meta,
       samples = samples,
       contigs = vcf_contig_order(meta, fixed$CHROM),
@@ -514,8 +592,13 @@ new_genotype_vcf <- function(fixed, gt, samples, meta) {
 
 #' @keywords internal
 #' @noRd
-drop_rows_report <- function(fixed, reason) {
+drop_rows_report <- function(fixed, reason, input_path) {
   data.frame(
+    input_path = input_path,
+    record_index = fixed$source_record,
+    id = fixed$ID,
+    ref = fixed$REF,
+    alt = fixed$ALT,
     chrom = fixed$CHROM,
     pos = fixed$POS,
     record_ordinal = fixed$position_ordinal,
@@ -527,6 +610,28 @@ drop_rows_report <- function(fixed, reason) {
 #' @keywords internal
 #' @noRd
 bind_drop_reports <- function(reports) {
-  if (length(reports) == 0L) return(empty_drop_report())
-  unique(do.call(rbind, reports))
+  if (length(reports) == 0L) {
+    return(empty_drop_report())
+  }
+  do.call(rbind, reports)
+}
+
+#' @keywords internal
+#' @noRd
+phase_set_matrix <- function(x) {
+  if (!is.null(x$format_fields$PS)) {
+    return(x$format_fields$PS)
+  }
+  matrix(".", nrow(x$gt), ncol(x$gt), dimnames = dimnames(x$gt))
+}
+
+#' @keywords internal
+#' @noRd
+canonical_unphased_gt <- function(calls) {
+  vapply(calls, function(call) {
+    if (grepl("|", call, fixed = TRUE)) {
+      return(call)
+    }
+    paste(sort(strsplit(call, "/", fixed = TRUE)[[1]]), collapse = "/")
+  }, character(1))
 }

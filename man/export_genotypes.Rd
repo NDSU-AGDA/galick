@@ -10,7 +10,8 @@ export_genotypes(
   format = c("vcf", "plink", "hapmap", "csv", "tsv", "dosage"),
   downcode = NULL,
   overwrite = FALSE,
-  digits = 17L
+  digits = 17L,
+  field = c("GT", "DS")
 )
 }
 \arguments{
@@ -21,21 +22,25 @@ export_genotypes(
 \item{format}{One of \code{"vcf"}, \code{"plink"}, \code{"hapmap"}, \code{"csv"}, \code{"tsv"},
 or \code{"dosage"}.}
 
-\item{downcode}{\code{NULL} (the default) or \code{"first_two"}. The latter keeps
-only the first two allele slots for formats that cannot represent higher
-ploidy. It is never applied implicitly.}
+\item{downcode}{Must be \code{NULL}. Arbitrary allele truncation is unsupported.}
 
-\item{overwrite}{Refuse to replace output files unless \code{TRUE}.}
+\item{overwrite}{Refuse to replace output files unless \code{TRUE}. Replacing a
+VCF removes its old \code{.tbi}/\code{.csi} indexes; rebuild them for the new file.}
 
 \item{digits}{Number of significant digits available to numeric table
 writers. Values are also written with scientific notation disabled.}
+
+\item{field}{For dosage output, \code{"GT"} writes ALT copy counts at any ploidy;
+\code{"DS"} writes expected ALT dosage without falling back to GT. Both require
+biallelic markers. Partial GT calls become NA.}
 }
 \value{
 A \code{beagler_result} whose summary is the export report.
 }
 \description{
-Reads GT calls once and exports them without external command-line tools.
-VCF, HapMap, CSV, and TSV retain every allele slot and the original phase
-separator. PLINK PED/MAP and dosage output refuse genotype ploidy above two
-unless \code{downcode = "first_two"} is explicitly requested.
+VCF preserves FORMAT fields and reference metadata. CSV and TSV retain GT
+allele slots but not FORMAT/PS phase-block metadata. HapMap uses diploid
+IUPAC SNP calls; PED requires biallelic
+markers and at most two allele slots. These formats report phase loss and
+conversion of partial calls to missing. Compressed VCF output requires bgzip.
 }

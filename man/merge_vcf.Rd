@@ -21,7 +21,9 @@ merge_vcf(
 
 \item{sample_collision}{For \code{by_sample}, one of \code{"error"}, \code{"suffix"}, or
 \code{"coalesce"}. Coalescing accepts identical calls or fills a fully missing
-call from the other file; conflicting called genotypes are refused.}
+call from the other file; conflicting called genotypes are refused.
+Phased calls in colliding samples are refused because independent phase
+orientations cannot be reconciled by selecting one call.}
 
 \item{overwrite}{Refuse to replace \code{output_vcf} unless \code{TRUE}.}
 }
@@ -29,9 +31,12 @@ call from the other file; conflicting called genotypes are refused.}
 A \code{beagler_result} whose summary is the merge report.
 }
 \description{
-\code{by_sample} combines different sample columns for the same ordered marker
+\code{by_sample} combines different sample columns for the same marker
 set. \code{by_marker} combines different marker rows for the same sample set.
-Both modes parse records before merging, preserve duplicate records with an
-occurrence ordinal, reindex file-relative allele numbers, and drop REF
-mismatches with an explicit report entry.
+Both modes preserve phase-set boundaries and validate reference dictionaries.
+Sample merges reconcile compatible alleles, recompute AC/AN, union failed
+filters, and discard other INFO and QUAL values with a report. Merged FORMAT
+retains GT/PS only; omitted fields are reported. Independent phase blocks
+receive distinct identifiers. Identical duplicate records retain their
+occurrence order; other repeated-coordinate mappings must be unambiguous.
 }

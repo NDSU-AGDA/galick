@@ -2,7 +2,7 @@
 #'
 #' The representation keeps fixed fields in a `data.table`, GT calls in a
 #' character matrix, header metadata verbatim, and sample names separately.
-#' GT is the only FORMAT field retained.
+#' Additional FORMAT fields are retained in named matrices alongside GT.
 #'
 #' @import data.table
 #' @keywords internal
@@ -36,6 +36,8 @@ read_genotype_vcf <- function(path) {
   }
 
   n_samples <- length(parsed$samples)
+  format_fields <- list()
+  formats <- character(length(parsed$body_split))
   if (length(parsed$body_split) == 0L) {
     fixed <- empty_vcf_fixed()
     gt <- matrix(
@@ -73,12 +75,27 @@ read_genotype_vcf <- function(path) {
       c("CHROM", "POS", "REF", "ALT")
     )
     fixed$position_ordinal <- ordinal_within(fixed, c("CHROM", "POS"))
+    fixed$source_record <- seq_len(nrow(fixed))
 
     gt <- matrix(NA_character_, nrow = nrow(body), ncol = n_samples)
+    formats <- body[, 9]
+    all_fields <- unique(unlist(strsplit(formats, ":", fixed = TRUE)))
+    for (field in setdiff(all_fields, c("GT", "."))) {
+      format_fields[[field]] <- matrix(".", nrow(body), n_samples,
+        dimnames = list(NULL, parsed$samples)
+      )
+    }
     if (n_samples > 0L) {
       for (i in seq_len(nrow(body))) {
-        format_fields <- strsplit(body[i, 9], ":", fixed = TRUE)[[1]]
-        gt_index <- match("GT", format_fields)
+        record_fields <- strsplit(body[i, 9], ":", fixed = TRUE)[[1]]
+        bad_fields <- anyDuplicated(record_fields) ||
+          any(record_fields %in% c("", ".")) || endsWith(body[i, 9], ":")
+        if (bad_fields) {
+          cli::cli_abort("Malformed or duplicated FORMAT fields at record {i}.",
+            class = "beagler_error_genotype_vcf_invalid"
+          )
+        }
+        gt_index <- match("GT", record_fields)
         if (is.na(gt_index)) {
           cli::cli_abort(
             "VCF FORMAT has no GT field at record {i}.",
@@ -86,9 +103,25 @@ read_genotype_vcf <- function(path) {
           )
         }
         cells <- body[i, 9L + seq_len(n_samples)]
-        gt[i, ] <- vapply(strsplit(cells, ":", fixed = TRUE), function(parts) {
+        cell_parts <- strsplit(cells, ":", fixed = TRUE)
+        bad_cells <- any(lengths(cell_parts) > length(record_fields)) ||
+          any(endsWith(cells, ":")) || any(unlist(cell_parts) == "")
+        if (bad_cells) {
+          cli::cli_abort("Malformed sample FORMAT values at record {i}.",
+            class = "beagler_error_genotype_vcf_invalid"
+          )
+        }
+        gt[i, ] <- vapply(cell_parts, function(parts) {
           if (length(parts) < gt_index) NA_character_ else parts[gt_index]
         }, character(1))
+        for (field in setdiff(record_fields, "GT")) {
+          index <- match(field, record_fields)
+          format_fields[[field]][i, ] <- vapply(
+            cell_parts, function(parts) {
+              if (length(parts) < index) "." else parts[index]
+            }, character(1)
+          )
+        }
       }
     }
     colnames(gt) <- parsed$samples
@@ -98,6 +131,8 @@ read_genotype_vcf <- function(path) {
     list(
       fixed = fixed,
       gt = gt,
+      format_fields = format_fields,
+      formats = formats,
       meta = parsed$meta,
       samples = parsed$samples,
       contigs = vcf_contig_order(parsed$meta, fixed$CHROM),
@@ -111,7 +146,9 @@ read_genotype_vcf <- function(path) {
 #' @keywords internal
 #' @noRd
 ordinal_within <- function(data, columns) {
-  if (nrow(data) == 0L) return(integer())
+  if (nrow(data) == 0L) {
+    return(integer())
+  }
   key <- do.call(
     paste,
     c(lapply(columns, function(column) data[[column]]), sep = "\r")
@@ -131,6 +168,7 @@ empty_vcf_fixed <- function() {
     QUAL = character(),
     FILTER = character(),
     INFO = character(),
+    source_record = integer(),
     record_ordinal = integer(),
     position_ordinal = integer()
   )
@@ -151,11 +189,17 @@ vcf_contig_order <- function(meta, body_chrom = character()) {
 #' @keywords internal
 #' @noRd
 valid_gt_for_alt <- function(gt, alt) {
-  if (is.na(gt) || !nzchar(gt)) return(FALSE)
-  if (!grepl("^(\\.|[0-9]+)([/|](\\.|[0-9]+))*$", gt)) return(FALSE)
+  if (is.na(gt) || !nzchar(gt)) {
+    return(FALSE)
+  }
+  if (!grepl("^(\\.|[0-9]+)([/|](\\.|[0-9]+))*$", gt)) {
+    return(FALSE)
+  }
   slots <- strsplit(gt, "[/|]")[[1]]
   called <- slots[slots != "."]
-  if (length(called) == 0L) return(TRUE)
+  if (length(called) == 0L) {
+    return(TRUE)
+  }
   n_alt <- if (identical(alt, ".") || !nzchar(alt)) {
     0L
   } else {

@@ -6,16 +6,21 @@ PLINK bridge, chromosome workflows, and masked-genotype benchmarking.
 
 ## Genotype export and VCF merge
 
-- `export_genotypes()` adds pure-R VCF, PLINK PED/MAP, HapMap, CSV/TSV,
-  and dosage export. VCF and HapMap retain arbitrary ploidy, phase, and
-  partial missingness. PLINK and dosage refuse polyploid GT unless the
-  caller explicitly selects `downcode = "first_two"`.
+- `export_genotypes()` adds VCF, PLINK PED/MAP, HapMap, CSV/TSV,
+  and numeric export. VCF retains FORMAT fields, phase sets and reference
+  dictionaries; compressed output requires bgzip. HapMap uses diploid IUPAC
+  SNP calls. PED and HapMap report phase loss and fully mask partial calls.
+  Polyploid calls remain intact in VCF and GT counts; arbitrary truncation
+  is refused. `field = "DS"` explicitly selects expected dosage.
 - `merge_vcf()` adds explicit `by_sample` and `by_marker` callset merges.
-  It preserves duplicate records with occurrence ordinals, reindexes GT
-  against union ALT lists, reports dropped REF mismatches, and supports
-  error, suffix, or strict coalesce policies for sample collisions.
-- `detect_chrom_ploidy()` and `detect_genotype_ploidy()` keep chromosome
-  naming inference separate from the allele-slot count used to gate export.
+  It aligns compatible variant identities before duplicate occurrences,
+  reindexes GT, recomputes sample-merge AC/AN, and reports omitted annotations.
+  Reference dictionaries must agree and independent phase blocks stay distinct.
+  Valid overlapping SNPs and indels survive marker merges. Sample collisions
+  support error, suffix, or unphased coalesce policies.
+- `detect_subgenome_labels()` reports chromosome naming labels without
+  inferring species ploidy. `detect_genotype_ploidy()` reports the maximum
+  observed GT allele-slot count.
 
 ## Validate
 
@@ -129,4 +134,4 @@ S3 only (no R6, no S4). Two classes:
 The package was originally a thin R wrapper over a Rust `extendr`
 backend. M0 removed the Rust scaffolding entirely and pivoted to pure R
 with a test-first workflow. See `beagler_roadmap.md` for the M0–M15
-milestone log and `AGENTS.md` for project conventions.
+milestone log and `docs/about/conventions.md` for project conventions.

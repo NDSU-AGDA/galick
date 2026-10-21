@@ -113,7 +113,7 @@ merge_vcf(
 | **Validate** | `validate_genotype_table()` · `validate_marker_map()` · `validate_vcf()` · `validate_reference_match()` |
 | **Convert (to VCF)** | `csv_to_vcf()` · `hapmap_to_vcf()` |
 | **Convert (from VCF)** | `vcf_to_dosage()` · `vcf_to_hardcalls()` |
-| **Export** | `export_genotypes()` · `detect_chrom_ploidy()` · `detect_genotype_ploidy()` |
+| **Export** | `export_genotypes()` · `detect_subgenome_labels()` · `detect_genotype_ploidy()` |
 | **VCF merge** | `merge_vcf()` |
 | **Repair** | `repair_vcf()` |
 | **Run Beagle** | `run_beagle()` · `install_beagle()` · `beagle_version()` |
@@ -130,7 +130,7 @@ merge_vcf(
 - [Reference](https://didiermurillof.github.io/beagleR/reference/) — every export grouped by workflow area.
 - [Examples](https://didiermurillof.github.io/beagleR/examples/) — six end-to-end walkthroughs (CSV→VCF, HapMap→VCF, validate-and-repair, run Beagle, chromosome-parallel imputation, accuracy benchmarking).
 - [Roadmap](beagler_roadmap.md) — full milestone log.
-- [Conventions](AGENTS.md) — project conventions (S3-only, tidyverse style, no shell composition).
+- [Conventions](docs/about/conventions.md) — project conventions (S3-only, tidyverse style, no shell composition).
 
 ## Citation
 

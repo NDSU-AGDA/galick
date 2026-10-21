@@ -1,32 +1,30 @@
-#' Detect chromosome-derived species ploidy
+#' Identify subgenome labels in chromosome names
 #'
-#' Infers subgenome ploidy from chromosome names such as `chr1A`, `chr1B`,
-#' and `chr1D`. This describes chromosome naming, not the number of allele
-#' slots stored in GT. Ordinary chromosome names are reported as diploid;
-#' an empty VCF returns `NA_integer_`.
+#' Extracts suffix labels from names such as `chr1A`, `chr1B`, and `chr1D`.
+#' Labels describe naming only and do not establish species or locus ploidy.
 #'
 #' @param vcf Path to a VCF file.
-#' @return A single integer chromosome-derived ploidy estimate.
+#' @return A character vector of observed labels, empty when none match.
 #' @export
-detect_chrom_ploidy <- function(vcf) {
+detect_subgenome_labels <- function(vcf) {
   x <- if (inherits(vcf, "beagler_genotype_vcf")) {
     vcf
   } else {
     read_genotype_vcf(vcf)
   }
   chrom <- unique(as.character(x$fixed$CHROM))
-  if (length(chrom) == 0L) return(NA_integer_)
+  if (length(chrom) == 0L) return(character())
 
   labels <- sub("^(?i:chr)", "", chrom, perl = TRUE)
   has_subgenome <- grepl("^[0-9]+[A-Za-z](?:[._-].*)?$", labels)
-  if (!any(has_subgenome)) return(2L)
+  if (!any(has_subgenome)) return(character())
 
   subgenomes <- toupper(sub(
     "^[0-9]+([A-Za-z])(?:[._-].*)?$",
     "\\1",
     labels[has_subgenome]
   ))
-  as.integer(2L * length(unique(subgenomes)))
+  unique(subgenomes)
 }
 
 #' Detect ploidy encoded in VCF genotype fields

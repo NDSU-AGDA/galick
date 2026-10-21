@@ -1,7 +1,6 @@
-#' Read lossless HapMap allele calls into the genotype representation
+#' Read standard IUPAC HapMap calls into the genotype representation
 #'
-#' This adapter reads HapMap calls emitted by `export_genotypes()`, where each
-#' allele is written explicitly and `/` or `|` retains the VCF phase separator.
+#' HapMap does not retain VCF phase sets or arbitrary genotype ploidy.
 #'
 #' @keywords internal
 #' @noRd
@@ -40,20 +39,5 @@ read_genotype_hapmap <- function(path) {
 #' @keywords internal
 #' @noRd
 hapmap_call_to_gt <- function(call, ref, alt) {
-  if (is.na(call) || !nzchar(call) || call == ".") return(".")
-  slots <- strsplit(call, "[/|]")[[1]]
-  separators <- regmatches(call, gregexpr("[/|]", call))[[1]]
-  alleles <- vcf_alleles(ref, alt)
-  indices <- vapply(slots, function(slot) {
-    if (slot == ".") return(".")
-    index <- match(slot, alleles) - 1L
-    if (is.na(index)) {
-      cli::cli_abort(
-        "HapMap call allele {.val {slot}} is not in the marker allele list.",
-        class = "beagler_error_hapmap_unresolvable_allele"
-      )
-    }
-    as.character(index)
-  }, character(1))
-  interleave_gt(indices, separators)
+  recode_to_vcf_gt(call, encoding = "IUPAC", ref = ref, alt = alt)
 }

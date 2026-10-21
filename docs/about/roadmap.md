@@ -27,6 +27,28 @@ in the repository.
 - [x] **M15** — Masked-genotype benchmarking: `mask_genotypes()`,
   `compare_imputed_vs_true()`, `benchmark_imputation()`.
 
+## Export and merge extension (PR #4)
+
+The proposed `export_genotypes()` and `merge_vcf()` APIs reuse the package's
+raw VCF parser, `beagler_result` reports, and subprocess runner. They do not
+extend Beagle's imputation model beyond diploid calls.
+
+- VCF export retains FORMAT fields, phase sets, and reference dictionaries.
+  Compressed output requires bgzip; optional interoperability tests use tabix,
+  bcftools, PLINK, and vcfR.
+- Genotype copy counts and expected DS dosage are separate choices. All allele
+  copies are retained in polyploid counts; arbitrary diploid truncation is refused.
+- HapMap output is diploid IUPAC SNP data. PED output is biallelic, with partial
+  calls made fully missing. Both report phase loss.
+- Sample merges reconcile alleles and recompute AC/AN after sample handling.
+  Other INFO, QUAL, and non-GT/PS FORMAT fields are deliberately omitted and
+  reported. Marker merges retain per-record INFO, QUAL, and FILTER.
+- Reference conflicts and ambiguous marker alignments fail explicitly. Merging
+  does not normalize against a FASTA, infer biological ploidy from chromosome
+  labels, or reconcile independent phase orientations.
+- Parsing and merging remain in-memory. Large-scale performance testing and
+  representative breeder datasets are required before broader release.
+
 ## Permanently out of scope
 
 These are downstream analytical tasks. Other R packages serve them

@@ -49,7 +49,8 @@ read_hapmap <- function(path) {
   }
 
   standard_meta <- c("rs#", "alleles", "chrom", "pos", "strand", "assembly#",
-                     "center", "protLSID", "assayLSID", "panel", "QCcode")
+                     "center", "protLSID", "assayLSID", "panel", "panelLSID",
+                     "QCcode")
   sample_cols <- setdiff(names(raw), standard_meta)
   if (length(sample_cols) == 0L) {
     cli::cli_abort(

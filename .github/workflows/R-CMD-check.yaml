@@ -42,6 +42,17 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
+      - name: Install VCF interoperability tools
+        if: runner.os == 'Linux' && matrix.config.r == 'release'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bcftools tabix plink1.9
+          sudo ln -sf /usr/bin/plink1.9 /usr/local/bin/plink
+          bgzip --version
+          tabix --version
+          bcftools --version
+          plink --version
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
