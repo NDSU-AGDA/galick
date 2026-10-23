@@ -4,7 +4,7 @@
 [![R-CMD-check](https://github.com/DidierMurilloF/beagleR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/DidierMurilloF/beagleR/actions/workflows/R-CMD-check.yaml)
 [![lint](https://github.com/DidierMurilloF/beagleR/actions/workflows/lint.yaml/badge.svg)](https://github.com/DidierMurilloF/beagleR/actions/workflows/lint.yaml)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License: GPL (≥ 3)](https://img.shields.io/badge/License-GPL%20(%E2%89%A5%203)-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![Docs: mkdocs-material](https://img.shields.io/badge/docs-mkdocs--material-3949AB.svg)](https://didiermurillof.github.io/beagleR/)
 <!-- badges: end -->
 
@@ -176,4 +176,4 @@ Bug reports and feature requests are very welcome — please open an [issue on G
 
 ## License
 
-GPL (≥ 3). See [LICENSE.md](LICENSE.md).
+MIT. See [LICENSE.md](LICENSE.md). External tools and dependencies retain their own licenses.

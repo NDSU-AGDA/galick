@@ -4,6 +4,12 @@ First public release. 27 user-facing exports across validation,
 conversion, repair, Beagle execution, dosage / hardcall extraction,
 PLINK bridge, chromosome workflows, and masked-genotype benchmarking.
 
+## Licensing and authors
+
+- The package license is now MIT. External tools and dependencies retain their
+  own licenses.
+- Muyideen Yusuf is included in the package authors.
+
 ## Founder-conditioned simulation
 
 - `simulate_vcf()` adds dependency-free Haldane meiosis and forward breeding
