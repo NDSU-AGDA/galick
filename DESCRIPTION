@@ -36,6 +36,8 @@ Description: An R toolkit for plant- and animal-breeding genotype workflows:
     structured run records. Simulate linked breeding genotypes conditional
     on phased founder haplotypes and genetic maps using explicit diploid
     and random-bivalent autotetraploid inheritance models.
+    Design constrained marker panels using local linkage disequilibrium,
+    measured imputation recovery, and separate tuning and test samples.
     Beagle and PLINK are external command-line tools
     invoked from R; the package focuses on preprocessing and imputation,
     not downstream analyses.
