@@ -1,8 +1,25 @@
 # beagler 0.1.0
 
-First public release. 27 user-facing exports across validation,
+First public release. 28 user-facing exports across validation,
 conversion, repair, Beagle execution, dosage / hardcall extraction,
 PLINK bridge, chromosome workflows, and masked-genotype benchmarking.
+
+## Licensing and authors
+
+- The package license is now MIT. External tools and dependencies retain their
+  own licenses.
+- Muyideen Yusuf is included in the package authors.
+
+## Marker panel design
+
+- `design_marker_panel()` constructs fixed-size constrained panels with local
+  design-only LD proposals and bounded Beagle-guided swap refinement.
+- Fixed, never-genotyped scoring markers and separate design, tuning and test
+  samples prevent panel-dependent scoring and test-set reranking. Missing
+  predictions cannot win; recommendations require independent confirmation.
+- Panel lists, search history, paired scores, frozen decisions and hashed
+  records are retained. A runnable vignette documents constraints and limits.
+- The minimal VCF writer emits decimal POS values, never scientific notation.
 
 ## Founder-conditioned simulation
 

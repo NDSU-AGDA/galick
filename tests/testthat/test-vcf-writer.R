@@ -39,6 +39,17 @@ test_that("write_vcf_v4_2 writes a valid VCF 4.2 file", {
   expect_match(body[1], "^chr1\\t100\\trs1\\tA\\tT\\t\\.\\tPASS\\t\\.\\tGT\\t0/0\\t0/1\\t1/1$")
 })
 
+test_that("write_vcf_v4_2 always writes decimal integer positions", {
+  args <- make_tiny_vcf_args()
+  args$pos <- c(1e5, 2e6, 1e8)
+  out <- withr::local_tempfile(fileext = ".vcf")
+  do.call(write_vcf_v4_2, c(list(output_path = out), args))
+  body <- readLines(out)
+  body <- body[!startsWith(body, "#")]
+  positions <- vapply(strsplit(body, "\t"), `[`, character(1), 2)
+  expect_identical(positions, c("100000", "2000000", "100000000"))
+})
+
 test_that("write_vcf_v4_2 omits length from contig lines (per M4 spec)", {
   out <- withr::local_tempfile(fileext = ".vcf")
   args <- make_tiny_vcf_args()

@@ -90,7 +90,7 @@ write_vcf_v4_2 <- function(output_path,
 
   records <- vapply(seq_len(n_markers), function(i) {
     paste(
-      chrom[i], pos[i], id[i], ref[i], alt[i],
+      chrom[i], format_vcf_pos(pos[i]), id[i], ref[i], alt[i],
       ".", "PASS", ".", "GT",
       paste(gt_matrix[i, ], collapse = "\t"),
       sep = "\t"

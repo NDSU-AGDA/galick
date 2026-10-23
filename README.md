@@ -4,7 +4,7 @@
 [![R-CMD-check](https://github.com/DidierMurilloF/beagleR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/DidierMurilloF/beagleR/actions/workflows/R-CMD-check.yaml)
 [![lint](https://github.com/DidierMurilloF/beagleR/actions/workflows/lint.yaml/badge.svg)](https://github.com/DidierMurilloF/beagleR/actions/workflows/lint.yaml)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License: GPL (≥ 3)](https://img.shields.io/badge/License-GPL%20(%E2%89%A5%203)-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![Docs: mkdocs-material](https://img.shields.io/badge/docs-mkdocs--material-3949AB.svg)](https://didiermurillof.github.io/beagleR/)
 <!-- badges: end -->
 
@@ -116,7 +116,7 @@ merge_vcf(
 )
 ```
 
-27 user-facing functions:
+28 user-facing functions:
 
 | Area | Functions |
 |---|---|
@@ -132,8 +132,15 @@ merge_vcf(
 | **Reports** | `imputation_report()` |
 | **Benchmarking** | `mask_genotypes()` · `compare_imputed_vs_true()` · `benchmark_imputation()` · `evaluate_imputation()` |
 | **Simulation** | `simulate_vcf()` |
+| **Panel design** | `design_marker_panel()` |
 
 ## Documentation
+
+`design_marker_panel()` constructs fixed-size marker panels, refines them using
+measured Beagle recovery, and independently confirms a frozen choice. Scoring
+markers never enter any candidate panel. Design, tuning and test samples remain
+separate; recommendations require complete predictions and group safeguards.
+See `vignette("design-marker-panel", package = "beagler")`.
 
 `simulate_vcf()` creates founder-conditioned linked genotypes, complete truth
 and references, observed targets, pedigree and diagnostics. It uses a supplied
@@ -170,10 +177,10 @@ https://github.com/DidierMurilloF/beagleR
 
 ## Status
 
-beagler is at **v0.1.0**, the first public release. The 27 exported functions and S3 result classes form the v0.1.x public API. Please validate the workflow on representative data before production use.
+beagler is at **v0.1.0**, the first public release. The 28 exported functions and S3 result classes form the v0.1.x public API. Please validate the workflow on representative data before production use.
 
 Bug reports and feature requests are very welcome — please open an [issue on GitHub](https://github.com/DidierMurilloF/beagleR/issues) with a reproducible example.
 
 ## License
 
-GPL (≥ 3). See [LICENSE.md](LICENSE.md).
+MIT. See [LICENSE.md](LICENSE.md). External tools and dependencies retain their own licenses.

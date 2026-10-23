@@ -68,7 +68,7 @@ these specifics:
 
 - roxygen2 for every function in `R/`.
 - `@export` only the user-facing API. The v0.1.0 public surface is
-  currently contains 27 exported functions.
+  currently contains 28 exported functions.
 - Runnable examples by default; use `\dontrun{}` only when an
   example genuinely requires an external tool.
 

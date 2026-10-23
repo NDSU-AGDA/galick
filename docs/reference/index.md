@@ -19,6 +19,7 @@ important options.
 | [Reports](reports.md) | Markdown summaries. | `imputation_report` |
 | [Benchmarking](benchmarking.md) | Mask, impute, compare and evaluate configurations. | `mask_genotypes` · `compare_imputed_vs_true` · `benchmark_imputation` · `evaluate_imputation` |
 | [Simulation](simulation.md) | Founder-conditioned linked breeding genotypes. | `simulate_vcf` |
+| [Panel design](benchmarking.md#design_marker_panel) | Constrained marker selection with independent confirmation. | `design_marker_panel` |
 
 ## Object model
 
