@@ -115,10 +115,11 @@ simulate_vcf <- function(founder_vcf, map, output_dir,
   if (!dir.create(stage)) simulation_abort("Cannot create staging directory.")
   on.exit(unlink(stage, recursive = TRUE), add = TRUE)
   event_path <- file.path(stage, "recombination.tsv")
-  event_count <- 0
+  event_state <- new.env(parent = emptyenv())
+  event_state$count <- 0
   event_sink <- function(events) {
-    data.table::fwrite(events, event_path, sep = "\t", append = event_count > 0)
-    event_count <<- event_count + nrow(events)
+    data.table::fwrite(events, event_path, sep = "\t", append = event_state$count > 0)
+    event_state$count <- event_state$count + nrow(events)
   }
   withr::local_seed(as.integer(seed))
   population <- simulation_populations(

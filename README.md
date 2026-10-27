@@ -1,7 +1,6 @@
 # Galick <img src="man/figures/logo.svg" align="right" width="120" alt="Galick" />
 
 [![R CMD check](https://github.com/DidierMurilloF/galick/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/DidierMurilloF/galick/actions/workflows/R-CMD-check.yaml)
-[![Lint](https://github.com/DidierMurilloF/galick/actions/workflows/lint.yaml/badge.svg)](https://github.com/DidierMurilloF/galick/actions/workflows/lint.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
 **Genotype preparation, simulation and imputation evaluation in R.**
