@@ -368,4 +368,3 @@ vcf_to_plink(
   overwrite = FALSE
 )
 ```
-

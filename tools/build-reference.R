@@ -21,4 +21,4 @@ for (name in exports) {
   }
   lines <- c(lines, paste0("## `", name, "()`"), "", "```r", signature, "```", "")
 }
-writeLines(lines, "docs/reference/api.md")
+writeLines(lines[-length(lines)], "docs/reference/api.md")
