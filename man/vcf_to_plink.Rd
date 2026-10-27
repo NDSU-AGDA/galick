@@ -18,10 +18,10 @@ vcf_to_plink(vcf, plink_prefix, plink = NULL, overwrite = FALSE)
 \verb{<plink_prefix>.\{bed,bim,fam\}} unless \code{TRUE}.}
 }
 \value{
-A \code{beagler_run} S3 object.
+A \code{galick_run} S3 object.
 }
 \description{
 Shells out to PLINK 1.9 or 2.0 with \verb{--vcf <vcf> --make-bed --out <prefix>}.
-Returns a \code{beagler_run} object capturing the command, status, runtime,
+Returns a \code{galick_run} object capturing the command, status, runtime,
 and output paths.
 }

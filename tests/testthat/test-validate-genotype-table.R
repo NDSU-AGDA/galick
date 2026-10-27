@@ -10,7 +10,7 @@ test_that("validate_genotype_table happy path with AHB encoding", {
     rs3 = c("B", "B", "H")
   )
   result <- validate_genotype_table(data)
-  expect_s3_class(result, "beagler_result")
+  expect_s3_class(result, "galick_result")
   expect_true(result$ok)
   expect_equal(result$summary$inferred_encoding, "AHB")
   expect_equal(result$summary$n_samples, 3L)
@@ -107,25 +107,25 @@ test_that("validate_genotype_table accepts explicit sample_col", {
 test_that("validate_genotype_table aborts on NULL data", {
   expect_error(
     validate_genotype_table(NULL),
-    class = "beagler_error_invalid_input"
+    class = "galick_error_invalid_input"
   )
 })
 
 test_that("validate_genotype_table aborts on non-data.frame data", {
   expect_error(
     validate_genotype_table(list(a = 1, b = 2)),
-    class = "beagler_error_invalid_input"
+    class = "galick_error_invalid_input"
   )
 })
 
 test_that("validate_genotype_table aborts on empty / single-column data", {
   expect_error(
     validate_genotype_table(data.frame()),
-    class = "beagler_error_invalid_input"
+    class = "galick_error_invalid_input"
   )
   expect_error(
     validate_genotype_table(data.frame(sample_id = "s1")),
-    class = "beagler_error_invalid_input"
+    class = "galick_error_invalid_input"
   )
 })
 
@@ -133,7 +133,7 @@ test_that("validate_genotype_table aborts on missing sample_col arg", {
   data <- make_data(sample_id = c("s1", "s2"), rs1 = c("A", "B"))
   expect_error(
     validate_genotype_table(data, sample_col = "not_there"),
-    class = "beagler_error_invalid_sample_col"
+    class = "galick_error_invalid_sample_col"
   )
 })
 
@@ -145,7 +145,7 @@ test_that("validate_genotype_table aborts when auto-detect cannot find sample_co
   )
   expect_error(
     validate_genotype_table(data),
-    class = "beagler_error_invalid_sample_col"
+    class = "galick_error_invalid_sample_col"
   )
 })
 
@@ -156,7 +156,7 @@ test_that("validate_genotype_table aborts on unsupported ploidy", {
   )
   expect_error(
     validate_genotype_table(data, ploidy = 4L),
-    class = "beagler_error_unsupported_ploidy"
+    class = "galick_error_unsupported_ploidy"
   )
 })
 

@@ -65,10 +65,10 @@ case \code{(length(candidates) + 2) * repeats} before launching any jobs.}
 \item{beagle_jar, java}{Optional runtime paths passed to \code{\link[=run_beagle]{run_beagle()}}.}
 }
 \value{
-A \code{beagler_evaluation} inheriting from \code{beagler_result}, with \code{metrics},
+A \code{galick_evaluation} inheriting from \code{galick_result}, with \code{metrics},
 \code{by_group}, \code{selection}, \code{runs}, \code{design} and \code{per_marker_paths}. Missing
 predictions prevent selection. Execution/scoring failures are collected;
-invalid experiment designs raise \code{beagler_error_evaluation_invalid_input}.
+invalid experiment designs raise \code{galick_error_evaluation_invalid_input}.
 }
 \description{
 Runs paired sporadic-call masking or reference-based array thinning. Selection

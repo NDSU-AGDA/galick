@@ -23,19 +23,19 @@ split_vcf_by_chrom <- function(vcf, out_dir,
   if (length(vcf) != 1L || !is.character(vcf) || is.na(vcf) || !file.exists(vcf)) {
     cli::cli_abort(
       "{.arg vcf} must be a path to an existing VCF file.",
-      class = "beagler_error_split_vcf_invalid_input"
+      class = "galick_error_split_vcf_invalid_input"
     )
   }
   if (!grepl("\\.vcf$|\\.vcf\\.gz$", vcf, ignore.case = TRUE)) {
     cli::cli_abort(
       "{.arg vcf} must end in {.val .vcf} or {.val .vcf.gz}.",
-      class = "beagler_error_split_vcf_invalid_input"
+      class = "galick_error_split_vcf_invalid_input"
     )
   }
   if (length(out_dir) != 1L || !is.character(out_dir) || is.na(out_dir)) {
     cli::cli_abort(
       "{.arg out_dir} must be a single non-NA character string.",
-      class = "beagler_error_split_vcf_invalid_input"
+      class = "galick_error_split_vcf_invalid_input"
     )
   }
   if (!dir.exists(out_dir)) {
@@ -46,7 +46,7 @@ split_vcf_by_chrom <- function(vcf, out_dir,
   if (is.na(parsed$chrom_header_line)) {
     cli::cli_abort(
       "{.arg vcf} has no #CHROM header; cannot split.",
-      class = "beagler_error_split_vcf_invalid_input"
+      class = "galick_error_split_vcf_invalid_input"
     )
   }
 
@@ -61,7 +61,7 @@ split_vcf_by_chrom <- function(vcf, out_dir,
   keepable <- !is.na(body_chroms) & body_col_ok
   if (any(!keepable)) {
     cli::cli_abort("Malformed VCF records cannot be silently omitted during splitting.",
-      class = "beagler_error_split_vcf_invalid_input"
+      class = "galick_error_split_vcf_invalid_input"
     )
   }
   unique_chroms <- unique(body_chroms[keepable])
@@ -70,7 +70,7 @@ split_vcf_by_chrom <- function(vcf, out_dir,
   }
   if (anyDuplicated(vapply(unique_chroms, safe_chrom_filename, character(1)))) {
     cli::cli_abort("Chromosome names collide after filename sanitization.",
-      class = "beagler_error_split_vcf_invalid_input"
+      class = "galick_error_split_vcf_invalid_input"
     )
   }
 
@@ -84,7 +84,7 @@ split_vcf_by_chrom <- function(vcf, out_dir,
           "Per-chromosome output already exists: {.file {out_path}}",
           i = "Use {.code overwrite = TRUE} to clobber."
         ),
-        class = "beagler_error_split_vcf_output_exists"
+        class = "galick_error_split_vcf_output_exists"
       )
     }
     keep_idx <- which(keepable & body_chroms == ch)
@@ -98,7 +98,7 @@ split_vcf_by_chrom <- function(vcf, out_dir,
 #' Run Beagle separately on each chromosome
 #'
 #' Splits `gt` into per-chromosome files, calls [run_beagle()] on each,
-#' and returns one `beagler_run` per chromosome.
+#' and returns one `galick_run` per chromosome.
 #'
 #' Resume logic: if a per-chromosome `run_dir/<chrom>/run_record.json`
 #' reports success, its input, reference, map, runtime and settings fingerprint
@@ -117,7 +117,7 @@ split_vcf_by_chrom <- function(vcf, out_dir,
 #' @param ... Extra args passed verbatim to each [run_beagle()] call
 #'   (e.g. `mode`, `nthreads`, `memory_gb`).
 #'
-#' @return A named list of `beagler_run` objects (names = chromosome).
+#' @return A named list of `galick_run` objects (names = chromosome).
 #' @export
 run_beagle_by_chrom <- function(gt,
                                 out_dir,
@@ -133,20 +133,20 @@ run_beagle_by_chrom <- function(gt,
                             anyDuplicated(names(options)) ||
                             any(names(options) %in% c("gt", "out", "ref", "map", "run_dir", "overwrite")))) {
     cli::cli_abort("Extra run options must be uniquely named, non-reserved arguments.",
-      class = "beagler_error_run_beagle_by_chrom_invalid_input"
+      class = "galick_error_run_beagle_by_chrom_invalid_input"
     )
   }
 
   if (length(gt) != 1L || !is.character(gt) || is.na(gt) || !file.exists(gt)) {
     cli::cli_abort(
       "{.arg gt} must be a path to an existing VCF file.",
-      class = "beagler_error_run_beagle_by_chrom_invalid_input"
+      class = "galick_error_run_beagle_by_chrom_invalid_input"
     )
   }
   if (length(out_dir) != 1L || !is.character(out_dir) || is.na(out_dir)) {
     cli::cli_abort(
       "{.arg out_dir} must be a single non-NA character string.",
-      class = "beagler_error_run_beagle_by_chrom_invalid_input"
+      class = "galick_error_run_beagle_by_chrom_invalid_input"
     )
   }
   if (!dir.exists(out_dir)) {
@@ -200,7 +200,7 @@ run_beagle_by_chrom <- function(gt,
     if (!requireNamespace("future.apply", quietly = TRUE)) {
       cli::cli_abort(
         "{.pkg future.apply} is required for {.arg parallel = \"future\"}.",
-        class = "beagler_error_run_beagle_by_chrom_invalid_input"
+        class = "galick_error_run_beagle_by_chrom_invalid_input"
       )
     }
     future.apply::future_lapply(chroms, run_one)
@@ -215,14 +215,14 @@ run_beagle_by_chrom <- function(gt,
 
 #' Merge per-chromosome Beagle outputs into a single VCF
 #'
-#' Takes a list of `beagler_run` objects (typically the output of
+#' Takes a list of `galick_run` objects (typically the output of
 #' [run_beagle_by_chrom()]) and concatenates their VCF outputs into
 #' `output_vcf`. All supplied runs must have succeeded. Sample columns are
 #' aligned by name, compatible headers are combined, and FORMAT fields retained.
 #'
 #' Compressed output requires `bgzip` and is BGZF, not ordinary gzip.
 #'
-#' @param run_results A named list of `beagler_run` objects.
+#' @param run_results A named list of `galick_run` objects.
 #' @param output_vcf Path to the merged VCF (`.vcf` or `.vcf.gz`).
 #' @param bcftools Optional path; ignored in v0.1.0 (kept for forward
 #'   compatibility).
@@ -234,36 +234,36 @@ merge_beagle_outputs <- function(run_results, output_vcf,
                                  bcftools = NULL, overwrite = FALSE) {
   if (!is.list(run_results) || length(run_results) == 0L) {
     cli::cli_abort(
-      "{.arg run_results} must be a non-empty list of {.cls beagler_run} objects.",
-      class = "beagler_error_merge_beagle_invalid_input"
+      "{.arg run_results} must be a non-empty list of {.cls galick_run} objects.",
+      class = "galick_error_merge_beagle_invalid_input"
     )
   }
   if (length(output_vcf) != 1L || !is.character(output_vcf) || is.na(output_vcf)) {
     cli::cli_abort(
       "{.arg output_vcf} must be a single non-NA character string.",
-      class = "beagler_error_merge_beagle_invalid_input"
+      class = "galick_error_merge_beagle_invalid_input"
     )
   }
   if (!grepl("\\.vcf$|\\.vcf\\.gz$", output_vcf, ignore.case = TRUE)) {
     cli::cli_abort(
       "{.arg output_vcf} must end in {.val .vcf} or {.val .vcf.gz}.",
-      class = "beagler_error_merge_beagle_invalid_input"
+      class = "galick_error_merge_beagle_invalid_input"
     )
   }
   if (file.exists(output_vcf) && !overwrite) {
     cli::cli_abort(
       "{.arg output_vcf} exists: {.file {output_vcf}} (use {.code overwrite = TRUE}).",
-      class = "beagler_error_merge_beagle_output_exists"
+      class = "galick_error_merge_beagle_output_exists"
     )
   }
 
   paths <- vapply(run_results, function(r) {
-    if (!inherits(r, "beagler_run") || !identical(r$status, 0L) ||
+    if (!inherits(r, "galick_run") || !identical(r$status, 0L) ||
           length(r$output_paths) != 1L || is.na(r$output_paths) ||
           !file.exists(r$output_paths)) {
       cli::cli_abort(
         "Every expected run must have succeeded and have one existing VCF output.",
-        class = "beagler_error_merge_beagle_invalid_input"
+        class = "galick_error_merge_beagle_invalid_input"
       )
     }
     r$output_paths
@@ -272,7 +272,7 @@ merge_beagle_outputs <- function(run_results, output_vcf,
     checked <- validate_vcf(path)
     if (!checked$ok || checked$summary$n_records < 1L) {
       cli::cli_abort("Every chromosome output must contain valid VCF records.",
-        class = "beagler_error_merge_beagle_invalid_input"
+        class = "galick_error_merge_beagle_invalid_input"
       )
     }
   }
@@ -282,13 +282,13 @@ merge_beagle_outputs <- function(run_results, output_vcf,
   if (any(lengths(observed) != 1L) || anyDuplicated(unlist(observed)) ||
         (!is.null(expected) && !setequal(expected, unlist(observed)))) {
     cli::cli_abort("Chromosome outputs must cover the expected disjoint chromosomes.",
-      class = "beagler_error_merge_beagle_invalid_input"
+      class = "galick_error_merge_beagle_invalid_input"
     )
   }
   samples <- inputs[[1]]$samples
   if (any(!vapply(inputs, function(x) setequal(x$samples, samples), logical(1)))) {
     cli::cli_abort("Chromosome outputs must contain the same samples.",
-      class = "beagler_error_merge_beagle_invalid_input"
+      class = "galick_error_merge_beagle_invalid_input"
     )
   }
   for (i in seq_along(inputs)) {
@@ -342,7 +342,7 @@ safe_chrom_filename <- function(ch) {
 }
 
 #' If a previous successful run exists for this chromosome with a matching
-#' input hash, return a synthesized `beagler_run` for it; otherwise NULL.
+#' input hash, return a synthesized `galick_run` for it; otherwise NULL.
 #'
 #' @keywords internal
 #' @noRd
@@ -388,7 +388,7 @@ try_resume_chrom_run <- function(chrom_gt, run_dir, out_prefix,
 
       versions <- if (is.null(rec$versions)) list() else rec$versions
       command <- if (is.null(rec$command)) character() else as.character(unlist(rec$command))
-      new_beagler_run(
+      new_galick_run(
         status = 0L,
         runtime_sec = if (is.null(rec$runtime_sec)) NA_real_ else as.numeric(rec$runtime_sec),
         command = command,

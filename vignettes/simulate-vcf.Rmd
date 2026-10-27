@@ -8,14 +8,14 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-library(beagler)
+library(galick)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 `simulate_vcf()` creates linked descendants from supplied phased founders and a
 genetic map. Haldane meiosis models transmission; initial LD and population
 structure come from founders, not invented species presets. The simulator uses
-beagler's existing dependencies. AlphaSimR is used only for independent development
+galick's existing dependencies. AlphaSimR is used only for independent development
 validation and is not needed to run this vignette or the package.
 
 ## A small founder panel

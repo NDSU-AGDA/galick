@@ -72,3 +72,6 @@ jobs:
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+      - name: Check README and website R examples
+        run: Rscript tools/check-documentation.R --run

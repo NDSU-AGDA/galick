@@ -1,6 +1,6 @@
 #' @keywords internal
 #' @noRd
-new_beagler_panel_design <- function(state, input, baseline, config, call) {
+new_galick_panel_design <- function(state, input, baseline, config, call) {
   output <- config$output_dir
   metrics <- tibble::as_tibble(data.table::rbindlist(state$metrics))
   groups <- tibble::as_tibble(data.table::rbindlist(state$groups))
@@ -25,7 +25,7 @@ new_beagler_panel_design <- function(state, input, baseline, config, call) {
   }
   paths <- file.path(output, c("metrics.tsv", "by_group.tsv", "search_history.tsv"))
   for (i in seq_along(paths)) data.table::fwrite(list(metrics, groups, history)[[i]], paths[i], sep = "\t", na = "NA")
-  object <- new_beagler_result(
+  object <- new_galick_result(
     errors = issues_tibble(state$errors), warnings = input$warnings,
     summary = list(
       decision = state$selection$decision, n_markers = length(baseline), n_runs = length(state$runs),
@@ -68,15 +68,15 @@ new_beagler_panel_design <- function(state, input, baseline, config, call) {
       }
     )
   })
-  config$package_version <- as.character(utils::packageVersion("beagler"))
+  config$package_version <- as.character(utils::packageVersion("galick"))
   config$r_version <- as.character(getRversion())
   evaluation_write_json(config, file.path(output, "panel_design.json"))
-  class(object) <- c("beagler_panel_design", class(object))
+  class(object) <- c("galick_panel_design", class(object))
   object
 }
 
 #' @export
-print.beagler_panel_design <- function(x, ...) {
+print.galick_panel_design <- function(x, ...) {
   cli::cli_h1("Marker panel design: {x$selection$decision}")
   cli::cli_text("Markers: {x$summary$n_markers}; runs: {x$summary$n_runs}; errors: {nrow(x$errors)}")
   if (nrow(x$metrics)) {
@@ -86,6 +86,6 @@ print.beagler_panel_design <- function(x, ...) {
 }
 
 #' @export
-as.data.frame.beagler_panel_design <- function(x, ...) {
+as.data.frame.galick_panel_design <- function(x, ...) {
   as.data.frame(x$metrics)
 }

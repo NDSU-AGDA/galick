@@ -13,7 +13,7 @@ repair_vcf(
             "fix_marker_ids", "remove_duplicates", "sort"),
   chrom_style = c("auto", "numeric", "chr_prefixed", "as_is"),
   overwrite   = FALSE
-) -> beagler_result
+)
 ```
 
 The steps run in order. The user controls the set; nothing is run
@@ -62,11 +62,8 @@ errors that wrap the failed validator codes:
 result <- repair_vcf("dirty.vcf", "out.vcf",
                      steps = "drop_invalid_records")
 result$ok
-#> [1] FALSE
 result$errors$code
-#> [1] "repair_vcf_remaining_vcf_multiallelic"
 file.exists("out.vcf")
-#> [1] FALSE
 ```
 
 ## Chromosome-style normalization
@@ -83,19 +80,11 @@ repair_vcf("messy.vcf", "out.vcf", chrom_style = "numeric")
 ## Example: full repair
 
 ```r
-dirty <- system.file("extdata", "tiny_dirty.vcf", package = "beagler")
+dirty <- system.file("extdata", "tiny_dirty.vcf", package = "galick")
 clean <- tempfile(fileext = ".vcf")
 result <- repair_vcf(dirty, clean)
 
 result$summary$step_summary
-#> # A tibble: 5 × 4
-#>   step                  n_in  n_out n_changed
-#>   <chr>                <int> <int>     <int>
-#> 1 drop_invalid_records     9     6         3
-#> 2 filter_biallelic         6     5         1
-#> 3 fix_marker_ids           5     5         1
-#> 4 remove_duplicates        5     3         2
-#> 5 sort                     3     3         3
 ```
 
 `$summary$step_summary` records what each step did, and step actions

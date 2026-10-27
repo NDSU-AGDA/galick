@@ -23,7 +23,7 @@ run_cli <- function(cmd,
   if (length(cmd) != 1L || !is.character(cmd) || is.na(cmd)) {
     cli::cli_abort(
       "{.field cmd} must be a single non-NA character string.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
 
@@ -34,7 +34,7 @@ run_cli <- function(cmd,
     } else {
       cli::cli_abort(
         "Executable not found: {.field {cmd}}",
-        class = "beagler_error_executable_not_found"
+        class = "galick_error_executable_not_found"
       )
     }
   }

@@ -10,14 +10,14 @@ install_beagle(version = "5.4", dest = NULL)
 \item{version}{Currently must equal \code{"5.4"}.}
 
 \item{dest}{Destination path. Defaults to
-\code{tools::R_user_dir("beagler", "cache")/beagle.jar}.}
+\code{tools::R_user_dir("galick", "cache")/beagle.jar}.}
 }
 \value{
 The destination path, invisibly.
 }
 \description{
-Beagle is GPL-licensed but cannot ship in CRAN tarballs. This helper
-downloads a pinned tested release into the user's beagler cache (or a
+Beagle is distributed separately under its own license. This helper
+downloads a pinned tested release into the user's galick cache (or a
 custom destination) and verifies it by parsing the version line.
 }
 \details{

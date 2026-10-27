@@ -16,9 +16,9 @@ index `2` refers to `G`; the first file uses `ALT=G`, where `G` is index
 reconcile.
 
 ```r
-library(beagler)
+library(galick)
 
-work_dir <- tempfile("beagler_export_merge_")
+work_dir <- tempfile("galick_export_merge_")
 dir.create(work_dir)
 
 cohort_a <- file.path(work_dir, "cohort_a.vcf")
@@ -51,14 +51,10 @@ Validate before transforming anything:
 
 ```r
 validate_vcf(cohort_a, target = "general")$ok
-#> [1] TRUE
 validate_vcf(cohort_b, target = "general")$ok
-#> [1] TRUE
 
 detect_subgenome_labels(cohort_a)
-#> character(0)
 detect_genotype_ploidy(cohort_a)
-#> [1] 2
 ```
 
 Subgenome labels describe observed chromosome names only; a chromosome
@@ -68,7 +64,7 @@ observed allele-slot count in GT and guards diploid-only exports.
 ## Export to exchange formats
 
 `export_genotypes()` reads the VCF once per call and returns a
-`beagler_result` report. VCF retains FORMAT fields, phase sets and reference
+`galick_result` report. VCF retains FORMAT fields, phase sets and reference
 metadata. CSV and TSV retain GT strings but not additional FORMAT fields.
 
 ```r
@@ -99,8 +95,6 @@ export_reports <- list(
 )
 
 vapply(export_reports, function(x) x$summary$sites_out, integer(1))
-#>    vcf hapmap    csv    tsv
-#>      3      3      3      3
 ```
 
 HapMap uses standard IUPAC codes for diploid biallelic SNPs. Phase is lost,
@@ -112,16 +106,8 @@ read.delim(
   file.path(export_dir, "cohort_a.hmp.txt"),
   check.names = FALSE
 )[, c("rs#", "alleles", "line_A")]
-#>   rs# alleles line_A
-#> 1 rs1     A/G      R
-#> 2 rs2     C/G      G
-#> 3 rs3     T/C      N
 
 read.csv(file.path(export_dir, "cohort_a.csv"))[, c("ID", "line_A")]
-#>    ID line_A
-#> 1 rs1    0/1
-#> 2 rs2    1|1
-#> 3 rs3    0/.
 ```
 
 Numeric output writes samples as rows and markers as columns. The default
@@ -137,8 +123,6 @@ dosage_report <- export_genotypes(
 )
 
 read.delim(file.path(export_dir, "cohort_a.dosage.tsv"))
-#>   sample rs1 rs2 rs3
-#> 1 line_A   1   2  NA
 ```
 
 Pure-R PLINK export writes PED/MAP files. It does not create binary
@@ -153,9 +137,7 @@ plink_report <- export_genotypes(
 )
 
 basename(plink_report$summary$output_paths)
-#> [1] "cohort_a.ped" "cohort_a.map"
 plink_report$warnings$code
-#> [1] "export_partial_calls_missing" "export_phase_dropped"
 ```
 
 PED/MAP cannot retain the `|` phase separator. Partially missing genotypes
@@ -176,7 +158,6 @@ writeLines(c(
 ), tetraploid)
 
 detect_genotype_ploidy(tetraploid)
-#> [1] 4
 
 tryCatch(
   export_genotypes(
@@ -186,7 +167,6 @@ tryCatch(
   ),
   error = function(e) class(e)[1]
 )
-#> [1] "beagler_error_export_polyploid_refused"
 ```
 
 Export the complete allele count without reducing genotype ploidy:
@@ -200,8 +180,6 @@ poly_report <- export_genotypes(
 )
 
 read.delim(file.path(export_dir, "polyploid.tsv"))
-#>   sample poly1
-#> 1 line_P     2
 ```
 
 ## Merge different samples
@@ -219,13 +197,9 @@ sample_report <- merge_vcf(
 )
 
 unname(sample_report$summary$sites_in)
-#> [1] 3 3
 sample_report$summary$sites_out
-#> [1] 3
 sample_report$summary$samples_out
-#> [1] 2
 nrow(sample_report$summary$sites_dropped)
-#> [1] 0
 ```
 
 Inspecting the merged records shows the allele union and reindexing at
@@ -237,16 +211,12 @@ merged_lines <- readLines(sample_merged)
 cat(merged_lines[!startsWith(merged_lines, "##")], sep = "\n")
 
 validate_vcf(sample_merged, target = "general")$ok
-#> [1] TRUE
 ```
 
 The merged VCF feeds directly into existing extraction functions:
 
 ```r
 vcf_to_dosage(sample_merged)
-#>        rs1 rs2 rs3
-#> line_A   1   2  NA
-#> line_B   2   1   2
 ```
 
 Sample collisions default to an error. Use `sample_collision =
@@ -295,16 +265,10 @@ marker_report <- merge_vcf(
 )
 
 unname(marker_report$summary$sites_in)
-#> [1] 1 1
 marker_report$summary$sites_out
-#> [1] 2
 marker_report$summary$samples_out
-#> [1] 2
 
 vcf_to_hardcalls(marker_merged, encoding = "012")
-#>        rs4 rs5
-#> line_A "0" "1"
-#> line_B "1" "2"
 ```
 
 `by_marker` refuses duplicate canonical records across files; distinct SNPs
@@ -316,7 +280,7 @@ merging when inputs were produced by different callers.
 
 ## Read the reports
 
-Both functions return `beagler_result` objects. The most useful audit
+Both functions return `galick_result` objects. The most useful audit
 fields are:
 
 | Field | Meaning |

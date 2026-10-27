@@ -18,7 +18,7 @@
 #'   are eligible to be masked.
 #' @param overwrite Refuse to clobber `output_vcf` unless `TRUE`.
 #'
-#' @return A `beagler_result` with `summary$n_masked`,
+#' @return A `galick_result` with `summary$n_masked`,
 #'   `summary$n_eligible`, and `summary$output_path`.
 #' @export
 mask_genotypes <- function(vcf,
@@ -33,38 +33,38 @@ mask_genotypes <- function(vcf,
   if (length(vcf) != 1L || !is.character(vcf) || is.na(vcf) || !file.exists(vcf)) {
     cli::cli_abort(
       "{.arg vcf} must be a path to an existing VCF file.",
-      class = "beagler_error_mask_genotypes_invalid_input"
+      class = "galick_error_mask_genotypes_invalid_input"
     )
   }
   if (!grepl("\\.vcf$|\\.vcf\\.gz$", vcf, ignore.case = TRUE)) {
     cli::cli_abort(
       "{.arg vcf} must end in {.val .vcf} or {.val .vcf.gz}.",
-      class = "beagler_error_mask_genotypes_invalid_input"
+      class = "galick_error_mask_genotypes_invalid_input"
     )
   }
   if (length(output_vcf) != 1L || !is.character(output_vcf) || is.na(output_vcf)) {
     cli::cli_abort(
       "{.arg output_vcf} must be a single non-NA character string.",
-      class = "beagler_error_mask_genotypes_invalid_input"
+      class = "galick_error_mask_genotypes_invalid_input"
     )
   }
   if (!grepl("\\.vcf$", output_vcf, ignore.case = TRUE)) {
     cli::cli_abort(
       "{.arg output_vcf} must end in {.val .vcf}.",
-      class = "beagler_error_mask_genotypes_invalid_input"
+      class = "galick_error_mask_genotypes_invalid_input"
     )
   }
   if (file.exists(output_vcf) && !overwrite) {
     cli::cli_abort(
       "{.arg output_vcf} exists: {.file {output_vcf}} (use {.code overwrite = TRUE}).",
-      class = "beagler_error_mask_genotypes_output_exists"
+      class = "galick_error_mask_genotypes_output_exists"
     )
   }
   if (!is.numeric(fraction) || length(fraction) != 1L ||
         is.na(fraction) || fraction <= 0 || fraction >= 1) {
     cli::cli_abort(
       "{.arg fraction} must be a single number strictly between 0 and 1.",
-      class = "beagler_error_mask_genotypes_invalid_input"
+      class = "galick_error_mask_genotypes_invalid_input"
     )
   }
 
@@ -73,7 +73,7 @@ mask_genotypes <- function(vcf,
   if (nrow(rec$gt_matrix) == 0L) {
     cli::cli_abort(
       "{.arg vcf} has no records to mask.",
-      class = "beagler_error_mask_genotypes_invalid_input"
+      class = "galick_error_mask_genotypes_invalid_input"
     )
   }
 
@@ -122,7 +122,7 @@ mask_genotypes <- function(vcf,
     overwrite = overwrite
   )
 
-  new_beagler_result(
+  new_galick_result(
     errors = issues_tibble(list()),
     warnings = issues_tibble(list()),
     summary = list(

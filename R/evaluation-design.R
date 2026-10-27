@@ -2,7 +2,7 @@
 #' @keywords internal
 #' @noRd
 evaluation_abort <- function(message) {
-  cli::cli_abort(message, class = "beagler_error_evaluation_invalid_input")
+  cli::cli_abort(message, class = "galick_error_evaluation_invalid_input")
 }
 
 #' @keywords internal

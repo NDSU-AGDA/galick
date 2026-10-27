@@ -15,13 +15,13 @@ read_vcf_minimal <- function(path) {
   if (length(path) != 1L || !is.character(path) || is.na(path)) {
     cli::cli_abort(
       "{.arg path} must be a single non-NA character string.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
   if (!file.exists(path)) {
     cli::cli_abort(
       "File not found: {.file {path}}",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
 
@@ -35,7 +35,7 @@ read_vcf_minimal <- function(path) {
   if (length(header_lines) != 1L) {
     cli::cli_abort(
       "Expected exactly one {.code #CHROM} header line; got {length(header_lines)}.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
 
@@ -43,7 +43,7 @@ read_vcf_minimal <- function(path) {
   if (length(header_cols) < 9L) {
     cli::cli_abort(
       "Header line has {length(header_cols)} columns; minimum is 9.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
   samples <- header_cols[-(1:9)]
@@ -76,7 +76,7 @@ read_vcf_minimal <- function(path) {
   if (ncol(body_mat) != expected_cols) {
     cli::cli_abort(
       "Body row column count ({ncol(body_mat)}) does not match header ({expected_cols}).",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
 

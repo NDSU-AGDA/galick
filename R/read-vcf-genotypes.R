@@ -14,13 +14,13 @@ read_genotype_vcf <- function(path) {
   if (n_expected < 9L) {
     cli::cli_abort(
       "VCF must have the nine fixed columns through FORMAT.",
-      class = "beagler_error_genotype_vcf_invalid"
+      class = "galick_error_genotype_vcf_invalid"
     )
   }
   if (anyDuplicated(parsed$samples)) {
     cli::cli_abort(
       "VCF sample names must be unique within a file.",
-      class = "beagler_error_genotype_vcf_duplicate_samples"
+      class = "galick_error_genotype_vcf_duplicate_samples"
     )
   }
 
@@ -31,7 +31,7 @@ read_genotype_vcf <- function(path) {
         "VCF record column counts do not match the header at record(s) ",
         "{bad_shape}."
       ),
-      class = "beagler_error_genotype_vcf_invalid"
+      class = "galick_error_genotype_vcf_invalid"
     )
   }
 
@@ -56,7 +56,7 @@ read_genotype_vcf <- function(path) {
           "VCF POS must contain positive whole numbers at record(s) ",
           "{which(bad_pos)}."
         ),
-        class = "beagler_error_genotype_vcf_invalid"
+        class = "galick_error_genotype_vcf_invalid"
       )
     }
 
@@ -92,14 +92,14 @@ read_genotype_vcf <- function(path) {
           any(record_fields %in% c("", ".")) || endsWith(body[i, 9], ":")
         if (bad_fields) {
           cli::cli_abort("Malformed or duplicated FORMAT fields at record {i}.",
-            class = "beagler_error_genotype_vcf_invalid"
+            class = "galick_error_genotype_vcf_invalid"
           )
         }
         gt_index <- match("GT", record_fields)
         if (is.na(gt_index)) {
           cli::cli_abort(
             "VCF FORMAT has no GT field at record {i}.",
-            class = "beagler_error_genotype_vcf_missing_gt"
+            class = "galick_error_genotype_vcf_missing_gt"
           )
         }
         cells <- body[i, 9L + seq_len(n_samples)]
@@ -108,7 +108,7 @@ read_genotype_vcf <- function(path) {
           any(endsWith(cells, ":")) || any(unlist(cell_parts) == "")
         if (bad_cells) {
           cli::cli_abort("Malformed sample FORMAT values at record {i}.",
-            class = "beagler_error_genotype_vcf_invalid"
+            class = "galick_error_genotype_vcf_invalid"
           )
         }
         gt[i, ] <- vapply(cell_parts, function(parts) {
@@ -138,7 +138,7 @@ read_genotype_vcf <- function(path) {
       contigs = vcf_contig_order(parsed$meta, fixed$CHROM),
       source = normalize_path_safe(path, must_exist = TRUE)
     ),
-    class = c("beagler_genotype_vcf", "list")
+    class = c("galick_genotype_vcf", "list")
   )
 }
 
@@ -229,7 +229,7 @@ assert_resolvable_genotypes <- function(vcf) {
         "GT contains malformed or out-of-range allele indices at record(s) ",
         "{which(bad)}."
       ),
-      class = "beagler_error_unresolvable_alleles"
+      class = "galick_error_unresolvable_alleles"
     )
   }
   invisible(vcf)

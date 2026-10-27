@@ -26,7 +26,7 @@ change paired engine seeds, not biological samples. Cell and local-pair ceilings
 are workload bounds, not total RAM limits. No global optimum or assay feasibility
 is claimed. `recommended_panel` is NULL unless test confirmation succeeds.
 Inspect metrics, group scores, search history and hashed `panel_design.json`.
-See `vignette("design-marker-panel", package = "beagler")` for a runnable example.
+See `vignette("design-marker-panel", package = "galick")` for a runnable example.
 
 The development fixture `tools/profile-panel-design.R` records performance, not
 biological accuracy. On an arm64 development machine with R 4.5.3 and Beagle 5.4,
@@ -63,12 +63,12 @@ candidate is frozen before test scoring. Test outcomes never rerank candidates.
 Missing DS never falls back to GT. Correlation is descriptive, not the selection
 objective. Practical margins are not significance tests.
 
-The `beagler_evaluation` result inherits from `beagler_result`. Decisions are
+The `galick_evaluation` result inherits from `galick_result`. Decisions are
 `confirmed`, `no_clear_winner`, `not_confirmed`, or `incomplete`. Only confirmed
 results have a recommended candidate. Each output directory includes isolated
 jobs, hashed masks and inputs, metrics and versioned `evaluation.json`.
 Nonempty output directories are refused. See the installed
-`vignette("evaluate-imputation", package = "beagler")` for a runnable example.
+`vignette("evaluate-imputation", package = "galick")` for a runnable example.
 
 ## `mask_genotypes()`
 
@@ -81,7 +81,7 @@ mask_genotypes(
   samples   = NULL,
   markers   = NULL,
   overwrite = FALSE
-) -> beagler_result
+)
 ```
 
 Reads `vcf`, randomly sets `fraction` of the **non-missing** GT cells
@@ -106,7 +106,7 @@ compare_imputed_vs_true(
   true_vcf,
   masked_vcf = NULL,
   field = c("GT", "DS")
-) -> beagler_result
+)
 ```
 
 Variants must match CHROM, POS, REF and ALT exactly; allele flips are never
@@ -143,9 +143,7 @@ result <- compare_imputed_vs_true(
   masked_vcf  = "data.masked.vcf"
 )
 result$summary$concordance_rate
-#> [1] 0.92
 result$summary$dosage_r2
-#> [1] 0.95
 ```
 
 ## `benchmark_imputation()`
@@ -159,7 +157,7 @@ benchmark_imputation(
   mode     = c("impute", "phase"),
   field    = c("GT", "DS"),
   ...
-) -> list(mask, run, comparison)
+)
 ```
 
 Convenience orchestrator:
@@ -193,9 +191,9 @@ b$comparison$summary$concordance_rate
 
 Returns a list with three slots:
 
-- `$mask` — `beagler_result` from `mask_genotypes()`.
-- `$run` — `beagler_run` from `run_beagle()`.
-- `$comparison` — `beagler_result` from `compare_imputed_vs_true()`,
+- `$mask` — `galick_result` from `mask_genotypes()`.
+- `$run` — `galick_run` from `run_beagle()`.
+- `$comparison` — `galick_result` from `compare_imputed_vs_true()`,
   with the masked-cells filter applied.
 
 Beagle has to actually run, so this requires a working `BEAGLE_PATH`.

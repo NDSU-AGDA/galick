@@ -44,14 +44,14 @@ means data \code{A} codes homo-REF; pass \code{"B"} to swap.}
 \item{overwrite}{Refuse to clobber \code{output_vcf} unless \code{TRUE}.}
 }
 \value{
-A \code{beagler_result} S3 object. On success, \code{summary$output_path}
+A \code{galick_result} S3 object. On success, \code{summary$output_path}
 is the written file. On failure, \code{output_path} is \code{NA_character_} and
 no VCF is written.
 }
 \description{
 Runs \code{\link[=validate_genotype_table]{validate_genotype_table()}} and \code{\link[=validate_marker_map]{validate_marker_map()}} internally,
 applies M4-specific stricter checks, and only writes a VCF if zero errors
-were collected. Otherwise returns a \code{beagler_result(ok = FALSE)} with all
+were collected. Otherwise returns a \code{galick_result(ok = FALSE)} with all
 errors aggregated (no partial output).
 }
 \details{

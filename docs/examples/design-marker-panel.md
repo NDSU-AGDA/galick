@@ -1,0 +1,149 @@
+# Marker panel design
+
+This worked example is also available as an installed vignette. Small constructed
+inputs demonstrate the API; they are not evidence of biological performance.
+
+
+```r
+library(galick)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+beagle_available <- nzchar(Sys.getenv("BEAGLE_PATH")) &&
+  file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))
+```
+
+`design_marker_panel()` chooses a fixed number of observed SNPs and measures
+recovery at separate, never-observed scoring SNPs. A complete phased reference
+with disjoint sample IDs is required. The result is a computational marker list,
+not a manufacture-ready assay or a guarantee of genomic-prediction accuracy.
+
+## Inputs and independent partitions
+
+These small artificial calls demonstrate the API, not biological performance.
+For a real study, supply high-confidence calls, candidate sites known to be
+assayable, a representative reference and deployment-appropriate sample blocks.
+Do not pre-impute the scoring truth or phase the reference jointly with evaluation
+samples. Renamed duplicates and biological relationships are not detected.
+
+```r
+directory <- tempfile("panel_example_")
+dir.create(directory)
+samples <- paste0("sample", seq_len(120))
+markers <- data.frame(
+  marker_id = paste0("marker", seq_len(24)),
+  chrom = rep(c("1", "2"), each = 12),
+  pos = rep(seq(10000, 120000, 10000), 2),
+  ref = "A", alt = "G"
+)
+calls <- withr::with_seed(42, matrix(sample(0:2, 24 * 120, replace = TRUE), 120, 24))
+colnames(calls) <- markers$marker_id
+table <- data.frame(sample_id = samples, calls, check.names = FALSE)
+csv <- file.path(directory, "calls.csv")
+utils::write.csv(table, csv, row.names = FALSE)
+truth <- file.path(directory, "truth.vcf")
+csv_to_vcf(csv, markers, truth, encoding = "012")
+
+# Artificial phased reference; never created from the evaluation samples.
+reference_samples <- paste0("reference", seq_len(80))
+reference_calls <- withr::with_seed(71, matrix(
+  sample(c("0|0", "0|1", "1|0", "1|1"), 24 * 80, replace = TRUE), 24, 80
+))
+reference <- file.path(directory, "reference.vcf")
+header <- c(
+  "##fileformat=VCFv4.2", "##contig=<ID=1>", "##contig=<ID=2>",
+  '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">',
+  paste(c("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT",
+          reference_samples), collapse = "\t")
+)
+records <- vapply(seq_len(nrow(markers)), function(i) {
+  paste(c(markers$chrom[i], format(markers$pos[i], scientific = FALSE, trim = TRUE),
+          markers$marker_id[i], "A", "G", ".", ".", ".", "GT",
+          reference_calls[i, ]), collapse = "\t")
+}, character(1))
+writeLines(c(header, records), reference)
+
+metadata <- data.frame(
+  sample_id = samples,
+  partition = rep(c("design", "tune", "test"), each = 40),
+  group = rep(rep(c("A", "B"), each = 20), 3),
+  block = samples
+)
+identities <- markers[c("chrom", "pos", "ref", "alt")]
+scoring <- identities[seq_len(nrow(identities)) %% 3 == 0, ]
+candidates <- identities[seq_len(nrow(identities)) %% 3 != 0, ]
+```
+
+Every group needs at least 20 design and 10 tuning/test samples. Groups are
+reporting strata, not independence blocks; use `block` to keep declared families
+or lines together. Missing original calls are excluded from scoring. Candidate
+eligibility is calculated only on design samples: call rate at least 95 percent
+and pooled minor allele frequency at least 1 percent. Mandatory sites must pass.
+
+## Bounded search and confirmation
+
+```r
+result <- design_marker_panel(
+  truth_vcf = truth, reference_vcf = reference, sample_data = metadata,
+  candidate_markers = candidates, scoring_markers = scoring,
+  n_markers = 8L, output_dir = file.path(directory, "experiment"),
+  mandatory_markers = candidates[c(1, 9), ],
+  min_spacing_bp = 10000, field = "DS", repeats = 1L,
+  max_proposals = 2L, max_runs = 8L, memory_gb = 1L,
+  extra_args = c("iterations=2", "burnin=1"), seed = 42L
+)
+stopifnot(result$ok)
+result
+result$selection
+result$search_history
+result$recommended_panel
+```
+
+The baseline spreads markers approximately evenly within fixed chromosome quotas.
+The informed seed greedily covers scoring markers using local squared genotype
+correlations, with equal weight per group. Undefined correlations contribute zero
+proxy coverage. This proxy proposes panels; measured Beagle RMSE accepts swaps.
+No global optimum is claimed. Both construction methods honor mandatory sites,
+exclusions and minimum spacing, with feasible-completion checks.
+
+Search reads design genotypes only. One challenger is frozen before tuning, and
+the tuning decision is frozen before testing. Identical scoring identities and
+original-call masks are used for every panel within each partition. Engine inputs
+contain only selected sites and GT, with no inherited truth phase or quality fields.
+Practical RMSE margins and group-regression checks are not statistical tests.
+
+The worst-case reservation is `(max_proposals + 6) * repeats` Beagle jobs. Jobs
+run sequentially with paired seeds. Repeats vary engine seeds, not the panel;
+repeated predictions are not independent individuals. No engine parameters are
+optimized. Without `map`, Beagle assumes 1 cM/Mb. Very sparse inputs can fail
+engine requirements: Beagle 5.4 requires more than one observed position per window.
+
+## No winner and incomplete experiments
+
+`recommended_panel` is `NULL` for `no_clear_winner`, `not_confirmed` and
+`incomplete`. Never choose a different panel after examining test results or
+automatically rebuild the recommended panel on all samples. `baseline_panel`
+and `candidate_panel` remain available for inspection; their presence is not a
+recommendation. Missing predictions cannot win, and absent DS never falls back
+to GT. Execution failures stop the workflow and are collected in `errors`.
+
+For the artificial independent calls above, no improvement is expected or required.
+For linked experimental scenarios, use `simulate_vcf()` with realistic phased
+founders and a genetic map; see `vignette("simulate-vcf")`.
+
+## Artifacts and limits
+
+The output directory includes `baseline_panel.tsv`, `candidate_panel.tsv`,
+`metrics.tsv`, `by_group.tsv`, `search_history.tsv`, per-marker scores, fixed
+scoring manifests, frozen `challenger.json` and `selection.json`, isolated jobs
+and versioned `panel_design.json`. Input and artifact checksums detect changes
+during execution. Existing nonempty directories are refused; resume is unsupported.
+No new runtime dependencies are needed. Input-cell and local-LD-pair ceilings are
+workload limits, not total RAM guarantees. Restrict regions before large studies.
+
+## Related methods
+
+This is not an implementation of MOLO. Existing approaches include information-
+and spacing-based local optimization (Wu et al., 2016,
+[doi:10.1371/journal.pone.0161719](https://doi.org/10.1371/journal.pone.0161719))
+and covariance-based marker selection (Aliloo et al., 2018,
+[WCGALP proceedings](https://hdl.handle.net/10568/98244)). Here local LD is a
+bounded proposal heuristic combined with measured recovery and separate confirmation.

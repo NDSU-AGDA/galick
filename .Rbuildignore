@@ -4,9 +4,7 @@
 ^LICENSE\.md$
 ^\.github$
 ^\.lintr$
-^beagler_roadmap\.md$
-^CLAUDE\.md$
-^AGENTS\.md$
+^galick_roadmap\.md$
 ^example$
 ^data_example$
 ^vignettes/precomputed/

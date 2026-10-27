@@ -13,7 +13,7 @@
 #' @param missing_codes Tokens treated as missing.
 #' @param overwrite Refuse to clobber `output_vcf` unless `TRUE`.
 #'
-#' @return A `beagler_result` S3 object.
+#' @return A `galick_result` S3 object.
 #' @export
 hapmap_to_vcf <- function(hmp,
                           output_vcf,
@@ -27,7 +27,7 @@ hapmap_to_vcf <- function(hmp,
   if (length(output_vcf) != 1L || !is.character(output_vcf) || is.na(output_vcf)) {
     cli::cli_abort(
       "{.arg output_vcf} must be a single non-NA character string.",
-      class = "beagler_error_hapmap_to_vcf_invalid_input"
+      class = "galick_error_hapmap_to_vcf_invalid_input"
     )
   }
 
@@ -98,7 +98,7 @@ hapmap_to_vcf <- function(hmp,
   )
 
   if (nrow(combined_errors) > 0L) {
-    return(new_beagler_result(
+    return(new_galick_result(
       errors = combined_errors,
       warnings = combined_warnings,
       summary = base_summary,
@@ -136,7 +136,7 @@ hapmap_to_vcf <- function(hmp,
   )
 
   base_summary$output_path <- output_vcf
-  new_beagler_result(
+  new_galick_result(
     errors = combined_errors,
     warnings = combined_warnings,
     summary = base_summary,

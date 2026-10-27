@@ -8,8 +8,8 @@ test_that("diploid simulations publish valid bundles without changing sources or
     n_reference = 8L, population_size = 30L, generations = 2L, seed = 42L
   )
   expect_identical(.Random.seed, before)
-  expect_s3_class(result, "beagler_simulation")
-  expect_s3_class(result, "beagler_result")
+  expect_s3_class(result, "galick_simulation")
+  expect_s3_class(result, "galick_result")
   expect_true(result$ok)
   expect_equal(file_sha256(f$path), hash)
   expect_true(all(file.exists(result$paths)))
@@ -79,7 +79,7 @@ test_that("tetraploid bundles retain four copies and remain outside Beagle", {
   expect_true(validate_vcf(result$paths[["truth"]])$ok)
   expect_false(validate_vcf(result$paths[["truth"]], target = "beagle")$ok)
   expect_true(all(read_genotype_vcf(result$paths[["observed"]])$gt == "./././."))
-  expect_error(run_beagle(result$paths[["truth"]], tempfile()), class = "beagler_error_run_beagle_invalid_input")
+  expect_error(run_beagle(result$paths[["truth"]], tempfile()), class = "galick_error_run_beagle_invalid_input")
 })
 
 test_that("population labels separate mating pools", {
@@ -100,12 +100,12 @@ test_that("invalid founders, maps, inheritance and resource plans publish nothin
   f <- simulation_fixture()
   destination <- file.path(withr::local_tempdir(), "bundle")
   expect_error(simulate_vcf(f$path, f$map, destination, max_allele_cells = 1),
-    class = "beagler_error_simulation_resource_limit"
+    class = "galick_error_simulation_resource_limit"
   )
   expect_false(dir.exists(destination))
   expect_error(simulate_vcf(f$path, f$map[-1, ], destination))
   expect_error(simulate_vcf(f$path, f$map, destination, inheritance = "allopolyploid"),
-    class = "beagler_error_simulation_unsupported_inheritance"
+    class = "galick_error_simulation_unsupported_inheritance"
   )
   expect_error(simulate_vcf(f$path, f$map, destination, scenario = "f2", parents = c("f1", "f2")))
   map <- f$map

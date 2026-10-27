@@ -1,135 +1,87 @@
 # Installation
 
-beagler is an R package that shells out to **Java**, **Beagle**, and
-optionally **PLINK** / **bcftools** / **tabix**. The R package itself
-is pure R; the external tools handle the heavy lifting.
+Galick requires **R 4.1 or later**. The R package has no compiled code of its own;
+some dependencies and external tools contain compiled components.
 
 ## R package
 
-=== "pak (recommended)"
+```r
+install.packages("pak")
+pak::pak("DidierMurilloF/galick")
+library(galick)
+```
 
-    ```r
-    install.packages("pak")
-    pak::pak("DidierMurilloF/beagleR")
-    ```
+The installed namespace and repository are both named `galick`.
+Until the package rename reaches the default branch, install
+`DidierMurilloF/galick@feat/evaluate-imputation` instead. See
+[Migration](migration.md) for changed classes, caches and records.
 
-=== "remotes"
-
-    ```r
-    install.packages("remotes")
-    remotes::install_github("DidierMurilloF/beagleR")
-    ```
-
-=== "From source"
-
-    ```bash
-    git clone https://github.com/DidierMurilloF/beagleR.git
-    R CMD INSTALL beagleR
-    ```
-
-The package targets R ≥ 4.0. It pulls in `cli`, `jsonlite`, `processx`,
-`tibble`, `vroom`, and `withr` — all on CRAN.
+Dependencies are `cli`, `data.table`, `digest`, `jsonlite`, `processx`, `tibble`,
+`vroom` and `withr`. Validators, plain-text conversion, simulation and genotype
+extraction do not require Java. Do not install external tools unless your workflow
+needs them.
 
 ## Java
 
-Required for `run_beagle()`. v0.1.0 needs **Java 8 or later**.
-
-=== "macOS"
-
-    ```bash
-    brew install openjdk
-    ```
-
-=== "Ubuntu / Debian"
-
-    ```bash
-    sudo apt install default-jre
-    ```
-
-=== "Windows"
-
-    Install [Adoptium Temurin](https://adoptium.net/) and ensure
-    `java.exe` is on `PATH` (or set `JAVA_HOME`).
-
-Verify from R:
+Beagle execution requires Java 8 or later. Check the executable visible to R:
 
 ```r
-beagler:::find_java()
-beagler:::detect_java_version(beagler:::find_java())
+Sys.which("java")
 ```
+
+Install a JRE/JDK through your system package manager or
+[Adoptium](https://adoptium.net/). Set `JAVA_HOME` if Java is not on `PATH`, or
+pass an executable path through `run_beagle(java = ...)`. Galick checks the Java
+version before launching a job.
 
 ## Beagle
 
-The Beagle JAR cannot ship with the R package (CRAN policy). beagler
-discovers it in this order:
+The Beagle JAR is not bundled. Galick resolves it in this order:
 
-1. The `beagle_jar = ` argument to `run_beagle()`.
-2. The `BEAGLE_PATH` environment variable.
-3. `tools::R_user_dir("beagler", "cache")/beagle.jar`.
+1. The explicit `beagle_jar` argument.
+2. `BEAGLE_PATH` in the R process environment.
+3. `file.path(tools::R_user_dir("galick", "cache"), "beagle.jar")`.
 
-The easiest setup:
+With Java installed:
 
 ```r
-library(beagler)
-install_beagle()              # downloads pinned tested 5.4 to (3)
-beagle_version()              # "5.4"
+jar <- install_beagle()
+beagle_version(beagle_jar = jar)
 ```
 
-!!! note "What `install_beagle()` actually downloads"
+`install_beagle()` supports the pinned `beagle.29Oct24.c8e.jar` build of version
+5.4. It downloads over HTTPS and checks the version by running the JAR.
+The installer does not verify a published cryptographic checksum.
+It does not select the latest upstream release. For another build, use
+`BEAGLE_PATH` or an explicit JAR path. Consult the
+[official Beagle site](https://faculty.washington.edu/browning/beagle/beagle.html)
+for its documentation and license.
 
-    The pinned URL points at `beagle.29Oct24.c8e.jar` from
-    [Brian Browning's official Beagle page](https://faculty.washington.edu/browning/beagle/beagle.html).
-    We treat this as a *pinned tested* 5.4 jar — upstream may list a
-    different build by the time you read this. If you need a specific
-    build, set `BEAGLE_PATH` or pass `beagle_jar = ` directly.
+To configure an existing JAR for the current R session:
 
-If you'd rather manage Beagle outside R:
-
-```bash
-# Download once
-curl -L https://faculty.washington.edu/browning/beagle/beagle.29Oct24.c8e.jar \
-  -o /opt/beagle/beagle.jar
-
-# Tell R where it lives
-echo 'BEAGLE_PATH=/opt/beagle/beagle.jar' >> ~/.Renviron
+```r
+Sys.setenv(BEAGLE_PATH = "/absolute/path/to/beagle.jar")
+beagle_version()
 ```
 
 ## Optional tools
 
-These are not required, but `run_beagle()` and the chromosome workflows
-take advantage of them when present:
+| Tool | Required for |
+|---|---|
+| `bgzip` | Writing compressed `.vcf.gz` exports and merged outputs |
+| `tabix` or `bcftools` | Optional post-Beagle indexing; indexing is otherwise recorded as skipped |
+| PLINK 1.9-compatible executable | `vcf_to_plink()` and `plink_to_vcf()` BED/BIM/FAM bridge commands |
+| `future.apply` | Chromosome execution with `parallel = "future"` |
 
-- **bcftools** — used to index Beagle's output (`run_beagle()` falls
-  back to `tabix` or marks the index step as `skipped`).
-- **tabix** — alternative to bcftools for indexing.
-- **plink (≥ 1.9)** — required only if you use `vcf_to_plink()` /
-  `plink_to_vcf()`.
+Reading `.vcf.gz` does not require bgzip. The PLINK bridge uses legacy
+`--make-bed` / `--recode vcf` commands; use a compatible executable rather than
+assuming every PLINK 2 build accepts the same options.
 
-=== "macOS"
-
-    ```bash
-    brew install bcftools htslib plink
-    ```
-
-=== "Ubuntu / Debian"
-
-    ```bash
-    sudo apt install bcftools tabix plink1.9
-    ```
-
-## Verify everything
+Check which executables R can find:
 
 ```r
-library(beagler)
-
-# Java + Beagle
-beagle_version()
-
-# Optional tools (each returns a path or NULL)
-beagler:::find_bcftools()
-beagler:::find_tabix()
-beagler:::find_plink()
+Sys.which(c("java", "bgzip", "tabix", "bcftools", "plink"))
 ```
 
-Once `beagle_version()` returns a string, you're ready for the
-[Quick tour](quick-tour.md).
+An empty value means the executable is not on R's `PATH`. Once the required
+tools are available, continue with the [Quick tour](quick-tour.md).

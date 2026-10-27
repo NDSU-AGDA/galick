@@ -16,7 +16,7 @@
 #' @param require_phased Require a nonempty diploid, phased, fully called
 #'   reference and disjoint sample IDs, as used by [run_beagle()].
 #'
-#' @return A `beagler_result` S3 object.
+#' @return A `galick_result` S3 object.
 #' @export
 validate_reference_match <- function(target_vcf,
                                      reference_vcf,
@@ -93,7 +93,7 @@ validate_reference_match <- function(target_vcf,
     }
   }
   if (length(errors)) {
-    return(new_beagler_result(
+    return(new_galick_result(
       errors = issues_tibble(errors),
       warnings = issues_tibble(warnings), summary = empty_reference_match_summary(),
       call = the_call
@@ -106,7 +106,7 @@ validate_reference_match <- function(target_vcf,
       message = "One or both VCFs are missing a #CHROM header.",
       where = list()
     )
-    return(new_beagler_result(
+    return(new_galick_result(
       errors = issues_tibble(errors),
       warnings = issues_tibble(warnings),
       summary = empty_reference_match_summary(),
@@ -155,7 +155,7 @@ validate_reference_match <- function(target_vcf,
   key_t <- paste(norm_t, rec_t$pos, sep = ":")
   key_r <- paste(norm_r, rec_r$pos, sep = ":")
   if (anyDuplicated(key_t) || anyDuplicated(key_r)) {
-    return(new_beagler_result(
+    return(new_galick_result(
       errors = issues_tibble(list(list(
         code = "reference_match_ambiguous_positions",
         message = "Repeated positions after chromosome normalization are ambiguous.",
@@ -225,7 +225,7 @@ validate_reference_match <- function(target_vcf,
     assembly_metadata_present = all(declared)
   )
 
-  new_beagler_result(
+  new_galick_result(
     errors = issues_tibble(errors),
     warnings = issues_tibble(warnings),
     summary = summary_list,
@@ -243,19 +243,19 @@ validate_vcf_path <- function(path, arg) {
   if (length(path) != 1L || !is.character(path) || is.na(path)) {
     cli::cli_abort(
       "{.arg {arg}} must be a single non-NA character string.",
-      class = "beagler_error_reference_match_invalid_input"
+      class = "galick_error_reference_match_invalid_input"
     )
   }
   if (!file.exists(path)) {
     cli::cli_abort(
       "{.arg {arg}} not found: {.file {path}}",
-      class = "beagler_error_reference_match_invalid_input"
+      class = "galick_error_reference_match_invalid_input"
     )
   }
   if (!grepl("\\.vcf$|\\.vcf\\.gz$", path, ignore.case = TRUE)) {
     cli::cli_abort(
       "{.arg {arg}} must end in {.val .vcf} or {.val .vcf.gz}.",
-      class = "beagler_error_reference_match_invalid_input"
+      class = "galick_error_reference_match_invalid_input"
     )
   }
   invisible(path)

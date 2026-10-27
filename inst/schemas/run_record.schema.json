@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://beagler.dev/schemas/run_record/1.0.0",
-  "title": "beagler run record",
+  "$id": "urn:galick:run-record:2.0.0",
+  "title": "galick run record",
   "type": "object",
   "required": [
     "schema_version",
@@ -15,7 +15,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "1.0.0",
+      "const": "2.0.0",
       "description": "Schema version of this run record. Bumped on breaking changes."
     },
     "command": {
@@ -26,9 +26,9 @@
     },
     "versions": {
       "type": "object",
-      "required": ["beagler", "r", "os"],
+      "required": ["galick", "r", "os"],
       "properties": {
-        "beagler": { "type": "string" },
+        "galick": { "type": "string" },
         "r": { "type": "string" },
         "os": { "type": "string" },
         "beagle": { "type": "string" },

@@ -30,7 +30,7 @@ duplicate detection and sorting).}
 \item{overwrite}{Refuse to clobber \code{output_vcf} unless \code{TRUE}.}
 }
 \value{
-A \code{beagler_result} S3 object. On success,
+A \code{galick_result} S3 object. On success,
 \code{summary$output_path} is the written file. Otherwise it is
 \code{NA_character_}.
 }

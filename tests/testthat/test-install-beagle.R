@@ -1,28 +1,28 @@
 test_that("install_beagle rejects unsupported version with classed error", {
   expect_error(
     install_beagle(version = "5.5"),
-    class = "beagler_error_beagle_unsupported_version"
+    class = "galick_error_beagle_unsupported_version"
   )
   expect_error(
     install_beagle(version = "4.2"),
-    class = "beagler_error_beagle_unsupported_version"
+    class = "galick_error_beagle_unsupported_version"
   )
 })
 
 test_that("install_beagle aborts on invalid dest", {
   expect_error(
     install_beagle(dest = c("a", "b")),
-    class = "beagler_error_invalid_argument"
+    class = "galick_error_invalid_argument"
   )
   expect_error(
     install_beagle(dest = NA_character_),
-    class = "beagler_error_invalid_argument"
+    class = "galick_error_invalid_argument"
   )
 })
 
 skip_if_no_network <- function() {
-  if (!identical(Sys.getenv("BEAGLER_TEST_NETWORK"), "true")) {
-    testthat::skip("Set BEAGLER_TEST_NETWORK=true to run network-dependent tests.")
+  if (!identical(Sys.getenv("GALICK_TEST_NETWORK"), "true")) {
+    testthat::skip("Set GALICK_TEST_NETWORK=true to run network-dependent tests.")
   }
 }
 

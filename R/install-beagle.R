@@ -13,8 +13,8 @@ beagle_pinned_url <- function() {
 
 #' Download a pinned tested Beagle JAR to the user cache
 #'
-#' Beagle is GPL-licensed but cannot ship in CRAN tarballs. This helper
-#' downloads a pinned tested release into the user's beagler cache (or a
+#' Beagle is distributed separately under its own license. This helper
+#' downloads a pinned tested release into the user's galick cache (or a
 #' custom destination) and verifies it by parsing the version line.
 #'
 #' v0.1.0 supports `version = "5.4"` only; other values raise. The pinned
@@ -26,7 +26,7 @@ beagle_pinned_url <- function() {
 #'
 #' @param version Currently must equal `"5.4"`.
 #' @param dest Destination path. Defaults to
-#'   `tools::R_user_dir("beagler", "cache")/beagle.jar`.
+#'   `tools::R_user_dir("galick", "cache")/beagle.jar`.
 #' @return The destination path, invisibly.
 #' @export
 install_beagle <- function(version = "5.4", dest = NULL) {
@@ -36,12 +36,12 @@ install_beagle <- function(version = "5.4", dest = NULL) {
         "Only Beagle {.val 5.4} is supported in v0.1.0; got {.val {version}}.",
         i = "Set {.envvar BEAGLE_PATH} or pass {.arg beagle_jar} for other builds."
       ),
-      class = "beagler_error_beagle_unsupported_version"
+      class = "galick_error_beagle_unsupported_version"
     )
   }
 
   if (is.null(dest)) {
-    dest_dir <- tools::R_user_dir("beagler", "cache")
+    dest_dir <- tools::R_user_dir("galick", "cache")
     if (!dir.exists(dest_dir)) {
       dir.create(dest_dir, recursive = TRUE, showWarnings = FALSE)
     }
@@ -50,7 +50,7 @@ install_beagle <- function(version = "5.4", dest = NULL) {
     if (length(dest) != 1L || !is.character(dest) || is.na(dest)) {
       cli::cli_abort(
         "{.arg dest} must be a single non-NA character string.",
-        class = "beagler_error_invalid_argument"
+        class = "galick_error_invalid_argument"
       )
     }
     dest_dir <- dirname(dest)
@@ -69,14 +69,14 @@ install_beagle <- function(version = "5.4", dest = NULL) {
           i = conditionMessage(e),
           i = "Check network or download the JAR manually."
         ),
-        class = "beagler_error_beagle_download_failed"
+        class = "galick_error_beagle_download_failed"
       )
     }
   )
   if (!is.numeric(status) || status != 0L) {
     cli::cli_abort(
       "Beagle download returned non-zero status {.val {status}}.",
-      class = "beagler_error_beagle_download_failed"
+      class = "galick_error_beagle_download_failed"
     )
   }
 
@@ -89,7 +89,7 @@ install_beagle <- function(version = "5.4", dest = NULL) {
 #' Get the version of the resolved Beagle JAR
 #'
 #' Resolves the JAR the same way [run_beagle()] does (arg, then
-#' `BEAGLE_PATH`, then `tools::R_user_dir("beagler", "cache")`) and parses
+#' `BEAGLE_PATH`, then `tools::R_user_dir("galick", "cache")`) and parses
 #' the version banner.
 #'
 #' @param beagle_jar Optional explicit path.

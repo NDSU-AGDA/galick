@@ -18,7 +18,7 @@
 #'   `(chrom, pos)` checks are skipped in partial mode (would false-positive
 #'   at chunk boundaries).
 #'
-#' @return A `beagler_result` S3 object.
+#' @return A `galick_result` S3 object.
 #' @export
 validate_vcf <- function(vcf,
                          target = c("general", "beagle", "plink"),
@@ -29,13 +29,13 @@ validate_vcf <- function(vcf,
   if (length(vcf) != 1L || !is.character(vcf) || is.na(vcf)) {
     cli::cli_abort(
       "{.arg vcf} must be a single non-NA character string.",
-      class = "beagler_error_validate_vcf_invalid_input"
+      class = "galick_error_validate_vcf_invalid_input"
     )
   }
   if (!grepl("\\.vcf$|\\.vcf\\.gz$", vcf, ignore.case = TRUE)) {
     cli::cli_abort(
       "{.arg vcf} must end in {.val .vcf} or {.val .vcf.gz}.",
-      class = "beagler_error_validate_vcf_unsupported_extension"
+      class = "galick_error_validate_vcf_unsupported_extension"
     )
   }
   has_vcf_gz_extension <- grepl("\\.vcf\\.gz$", vcf, ignore.case = TRUE)
@@ -68,7 +68,7 @@ validate_vcf <- function(vcf,
       message = "#CHROM header line not found; cannot validate body.",
       where = list()
     )
-    return(new_beagler_result(
+    return(new_galick_result(
       errors = issues_tibble(errors),
       warnings = issues_tibble(warnings),
       summary = list(
@@ -325,7 +325,7 @@ validate_vcf <- function(vcf,
     has_vcf_gz_extension = has_vcf_gz_extension
   )
 
-  new_beagler_result(
+  new_galick_result(
     errors = issues_tibble(errors),
     warnings = issues_tibble(warnings),
     summary = summary_list,

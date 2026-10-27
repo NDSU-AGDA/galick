@@ -23,9 +23,9 @@ duplicate `(chrom, pos)`, non-diploid GT, missing IDs, and a `GT:DP`
 FORMAT line.
 
 ```{r}
-library(beagler)
+library(galick)
 
-dirty <- system.file("extdata", "tiny_dirty.vcf", package = "beagler")
+dirty <- system.file("extdata", "tiny_dirty.vcf", package = "galick")
 cat(readLines(dirty), sep = "\n")
 ```
 

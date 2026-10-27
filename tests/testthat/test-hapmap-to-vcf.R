@@ -18,7 +18,7 @@ write_tiny_hapmap <- function() {
 
 test_that("read_hapmap parses the metadata, samples, and gt_matrix", {
   path <- write_tiny_hapmap()
-  parsed <- beagler:::read_hapmap(path)
+  parsed <- galick:::read_hapmap(path)
   expect_equal(parsed$samples, c("s1", "s2", "s3"))
   expect_equal(nrow(parsed$gt_matrix), 3L)
   expect_equal(ncol(parsed$gt_matrix), 3L)
@@ -33,8 +33,8 @@ test_that("read_hapmap aborts on missing required columns", {
   path <- withr::local_tempfile(fileext = ".hmp.txt")
   writeLines("foo\tbar\tbaz\n1\t2\t3", path)
   expect_error(
-    beagler:::read_hapmap(path),
-    class = "beagler_error_hapmap_invalid_input"
+    galick:::read_hapmap(path),
+    class = "galick_error_hapmap_invalid_input"
   )
 })
 
@@ -51,8 +51,8 @@ test_that("read_hapmap aborts when no sample columns remain", {
     path
   )
   expect_error(
-    beagler:::read_hapmap(path),
-    class = "beagler_error_hapmap_invalid_input"
+    galick:::read_hapmap(path),
+    class = "galick_error_hapmap_invalid_input"
   )
 })
 
@@ -61,11 +61,11 @@ test_that("hapmap_to_vcf happy path writes a valid VCF with decoded IUPAC", {
   out <- withr::local_tempfile(fileext = ".vcf")
   result <- hapmap_to_vcf(path, out)
 
-  expect_s3_class(result, "beagler_result")
+  expect_s3_class(result, "galick_result")
   expect_true(result$ok)
   expect_equal(result$summary$output_path, out)
 
-  parsed <- beagler:::read_vcf_minimal(out)
+  parsed <- galick:::read_vcf_minimal(out)
   expect_equal(parsed$samples, c("s1", "s2", "s3"))
   # rs1 ref=A alt=T: A->0/0, W->0/1, T->1/1
   expect_equal(parsed$gt_matrix[1, ], c(s1 = "0/0", s2 = "0/1", s3 = "1/1"))
@@ -79,7 +79,7 @@ test_that("hapmap_to_vcf writes ##reference= when build is provided", {
   path <- write_tiny_hapmap()
   out <- withr::local_tempfile(fileext = ".vcf")
   hapmap_to_vcf(path, out, build = "GRCh38")
-  parsed <- beagler:::read_vcf_minimal(out)
+  parsed <- galick:::read_vcf_minimal(out)
   expect_true(any(grepl("^##reference=GRCh38$", parsed$meta)))
 })
 
@@ -148,6 +148,6 @@ test_that("hapmap_to_vcf accepts N as missing", {
   out <- withr::local_tempfile(fileext = ".vcf")
   result <- hapmap_to_vcf(path, out)
   expect_true(result$ok)
-  parsed <- beagler:::read_vcf_minimal(out)
+  parsed <- galick:::read_vcf_minimal(out)
   expect_equal(parsed$gt_matrix[1, ], c(s1 = "./.", s2 = "0/0"))
 })

@@ -7,7 +7,7 @@
 #' For non-IUPAC encodings, `ref` and `alt` are ignored. For IUPAC, both are
 #' required and must be distinct biallelic SNP alleles from `{A, C, G, T}`.
 #'
-#' Out-of-alphabet tokens raise `beagler_error_invalid_genotype_token` so the
+#' Out-of-alphabet tokens raise `galick_error_invalid_genotype_token` so the
 #' caller (typically `csv_to_vcf()`) can wrap them as per-marker errors.
 #'
 #' @param x A vector of tokens (any atomic type; coerced to character).
@@ -53,7 +53,7 @@ recode_to_vcf_gt <- function(x,
       IUPAC = recode_iupac(to_recode, ref = ref, alt = alt),
       cli::cli_abort(
         "Unknown encoding: {.val {encoding}}",
-        class = "beagler_error_invalid_genotype_token"
+        class = "galick_error_invalid_genotype_token"
       )
     )
   }
@@ -68,7 +68,7 @@ recode_with_table <- function(x, table, label) {
   if (length(unrecognized) > 0L) {
     cli::cli_abort(
       "Unrecognized {label} token(s): {.val {unrecognized}}",
-      class = "beagler_error_invalid_genotype_token"
+      class = "galick_error_invalid_genotype_token"
     )
   }
   unname(table[x])
@@ -131,7 +131,7 @@ recode_iupac <- function(x, ref, alt) {
   if (length(ref) != 1L || length(alt) != 1L || is.na(ref) || is.na(alt)) {
     cli::cli_abort(
       "IUPAC encoding requires scalar non-NA {.arg ref} and {.arg alt}.",
-      class = "beagler_error_invalid_genotype_token"
+      class = "galick_error_invalid_genotype_token"
     )
   }
   ref <- toupper(ref)
@@ -141,7 +141,7 @@ recode_iupac <- function(x, ref, alt) {
         ref == alt) {
     cli::cli_abort(
       "IUPAC needs distinct biallelic SNP {.arg ref}/{.arg alt} from A/C/G/T.",
-      class = "beagler_error_invalid_genotype_token"
+      class = "galick_error_invalid_genotype_token"
     )
   }
 

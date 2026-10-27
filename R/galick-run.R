@@ -1,9 +1,9 @@
-#' beagler_run S3 class (internal)
-#' @name beagler-run
+#' galick_run S3 class (internal)
+#' @name galick-run
 #' @keywords internal
 NULL
 
-#' Construct a beagler_run
+#' Construct a galick_run
 #'
 #' Captures the result of a single external-tool invocation: status,
 #' runtime, the argv that ran, captured log paths, and the path to the
@@ -11,18 +11,18 @@ NULL
 #'
 #' @keywords internal
 #' @noRd
-new_beagler_run <- function(status = NA_integer_,
-                            runtime_sec = NA_real_,
-                            command = character(),
-                            version = list(),
-                            output_paths = character(),
-                            stdout_log = NA_character_,
-                            stderr_log = NA_character_,
-                            run_record = NA_character_,
-                            call = NULL) {
+new_galick_run <- function(status = NA_integer_,
+                           runtime_sec = NA_real_,
+                           command = character(),
+                           version = list(),
+                           output_paths = character(),
+                           stdout_log = NA_character_,
+                           stderr_log = NA_character_,
+                           run_record = NA_character_,
+                           call = NULL) {
   metadata <- list(
     call = call,
-    package_version = utils::packageVersion("beagler"),
+    package_version = utils::packageVersion("galick"),
     time = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3Z", tz = "UTC")
   )
 
@@ -38,12 +38,12 @@ new_beagler_run <- function(status = NA_integer_,
       run_record = as.character(run_record),
       metadata = metadata
     ),
-    class = c("beagler_run", "list")
+    class = c("galick_run", "list")
   )
 }
 
 #' @export
-print.beagler_run <- function(x, ...) {
+print.galick_run <- function(x, ...) {
   status_str <- if (is.na(x$status)) {
     "status NA"
   } else if (x$status == 0L) {
@@ -51,7 +51,7 @@ print.beagler_run <- function(x, ...) {
   } else {
     sprintf("status %d", x$status)
   }
-  cli::cli_h1(sprintf("beagler_run: %s", status_str))
+  cli::cli_h1(sprintf("galick_run: %s", status_str))
 
   rt <- if (is.na(x$runtime_sec)) "NA" else sprintf("%.2f sec", x$runtime_sec)
   cli::cli_text(sprintf("Runtime: %s", rt))
@@ -78,7 +78,7 @@ print.beagler_run <- function(x, ...) {
 }
 
 #' @export
-summary.beagler_run <- function(object, ...) {
+summary.galick_run <- function(object, ...) {
   print(object)
   failed <- !is.na(object$status) && object$status != 0L
   has_stderr <- length(object$stderr_log) > 0L &&
@@ -93,16 +93,16 @@ summary.beagler_run <- function(object, ...) {
 }
 
 #' @export
-format.beagler_run <- function(x, ...) {
+format.galick_run <- function(x, ...) {
   sprintf(
-    "<beagler_run: status=%s, runtime=%.2fs>",
+    "<galick_run: status=%s, runtime=%.2fs>",
     as.character(x$status),
     x$runtime_sec
   )
 }
 
 #' @export
-as.data.frame.beagler_run <- function(x, ...) {
+as.data.frame.galick_run <- function(x, ...) {
   data.frame(
     status = x$status,
     runtime_sec = x$runtime_sec,

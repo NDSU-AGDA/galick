@@ -17,7 +17,7 @@ merge_vcf_metadata <- function(inputs) {
   references <- unique(all_meta[startsWith(all_meta, "##reference=")])
   if (length(references) > 1L) {
     cli::cli_abort("Input VCF reference assemblies disagree.",
-      class = "beagler_error_merge_header_conflict"
+      class = "galick_error_merge_header_conflict"
     )
   }
   structured <- grepl("^##(contig|INFO|FORMAT|FILTER|ALT)=<", all_meta)
@@ -27,7 +27,7 @@ merge_vcf_metadata <- function(inputs) {
     attrs <- vcf_meta_attributes(line)
     if (!"ID" %in% names(attrs)) {
       cli::cli_abort("Structured VCF metadata has no ID: {line}.",
-        class = "beagler_error_merge_header_conflict"
+        class = "galick_error_merge_header_conflict"
       )
     }
     key <- paste(kind, attrs[["ID"]], sep = ":")
@@ -40,7 +40,7 @@ merge_vcf_metadata <- function(inputs) {
       }
       if (any(old[compared] != attrs[compared])) {
         cli::cli_abort("Incompatible VCF header definitions for {.val {key}}.",
-          class = "beagler_error_merge_header_conflict"
+          class = "galick_error_merge_header_conflict"
         )
       }
       attrs <- c(old, attrs[setdiff(names(attrs), names(old))])

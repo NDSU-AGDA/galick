@@ -1,4 +1,4 @@
 library(testthat)
-library(beagler)
+library(galick)
 
-test_check("beagler")
+test_check("galick")

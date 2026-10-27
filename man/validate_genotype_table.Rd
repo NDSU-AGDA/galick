@@ -30,11 +30,11 @@ marker-centered encoding common in plant breeding.}
 \item{missing_codes}{Tokens treated as missing before encoding detection.}
 }
 \value{
-A \code{beagler_result} S3 object.
+A \code{galick_result} S3 object.
 }
 \description{
 Checks shape, encoding, sample-id integrity, marker-name uniqueness,
-missingness, and monomorphism. Returns a \code{beagler_result} capturing
+missingness, and monomorphism. Returns a \code{galick_result} capturing
 errors, warnings, and a structured summary.
 }
 \details{

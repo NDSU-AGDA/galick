@@ -2,7 +2,7 @@
 #'
 #' Runs [validate_genotype_table()] and [validate_marker_map()] internally,
 #' applies M4-specific stricter checks, and only writes a VCF if zero errors
-#' were collected. Otherwise returns a `beagler_result(ok = FALSE)` with all
+#' were collected. Otherwise returns a `galick_result(ok = FALSE)` with all
 #' errors aggregated (no partial output).
 #'
 #' M4-specific checks applied on top of M2 and M3:
@@ -30,7 +30,7 @@
 #' @param aabb_ref_homo Mirror of `ahb_ref` for AABB encoding.
 #' @param overwrite Refuse to clobber `output_vcf` unless `TRUE`.
 #'
-#' @return A `beagler_result` S3 object. On success, `summary$output_path`
+#' @return A `galick_result` S3 object. On success, `summary$output_path`
 #'   is the written file. On failure, `output_path` is `NA_character_` and
 #'   no VCF is written.
 #' @export
@@ -57,7 +57,7 @@ csv_to_vcf <- function(csv,
   if (length(output_vcf) != 1L || !is.character(output_vcf) || is.na(output_vcf)) {
     cli::cli_abort(
       "{.arg output_vcf} must be a single non-NA character string.",
-      class = "beagler_error_csv_to_vcf_invalid_input"
+      class = "galick_error_csv_to_vcf_invalid_input"
     )
   }
 
@@ -144,7 +144,7 @@ csv_to_vcf <- function(csv,
   )
 
   if (nrow(combined_errors) > 0L) {
-    return(new_beagler_result(
+    return(new_galick_result(
       errors = combined_errors,
       warnings = combined_warnings,
       summary = base_summary,
@@ -184,7 +184,7 @@ csv_to_vcf <- function(csv,
   )
 
   base_summary$output_path <- output_vcf
-  new_beagler_result(
+  new_galick_result(
     errors = combined_errors,
     warnings = combined_warnings,
     summary = base_summary,
@@ -215,7 +215,7 @@ read_csv_input <- function(csv) {
   }
   cli::cli_abort(
     "{.arg csv} must be a path to an existing CSV file or a data.frame.",
-    class = "beagler_error_csv_to_vcf_invalid_input"
+    class = "galick_error_csv_to_vcf_invalid_input"
   )
 }
 
@@ -239,7 +239,7 @@ read_marker_map_input <- function(marker_map) {
   }
   cli::cli_abort(
     "{.arg marker_map} must be a path to an existing TSV/CSV file or a data.frame.",
-    class = "beagler_error_csv_to_vcf_invalid_input"
+    class = "galick_error_csv_to_vcf_invalid_input"
   )
 }
 

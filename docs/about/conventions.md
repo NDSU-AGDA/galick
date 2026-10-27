@@ -4,8 +4,8 @@ These conventions describe the package's current development practices.
 
 ## Object model
 
-**S3 only.** No R6, no S4. All beagler objects are S3 classes built
-with `structure(list(...), class = c("beagler_xxx", "list"))`.
+**S3 only.** No R6, no S4. All galick objects are S3 classes built
+with `structure(list(...), class = c("galick_xxx", "list"))`.
 
 ## Tests
 
@@ -25,8 +25,8 @@ with `structure(list(...), class = c("beagler_xxx", "list"))`.
   `@keywords internal` and absence from `NAMESPACE`, never by a
   leading dot.
 - The only legitimate `.` in a function name is **S3 method
-  dispatch**: `print.beagler_run`, `summary.beagler_result`,
-  `as.data.frame.beagler_run`.
+  dispatch**: `print.galick_run`, `summary.galick_result`,
+  `as.data.frame.galick_run`.
 - `snake_case` for everything: functions, arguments, locals, classes,
   file names.
 
@@ -49,11 +49,11 @@ these specifics:
 ## Errors and warnings
 
 - User-facing errors via `cli::cli_abort()` with a `class` attribute
-  (e.g. `beagler_error_invalid_encoding`) so users and tests can
+  (e.g. `galick_error_invalid_encoding`) so users and tests can
   dispatch on them.
 - User-facing warnings via `cli::cli_warn()`, also classed.
 - Validation issues are *collected* into the `$warnings` slot of
-  `beagler_result`, never raised as live R warnings.
+  `galick_result`, never raised as live R warnings.
 
 ## Subprocess execution
 

@@ -1,27 +1,27 @@
-site_name: beagler
-site_description: Genotype Validation, Conversion, Repair, and Beagle Imputation Workflows
-site_url: https://didiermurillof.github.io/beagleR/
-repo_url: https://github.com/DidierMurilloF/beagleR
-repo_name: DidierMurilloF/beagleR
+site_name: Galick
+site_description: Genotype preparation, simulation and imputation evaluation in R
+site_url: https://didiermurillof.github.io/galick/
+repo_url: https://github.com/DidierMurilloF/galick
+repo_name: DidierMurilloF/galick
 edit_uri: edit/main/docs/
 
 theme:
   name: material
   language: en
-  logo: assets/logo.png
-  favicon: assets/logo.png
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: amber
+      primary: teal
+      accent: deep orange
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: amber
+      primary: teal
+      accent: deep orange
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -52,7 +52,7 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/DidierMurilloF/beagleR
+      link: https://github.com/DidierMurilloF/galick
   generator: false
   status:
     new: recently added
@@ -105,10 +105,12 @@ nav:
   - Home: index.md
   - Get started:
     - Installation: getting-started/installation.md
+    - Migration to Galick: getting-started/migration.md
     - Quick tour: getting-started/quick-tour.md
     - The result classes: getting-started/result-classes.md
   - Reference:
     - reference/index.md
+    - API signatures: reference/api.md
     - Validate: reference/validate.md
     - Convert (to VCF): reference/convert-to-vcf.md
     - Convert (from VCF): reference/convert-from-vcf.md
@@ -119,6 +121,7 @@ nav:
     - Reports: reference/reports.md
     - Benchmarking: reference/benchmarking.md
     - Simulation: reference/simulation.md
+    - Panel design: reference/panel-design.md
   - Examples:
     - examples/index.md
     - CSV to VCF: examples/csv-to-vcf.md
@@ -128,7 +131,11 @@ nav:
     - Chromosome-parallel imputation: examples/chromosome-parallel.md
     - Benchmark accuracy: examples/benchmark-accuracy.md
     - Export and merge VCFs: examples/export-and-merge.md
+    - Linked simulation: examples/simulate-vcf.md
+    - Held-out evaluation: examples/evaluate-imputation.md
+    - Marker panel design: examples/design-marker-panel.md
   - About:
     - Roadmap: about/roadmap.md
     - Conventions: about/conventions.md
     - Changelog: about/changelog.md
+    - Release audit: about/release-audit.md

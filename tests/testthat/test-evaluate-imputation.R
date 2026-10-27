@@ -11,8 +11,8 @@ test_that("evaluation selects on tuning and confirms using isolated test jobs", 
   result <- evaluate_imputation(f$path, f$samples, f$candidates, "base", withr::local_tempdir(),
     fraction = 0.25, repeats = 2L
   )
-  expect_s3_class(result, "beagler_evaluation")
-  expect_s3_class(result, "beagler_result")
+  expect_s3_class(result, "galick_evaluation")
+  expect_s3_class(result, "galick_result")
   expect_true(result$ok)
   expect_equal(result$selection$decision, "confirmed")
   expect_equal(result$selection$recommended_candidate, "good")
@@ -72,12 +72,12 @@ test_that("budget and output guards reject before any engine launch", {
   local_mocked_bindings(run_beagle = function(...) stop("Must not launch"))
   directory <- withr::local_tempdir()
   expect_error(evaluate_imputation(f$path, f$samples, f$candidates, "base", directory, max_runs = 1),
-    class = "beagler_error_evaluation_invalid_input"
+    class = "galick_error_evaluation_invalid_input"
   )
   expect_length(list.files(directory), 0)
   writeLines("existing", file.path(directory, "file"))
   expect_error(evaluate_imputation(f$path, f$samples, f$candidates, "base", directory),
-    class = "beagler_error_evaluation_invalid_input"
+    class = "galick_error_evaluation_invalid_input"
   )
 })
 
@@ -89,7 +89,7 @@ test_that("reference sample leakage is rejected before execution", {
   candidates <- lapply(f$candidates, function(x) c(x, list(ref = reference)))
   local_mocked_bindings(run_beagle = function(...) stop("Must not launch"))
   expect_error(evaluate_imputation(f$path, f$samples, candidates, "base", withr::local_tempdir()),
-    class = "beagler_error_evaluation_invalid_input"
+    class = "galick_error_evaluation_invalid_input"
   )
 })
 

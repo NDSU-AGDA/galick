@@ -1,138 +1,80 @@
 # Benchmark imputation accuracy
 
-Mask a fraction of known genotypes, run imputation, and measure how
-well Beagle recovers them.
+This instructional example masks known GT calls, runs Beagle and compares the
+recovered calls with the originals. It needs Java and Beagle. Its five samples
+and 20 markers are far too small to establish biological accuracy.
 
-!!! note "Beagle required"
-
-    The orchestrator runs Beagle internally. `mask_genotypes()` and
-    `compare_imputed_vs_true()` work without Beagle if you bring your
-    own imputed VCF.
-
-## Quick benchmark
+## Prepare and benchmark
 
 ```r
-library(beagler)
+library(galick)
 
-# Build a starter VCF
-csv <- system.file("extdata", "tiny.csv", package = "beagler")
-map <- system.file("extdata", "tiny_map.tsv", package = "beagler")
-truth_vcf <- tempfile(fileext = ".vcf")
-csv_to_vcf(csv, map, truth_vcf)
+csv <- system.file("extdata", "tiny.csv", package = "galick")
+map <- system.file("extdata", "tiny_map.tsv", package = "galick")
+truth <- tempfile(fileext = ".vcf")
+conversion <- csv_to_vcf(csv, map, truth, encoding = "AHB")
+stopifnot(conversion$ok)
 
-# Run the full pipeline
-b_dir <- tempfile("bench_")
-dir.create(b_dir)
-b <- benchmark_imputation(
-  vcf = truth_vcf,
-  output_dir = b_dir,
+benchmark <- benchmark_imputation(
+  vcf = truth,
+  output_dir = tempfile("benchmark_"),
   fraction = 0.2,
   seed = 42L,
   mode = "phase",
-  nthreads = 2L
+  field = "GT",
+  nthreads = 1L
 )
-
-b$mask$summary$n_masked
-#> [1] 20
-
-b$run$status
-#> [1] 0
-
-b$comparison$summary$concordance_rate
-#> [1] 0.9
-b$comparison$summary$dosage_r2
-#> [1] 0.93
-b$comparison$summary$rmse
-#> [1] 0.31
+stopifnot(identical(benchmark$run$status, 0L))
+benchmark$comparison$summary
 ```
 
-## Step by step
+The comparison is restricted to calls masked from nonmissing truth. Inspect
+`n_eligible`, `n_missing_predictions`, `completion_rate`, concordance and RMSE.
+Undefined per-marker correlations remain undefined; they are not evidence of
+perfect recovery. The package does not guarantee particular scores.
 
-If you want more control over each stage:
-
-### 1. Mask
+## Run each step explicitly
 
 ```r
-masked_vcf <- file.path(b_dir, "masked.vcf")
+masked <- tempfile(fileext = ".vcf")
 mask <- mask_genotypes(
-  vcf = truth_vcf,
-  output_vcf = masked_vcf,
+  vcf = truth,
+  output_vcf = masked,
   fraction = 0.2,
+  seed = 42L
+)
+stopifnot(mask$ok)
+
+run <- run_beagle(
+  gt = masked,
+  out = tempfile("benchmark_imputed_"),
+  mode = "phase",
   seed = 42L,
-  overwrite = TRUE
+  nthreads = 1L
 )
+stopifnot(identical(run$status, 0L))
 
-mask$summary$n_eligible
-#> [1] 100      # non-missing cells eligible for masking
-mask$summary$n_masked
-#> [1] 20       # round(fraction * n_eligible)
-```
-
-`seed` makes the masking reproducible — same seed, same masked file.
-
-You can restrict eligibility to specific samples or markers:
-
-```r
-mask_genotypes(truth_vcf, masked_vcf, fraction = 0.5, seed = 1L,
-               samples = c("s1", "s2"),     # only mask these
-               markers = c("rs1", "rs5", "rs10"))
-```
-
-### 2. Run Beagle
-
-```r
-imputed_prefix <- file.path(b_dir, "imputed")
-run <- run_beagle(masked_vcf, imputed_prefix, mode = "phase",
-                  nthreads = 2L, overwrite = TRUE)
-imputed_vcf <- run$output_paths[1]   # imputed.vcf.gz
-```
-
-### 3. Compare
-
-```r
-result <- compare_imputed_vs_true(
-  imputed_vcf = imputed_vcf,
-  true_vcf    = truth_vcf,
-  masked_vcf  = masked_vcf      # restrict to cells we hid
+comparison <- compare_imputed_vs_true(
+  imputed_vcf = run$output_paths[[1]],
+  true_vcf = truth,
+  masked_vcf = masked,
+  field = "GT"
 )
-
-result$summary
+comparison$summary
+comparison$summary$per_marker
 ```
 
-```text
-$n_compared           20
-$n_concordant         18
-$concordance_rate      0.9
-$dosage_r2             0.93
-$rmse                  0.31
-$n_samples_compared    5
-$n_markers_compared   20
-$used_mask_filter   TRUE
-```
+`field = "DS"` requests expected ALT dosage explicitly and never falls back to
+GT. Use it only when the imputed output contains DS for the records being scored.
 
-When `masked_vcf` is provided, the comparison restricts to cells that
-were `./.` in masked AND non-missing in truth — i.e., the cells
-imputation actually had to fill in. Without it, all overlap cells
-contribute (which makes the numbers look better than they should).
+## Design a real evaluation
 
-## Reproducibility
+Random-cell masking measures recovery under that missingness experiment. It
+does not establish transfer to a different family, generation, population or
+low-density assay. Do not use evaluation samples in a reference panel, and do
+not treat previously imputed calls as independently verified truth.
 
-The whole pipeline is deterministic given a `seed`:
-
-```r
-b1 <- benchmark_imputation(truth_vcf, tempfile("b1_"),
-                           fraction = 0.1, seed = 7L, mode = "phase")
-b2 <- benchmark_imputation(truth_vcf, tempfile("b2_"),
-                           fraction = 0.1, seed = 7L, mode = "phase")
-
-identical(b1$mask$summary, b2$mask$summary)
-#> [1] TRUE
-identical(b1$comparison$summary$concordance_rate,
-          b2$comparison$summary$concordance_rate)
-#> [1] TRUE
-```
-
-(Beagle itself uses its own RNG with its own `seed=` argument; for
-fully deterministic Beagle output you'd also pass `seed = ` to
-`benchmark_imputation()` via `...`. Without it, Beagle picks a
-random seed and the imputed VCF can vary slightly between runs.)
+Use [Held-out evaluation](evaluate-imputation.md) to select a configuration on
+tuning samples and confirm it on separate test samples. For array deployment,
+physically thin the input to observed markers and supply an independent phased
+reference. Repeat engine seeds are not independent biological replications.

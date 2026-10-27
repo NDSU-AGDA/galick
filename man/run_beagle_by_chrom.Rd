@@ -35,11 +35,11 @@ not \code{"none"}, \code{workers} controls parallelism.}
 (e.g. \code{mode}, \code{nthreads}, \code{memory_gb}).}
 }
 \value{
-A named list of \code{beagler_run} objects (names = chromosome).
+A named list of \code{galick_run} objects (names = chromosome).
 }
 \description{
 Splits \code{gt} into per-chromosome files, calls \code{\link[=run_beagle]{run_beagle()}} on each,
-and returns one \code{beagler_run} per chromosome.
+and returns one \code{galick_run} per chromosome.
 }
 \details{
 Resume logic: if a per-chromosome \verb{run_dir/<chrom>/run_record.json}

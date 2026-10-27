@@ -6,24 +6,14 @@ REF/ALT mapping from a marker map.
 ## Inputs
 
 ```r
-library(beagler)
+library(galick)
 
-csv_path <- system.file("extdata", "tiny.csv", package = "beagler")
-map_path <- system.file("extdata", "tiny_map.tsv", package = "beagler")
+csv_path <- system.file("extdata", "tiny.csv", package = "galick")
+map_path <- system.file("extdata", "tiny_map.tsv", package = "galick")
 
 read.csv(csv_path)[1:3, 1:6]
-#>   sample_id rs1 rs2 rs3 rs4 rs5
-#> 1        s1   B   A   B   H   B
-#> 2        s2   A   B   H   B   A
-#> 3        s3   H   B   A   B   H
 
 read.delim(map_path)[1:5, ]
-#>   marker_id chrom  pos ref alt
-#> 1       rs1  chr1  100   A   T
-#> 2       rs2  chr1 1100   C   G
-#> 3       rs3  chr1 2100   G   A
-#> 4       rs4  chr1 3100   T   C
-#> 5       rs5  chr1 4100   A   T
 ```
 
 ## Convert
@@ -33,34 +23,21 @@ out <- tempfile(fileext = ".vcf")
 result <- csv_to_vcf(csv_path, map_path, out)
 
 result$ok
-#> [1] TRUE
 result$summary$inferred_encoding
-#> [1] "AHB"
 result$summary$n_samples
-#> [1] 5
 result$summary$n_markers
-#> [1] 20
 ```
 
 The output VCF passes Beagle-target validation:
 
 ```r
 validate_vcf(out, target = "beagle")$ok
-#> [1] TRUE
 ```
 
 ## Inspect the output
 
 ```r
 cat(readLines(out)[1:8], sep = "\n")
-#> ##fileformat=VCFv4.2
-#> ##fileDate=20260428
-#> ##source=beagler/0.1.0
-#> ##contig=<ID=chr1>
-#> ##contig=<ID=chr2>
-#> ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-#> #CHROM  POS  ID  REF  ALT  QUAL  FILTER  INFO  FORMAT  s1  s2  s3  s4  s5
-#> chr1  100  rs1  A  T  .  PASS  .  GT  1/1  0/0  0/1  1/1  1/1
 ```
 
 ## Failure modes
@@ -85,11 +62,8 @@ bad_out <- tempfile(fileext = ".vcf")
 result <- csv_to_vcf(bad_csv, bad_map, bad_out, sample_col = "sample_id")
 
 result$ok
-#> [1] FALSE
 result$errors$code
-#> [1] "genotype_table_duplicated_samples"
 file.exists(bad_out)
-#> [1] FALSE
 ```
 
 ## Encoding overrides

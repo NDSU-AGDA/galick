@@ -28,7 +28,7 @@ hapmap_to_vcf(
 \item{overwrite}{Refuse to clobber \code{output_vcf} unless \code{TRUE}.}
 }
 \value{
-A \code{beagler_result} S3 object.
+A \code{galick_result} S3 object.
 }
 \description{
 Parses the HapMap file, validates the embedded marker map (via

@@ -2,12 +2,12 @@
 % Please edit documentation in R/imputation-report.R
 \name{imputation_report}
 \alias{imputation_report}
-\title{Write a Markdown summary report of a \code{beagler_run}}
+\title{Write a Markdown summary report of a \code{galick_run}}
 \usage{
 imputation_report(run, file)
 }
 \arguments{
-\item{run}{A \code{beagler_run} returned by \code{\link[=run_beagle]{run_beagle()}}.}
+\item{run}{A \code{galick_run} returned by \code{\link[=run_beagle]{run_beagle()}}.}
 
 \item{file}{Output path (typically ending in \code{.md}).}
 }

@@ -20,8 +20,8 @@
 #' @param ... Extra args forwarded to [run_beagle()] (e.g. `nthreads`,
 #'   `memory_gb`, `ref`, `map`).
 #'
-#' @return A list with three elements: `mask` (a `beagler_result`),
-#'   `run` (a `beagler_run`), and `comparison` (a `beagler_result`).
+#' @return A list with three elements: `mask` (a `galick_result`),
+#'   `run` (a `galick_run`), and `comparison` (a `galick_result`).
 #' @export
 benchmark_imputation <- function(vcf,
                                  output_dir,
@@ -35,13 +35,13 @@ benchmark_imputation <- function(vcf,
   if (length(vcf) != 1L || !is.character(vcf) || is.na(vcf) || !file.exists(vcf)) {
     cli::cli_abort(
       "{.arg vcf} must be a path to an existing VCF file.",
-      class = "beagler_error_benchmark_imputation_invalid_input"
+      class = "galick_error_benchmark_imputation_invalid_input"
     )
   }
   if (length(output_dir) != 1L || !is.character(output_dir) || is.na(output_dir)) {
     cli::cli_abort(
       "{.arg output_dir} must be a single non-NA character string.",
-      class = "beagler_error_benchmark_imputation_invalid_input"
+      class = "galick_error_benchmark_imputation_invalid_input"
     )
   }
   if (!dir.exists(output_dir)) {
@@ -77,7 +77,7 @@ benchmark_imputation <- function(vcf,
       field = field
     )
   } else {
-    new_beagler_result(
+    new_galick_result(
       errors = issues_tibble(list(list(
         code = "benchmark_imputation_run_failed",
         message = sprintf(

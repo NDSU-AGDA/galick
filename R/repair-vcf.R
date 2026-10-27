@@ -28,7 +28,7 @@
 #'   duplicate detection and sorting).
 #' @param overwrite Refuse to clobber `output_vcf` unless `TRUE`.
 #'
-#' @return A `beagler_result` S3 object. On success,
+#' @return A `galick_result` S3 object. On success,
 #'   `summary$output_path` is the written file. Otherwise it is
 #'   `NA_character_`.
 #'
@@ -52,26 +52,26 @@ repair_vcf <- function(vcf,
   if (length(bad_steps) > 0L) {
     cli::cli_abort(
       "Unknown {.arg steps}: {.val {bad_steps}}",
-      class = "beagler_error_repair_vcf_invalid_input"
+      class = "galick_error_repair_vcf_invalid_input"
     )
   }
 
   if (length(output_vcf) != 1L || !is.character(output_vcf) || is.na(output_vcf)) {
     cli::cli_abort(
       "{.arg output_vcf} must be a single non-NA character string.",
-      class = "beagler_error_repair_vcf_invalid_input"
+      class = "galick_error_repair_vcf_invalid_input"
     )
   }
   if (!grepl("\\.vcf$", output_vcf, ignore.case = TRUE)) {
     cli::cli_abort(
       "Output path must end in {.val .vcf}; got {.file {output_vcf}}.",
-      class = "beagler_error_repair_vcf_unsupported_extension"
+      class = "galick_error_repair_vcf_unsupported_extension"
     )
   }
   if (file.exists(output_vcf) && !overwrite) {
     cli::cli_abort(
       "Output file exists: {.file {output_vcf}} (use {.code overwrite = TRUE}).",
-      class = "beagler_error_repair_vcf_output_exists"
+      class = "galick_error_repair_vcf_output_exists"
     )
   }
 
@@ -196,8 +196,7 @@ repair_vcf <- function(vcf,
     ))
   }
 
-  if (file.exists(output_vcf)) file.remove(output_vcf)
-  file.rename(tmp, output_vcf)
+  write_exact_lines(readLines(tmp, warn = FALSE), output_vcf)
 
   repair_vcf_result(
     errors = list(),
@@ -250,7 +249,7 @@ repair_vcf_result <- function(errors, warnings, summary_extras, call) {
     list(target = "beagle"),
     summary_extras
   )
-  new_beagler_result(
+  new_galick_result(
     errors = issues_tibble(errors),
     warnings = issues_tibble(warnings),
     summary = summary_list,
@@ -404,7 +403,7 @@ apply_repair_step <- function(record_set, step) {
     sort = step_sort(record_set),
     cli::cli_abort(
       "Unknown repair step: {.val {step}}",
-      class = "beagler_error_repair_vcf_invalid_input"
+      class = "galick_error_repair_vcf_invalid_input"
     )
   )
 }

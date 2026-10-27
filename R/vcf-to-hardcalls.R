@@ -21,13 +21,13 @@ vcf_to_hardcalls <- function(vcf,
   if (length(vcf) != 1L || !is.character(vcf) || is.na(vcf)) {
     cli::cli_abort(
       "{.arg vcf} must be a single non-NA character string.",
-      class = "beagler_error_vcf_to_hardcalls_invalid_input"
+      class = "galick_error_vcf_to_hardcalls_invalid_input"
     )
   }
   if (!file.exists(vcf)) {
     cli::cli_abort(
       "{.arg vcf} not found: {.file {vcf}}",
-      class = "beagler_error_vcf_to_hardcalls_invalid_input"
+      class = "galick_error_vcf_to_hardcalls_invalid_input"
     )
   }
 

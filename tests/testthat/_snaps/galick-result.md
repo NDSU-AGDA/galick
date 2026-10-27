@@ -1,23 +1,23 @@
-# print.beagler_result snapshot for ok result
+# print.galick_result snapshot for ok result
 
     Code
       print(r)
     Message
       
-      -- beagler_result: OK ----------------------------------------------------------
+      -- galick_result: OK -----------------------------------------------------------
       Errors: 0; Warnings: 0
       
       -- Summary 
       n_samples: 100
       n_markers: 50
 
-# print.beagler_result snapshot for failing result
+# print.galick_result snapshot for failing result
 
     Code
       print(r)
     Message
       
-      -- beagler_result: NOT OK ------------------------------------------------------
+      -- galick_result: NOT OK -------------------------------------------------------
       Errors: 2; Warnings: 1
       
       -- Errors (top 3) 

@@ -1,7 +1,7 @@
 #' Validate a wide genotype table
 #'
 #' Checks shape, encoding, sample-id integrity, marker-name uniqueness,
-#' missingness, and monomorphism. Returns a `beagler_result` capturing
+#' missingness, and monomorphism. Returns a `galick_result` capturing
 #' errors, warnings, and a structured summary.
 #'
 #' Programmer/input-shape problems (`NULL` data, wrong class, missing
@@ -21,7 +21,7 @@
 #' @param ploidy Integer; only `2L` is supported in v0.1.0.
 #' @param missing_codes Tokens treated as missing before encoding detection.
 #'
-#' @return A `beagler_result` S3 object.
+#' @return A `galick_result` S3 object.
 #' @export
 validate_genotype_table <- function(data,
                                     sample_col = NULL,
@@ -37,19 +37,19 @@ validate_genotype_table <- function(data,
   if (is.null(data) || !inherits(data, "data.frame")) {
     cli::cli_abort(
       "{.arg data} must be a data.frame or tibble; got {.cls {class(data)[1]}}.",
-      class = "beagler_error_invalid_input"
+      class = "galick_error_invalid_input"
     )
   }
   if (nrow(data) == 0L || ncol(data) < 2L) {
     cli::cli_abort(
       "{.arg data} must have at least one row and two columns (sample column + at least one marker).",
-      class = "beagler_error_invalid_input"
+      class = "galick_error_invalid_input"
     )
   }
   if (length(ploidy) != 1L || !is.numeric(ploidy) || !identical(as.integer(ploidy), 2L)) {
     cli::cli_abort(
       "Only diploid (`ploidy = 2L`) is supported in v0.1.0; got {.val {ploidy}}.",
-      class = "beagler_error_unsupported_ploidy"
+      class = "galick_error_unsupported_ploidy"
     )
   }
 
@@ -130,7 +130,7 @@ validate_genotype_table <- function(data,
     n_duplicated_markers = length(unique(marker_names[duplicated(marker_names)]))
   )
 
-  new_beagler_result(
+  new_galick_result(
     errors = issues_tibble(errors),
     warnings = issues_tibble(warnings),
     summary = summary_list,
@@ -157,7 +157,7 @@ resolve_sample_col <- function(data, sample_col, missing_codes) {
             "entries, and tokens that do not look like a genotype encoding."
           )
         ),
-        class = "beagler_error_invalid_sample_col"
+        class = "galick_error_invalid_sample_col"
       )
     }
     return(detected)
@@ -165,13 +165,13 @@ resolve_sample_col <- function(data, sample_col, missing_codes) {
   if (!is.character(sample_col) || length(sample_col) != 1L || is.na(sample_col)) {
     cli::cli_abort(
       "{.arg sample_col} must be a single column name.",
-      class = "beagler_error_invalid_sample_col"
+      class = "galick_error_invalid_sample_col"
     )
   }
   if (!sample_col %in% names(data)) {
     cli::cli_abort(
       "{.arg sample_col} {.val {sample_col}} not found in data.",
-      class = "beagler_error_invalid_sample_col"
+      class = "galick_error_invalid_sample_col"
     )
   }
   sample_col

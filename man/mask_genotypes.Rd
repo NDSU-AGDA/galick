@@ -32,7 +32,7 @@ are eligible to be masked.}
 \item{overwrite}{Refuse to clobber \code{output_vcf} unless \code{TRUE}.}
 }
 \value{
-A \code{beagler_result} with \code{summary$n_masked},
+A \code{galick_result} with \code{summary$n_masked},
 \code{summary$n_eligible}, and \code{summary$output_path}.
 }
 \description{

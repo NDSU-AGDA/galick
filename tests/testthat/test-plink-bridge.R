@@ -17,7 +17,7 @@ make_bridge_vcf <- function() {
 test_that("vcf_to_plink aborts on missing input file", {
   expect_error(
     vcf_to_plink("/nonexistent.vcf", "/tmp/out"),
-    class = "beagler_error_vcf_to_plink_invalid_input"
+    class = "galick_error_vcf_to_plink_invalid_input"
   )
 })
 
@@ -26,7 +26,7 @@ test_that("vcf_to_plink aborts on bad extension", {
   file.create(bad)
   expect_error(
     vcf_to_plink(bad, "/tmp/out"),
-    class = "beagler_error_vcf_to_plink_invalid_input"
+    class = "galick_error_vcf_to_plink_invalid_input"
   )
 })
 
@@ -34,7 +34,7 @@ test_that("vcf_to_plink aborts on bad plink_prefix", {
   vcf <- make_bridge_vcf()
   expect_error(
     vcf_to_plink(vcf, NA_character_),
-    class = "beagler_error_vcf_to_plink_invalid_input"
+    class = "galick_error_vcf_to_plink_invalid_input"
   )
 })
 
@@ -45,7 +45,7 @@ test_that("vcf_to_plink refuses to overwrite existing PLINK files", {
   file.create(paste0(prefix, ".bed"))
   expect_error(
     vcf_to_plink(vcf, prefix),
-    class = "beagler_error_vcf_to_plink_output_exists"
+    class = "galick_error_vcf_to_plink_output_exists"
   )
 })
 
@@ -53,7 +53,7 @@ test_that("plink_to_vcf aborts on missing PLINK input files", {
   vcf <- withr::local_tempfile(fileext = ".vcf")
   expect_error(
     plink_to_vcf("/no/such/prefix", vcf),
-    class = "beagler_error_plink_to_vcf_invalid_input"
+    class = "galick_error_plink_to_vcf_invalid_input"
   )
 })
 
@@ -63,7 +63,7 @@ test_that("plink_to_vcf aborts on bad output extension", {
   file.create(paste0(prefix, c(".bed", ".bim", ".fam")))
   expect_error(
     plink_to_vcf(prefix, "out.txt"),
-    class = "beagler_error_plink_to_vcf_invalid_input"
+    class = "galick_error_plink_to_vcf_invalid_input"
   )
 })
 
@@ -75,7 +75,7 @@ test_that("plink_to_vcf refuses to overwrite", {
   file.create(vcf)
   expect_error(
     plink_to_vcf(prefix, vcf),
-    class = "beagler_error_plink_to_vcf_output_exists"
+    class = "galick_error_plink_to_vcf_output_exists"
   )
 })
 
@@ -85,7 +85,7 @@ test_that("vcf_to_plink integration: writes BED/BIM/FAM", {
   out_dir <- withr::local_tempdir()
   prefix <- file.path(out_dir, "out")
   result <- vcf_to_plink(vcf, prefix)
-  expect_s3_class(result, "beagler_run")
+  expect_s3_class(result, "galick_run")
   expect_equal(result$status, 0L)
   expect_true(all(file.exists(paste0(prefix, c(".bed", ".bim", ".fam")))))
 })
@@ -98,9 +98,62 @@ test_that("plink_to_vcf integration: round-trips back to a parseable VCF", {
   vcf_to_plink(vcf, prefix)
   out_vcf <- file.path(out_dir, "round.vcf")
   result <- plink_to_vcf(prefix, out_vcf)
-  expect_s3_class(result, "beagler_run")
+  expect_s3_class(result, "galick_run")
   expect_equal(result$status, 0L)
   expect_true(file.exists(out_vcf))
   validation <- validate_vcf(out_vcf, target = "general")
   expect_true(validation$ok || nrow(validation$errors) == 0L)
+})
+
+test_that("failed PLINK overwrite cannot report previous files as new outputs", {
+  vcf <- make_bridge_vcf()
+  prefix <- file.path(withr::local_tempdir(), "previous")
+  paths <- paste0(prefix, c(".bed", ".bim", ".fam"))
+  for (path in paths) writeLines("previous", path)
+  testthat::local_mocked_bindings(
+    find_plink = function(...) "plink",
+    run_cli = function(cmd, args, ...) {
+      list(status = 1L, runtime_sec = 0, command = c(cmd, args), stdout = "", stderr = "failed")
+    }
+  )
+  result <- vcf_to_plink(vcf, prefix, overwrite = TRUE)
+  expect_equal(result$status, 1L)
+  expect_length(result$output_paths, 0L)
+  for (path in paths) expect_equal(readLines(path), "previous")
+})
+
+test_that("PLINK success requires a complete fresh output set", {
+  vcf <- make_bridge_vcf()
+  prefix <- file.path(withr::local_tempdir(), "partial")
+  testthat::local_mocked_bindings(
+    find_plink = function(...) "plink",
+    run_cli = function(cmd, args, ...) {
+      stage <- args[match("--out", args) + 1L]
+      writeLines("partial", paste0(stage, ".bed"))
+      list(status = 0L, runtime_sec = 0, command = c(cmd, args), stdout = "", stderr = "")
+    }
+  )
+  result <- vcf_to_plink(vcf, prefix)
+  expect_equal(result$status, 1L)
+  expect_length(result$output_paths, 0L)
+  expect_false(any(file.exists(paste0(prefix, c(".bed", ".bim", ".fam")))))
+})
+
+test_that("PLINK cannot replace a previous VCF with an invalid file", {
+  prefix <- file.path(withr::local_tempdir(), "input")
+  file.create(paste0(prefix, c(".bed", ".bim", ".fam")))
+  vcf <- make_bridge_vcf()
+  before <- readLines(vcf)
+  testthat::local_mocked_bindings(
+    find_plink = function(...) "plink",
+    run_cli = function(cmd, args, ...) {
+      stage <- args[match("--out", args) + 1L]
+      writeLines("invalid", paste0(stage, ".vcf"))
+      list(status = 0L, runtime_sec = 0, command = c(cmd, args), stdout = "", stderr = "")
+    }
+  )
+  result <- plink_to_vcf(prefix, vcf, overwrite = TRUE)
+  expect_equal(result$status, 1L)
+  expect_length(result$output_paths, 0L)
+  expect_identical(readLines(vcf), before)
 })

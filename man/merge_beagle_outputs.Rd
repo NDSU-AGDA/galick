@@ -12,7 +12,7 @@ merge_beagle_outputs(
 )
 }
 \arguments{
-\item{run_results}{A named list of \code{beagler_run} objects.}
+\item{run_results}{A named list of \code{galick_run} objects.}
 
 \item{output_vcf}{Path to the merged VCF (\code{.vcf} or \code{.vcf.gz}).}
 
@@ -25,7 +25,7 @@ compatibility).}
 The output path, invisibly.
 }
 \description{
-Takes a list of \code{beagler_run} objects (typically the output of
+Takes a list of \code{galick_run} objects (typically the output of
 \code{\link[=run_beagle_by_chrom]{run_beagle_by_chrom()}}) and concatenates their VCF outputs into
 \code{output_vcf}. All supplied runs must have succeeded. Sample columns are
 aligned by name, compatible headers are combined, and FORMAT fields retained.

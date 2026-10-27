@@ -84,15 +84,15 @@ test_that("VCF validation bounds GT indices by the record allele count", {
 
 test_that("chromosome merging refuses failed jobs and missing files", {
   input <- scientific_vcf("s", "1\t10\trs\tA\tG\t.\tPASS\t.\tGT\t0/1")
-  good <- new_beagler_run(status = 0L, output_paths = input)
-  bad <- new_beagler_run(status = 1L, output_paths = tempfile(fileext = ".vcf"))
+  good <- new_galick_run(status = 0L, output_paths = input)
+  bad <- new_galick_run(status = 1L, output_paths = tempfile(fileext = ".vcf"))
   out <- withr::local_tempfile(fileext = ".vcf")
   expect_error(merge_beagle_outputs(list(good, bad), out),
-    class = "beagler_error_merge_beagle_invalid_input"
+    class = "galick_error_merge_beagle_invalid_input"
   )
   bad$status <- 0L
   expect_error(merge_beagle_outputs(list(good, bad), out),
-    class = "beagler_error_merge_beagle_invalid_input"
+    class = "galick_error_merge_beagle_invalid_input"
   )
   expect_false(file.exists(out))
 })
@@ -110,7 +110,7 @@ test_that("chromosome merging aligns samples and retains all FORMAT values", {
     c("b", "a"),
     "2\t10\ttwo\tC\tT\t.\tPASS\t.\tGT:DS:GP\t0/1:1:0,1,0\t0/0:0:1,0,0", meta
   )
-  runs <- lapply(c(a, b), function(path) new_beagler_run(status = 0L, output_paths = path))
+  runs <- lapply(c(a, b), function(path) new_galick_run(status = 0L, output_paths = path))
   out <- withr::local_tempfile(fileext = ".vcf")
   merge_beagle_outputs(runs, out)
   parsed <- read_genotype_vcf(out)
@@ -199,7 +199,7 @@ test_that("job fingerprints cover inputs, parameters, executables and versions",
   }
   expect_equal(original, fingerprint(base))
   expect_error(do.call(prepare_beagle_job, c(base, list(extra_args = "gt=elsewhere"))),
-    class = "beagler_error_run_beagle_invalid_input"
+    class = "galick_error_run_beagle_invalid_input"
   )
 })
 
@@ -218,7 +218,7 @@ test_that("resume requires matching configuration, checksums and valid output", 
     write_run_record_json(
       dir,
       command = c("java", "-jar", "beagle.jar"),
-      versions = list(beagler = "0.1.0", r = "4.1.0", os = "test"),
+      versions = list(galick = "0.1.0", r = "4.1.0", os = "test"),
       args = list(job_fingerprint = "expected"),
       inputs = list(list(path = input, sha256 = file_sha256(input))),
       outputs = list(list(path = output, sha256 = checksum)),
@@ -229,7 +229,7 @@ test_that("resume requires matching configuration, checksums and valid output", 
   write_record()
   expect_equal(try_resume_chrom_run(input, dir, prefix, "expected")$status, 0L)
   expect_null(try_resume_chrom_run(input, dir, prefix, "changed_configuration"))
-  write_record("wrong")
+  write_record(strrep("0", 64L))
   expect_null(try_resume_chrom_run(input, dir, prefix, "expected"))
   write_output("not a VCF")
   write_record()
@@ -262,7 +262,7 @@ test_that("a failed overwrite cannot reuse or destroy the previous output", {
     prepare_beagle_job = function(...) {
       list(
         java = "java", argv = c("-jar", "beagle.jar"),
-        versions = list(beagler = "0.1.0", r = "4.1.0", os = "test"),
+        versions = list(galick = "0.1.0", r = "4.1.0", os = "test"),
         files = list(gt = list(path = input, sha256 = file_sha256(input))),
         fingerprint = "test"
       )
@@ -290,10 +290,10 @@ test_that("chromosome concatenation rejects sample and header conflicts", {
     "b", "2\t10\ttwo\tA\tG\t.\tPASS\t.\tGT\t0/1",
     "##reference=build_two"
   )
-  runs <- lapply(c(one, two), function(path) new_beagler_run(status = 0L, output_paths = path))
+  runs <- lapply(c(one, two), function(path) new_galick_run(status = 0L, output_paths = path))
   out <- withr::local_tempfile(fileext = ".vcf")
   expect_error(merge_beagle_outputs(runs, out),
-    class = "beagler_error_merge_beagle_invalid_input"
+    class = "galick_error_merge_beagle_invalid_input"
   )
   expect_false(file.exists(out))
   two <- scientific_vcf(
@@ -305,7 +305,7 @@ test_that("chromosome concatenation rejects sample and header conflicts", {
   expect_false(file.exists(out))
   attr(runs, "expected_chromosomes") <- c("1", "2", "3")
   expect_error(merge_beagle_outputs(runs, out),
-    class = "beagler_error_merge_beagle_invalid_input"
+    class = "galick_error_merge_beagle_invalid_input"
   )
 })
 
@@ -315,7 +315,7 @@ test_that("compressed chromosome output is indexable BGZF", {
     "bgzip and tabix required"
   )
   input <- scientific_vcf("s", "1\t10\trs\tA\tG\t.\tPASS\t.\tGT\t0/1")
-  run <- new_beagler_run(status = 0L, output_paths = input)
+  run <- new_galick_run(status = 0L, output_paths = input)
   output <- withr::local_tempfile(fileext = ".vcf.gz")
   merge_beagle_outputs(list(run), output)
   expect_equal(run_cli(Sys.which("tabix"), c("-p", "vcf", output))$status, 0L)
@@ -349,9 +349,9 @@ test_that("Beagle accepts a plain phased reference without an index", {
 test_that("extraction and masking share semantic allele bounds checks", {
   invalid <- scientific_vcf("s", "1\t10\trs\tA\tG\t.\tPASS\t.\tGT\t0/2")
   output <- withr::local_tempfile(fileext = ".vcf")
-  expect_error(vcf_to_dosage(invalid), class = "beagler_error_unresolvable_alleles")
-  expect_error(vcf_to_hardcalls(invalid), class = "beagler_error_unresolvable_alleles")
-  expect_error(mask_genotypes(invalid, output), class = "beagler_error_unresolvable_alleles")
+  expect_error(vcf_to_dosage(invalid), class = "galick_error_unresolvable_alleles")
+  expect_error(vcf_to_hardcalls(invalid), class = "galick_error_unresolvable_alleles")
+  expect_error(mask_genotypes(invalid, output), class = "galick_error_unresolvable_alleles")
   expect_false(file.exists(output))
 })
 
@@ -363,7 +363,7 @@ test_that("benchmark forwards the masking seed to Beagle", {
   observed <- NULL
   local_mocked_bindings(run_beagle = function(gt, out, mode, seed, overwrite, ...) {
     observed <<- seed
-    new_beagler_run(status = 1L)
+    new_galick_run(status = 1L)
   })
   result <- benchmark_imputation(input, withr::local_tempdir(), fraction = 0.5, seed = 42L)
   expect_identical(observed, 42L)

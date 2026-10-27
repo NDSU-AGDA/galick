@@ -1,6 +1,6 @@
 # Validate
 
-Four validators. Each returns a `beagler_result` with `$errors`,
+Four validators. Each returns a `galick_result` with `$errors`,
 `$warnings`, and a function-specific `$summary`.
 
 ## `validate_genotype_table()`
@@ -15,7 +15,7 @@ validate_genotype_table(
                        "AABB", "VCF", "REFHET", "IUPAC"),
   ploidy          = 2L,
   missing_codes   = c(NA, ".", "--", "", "N", "NN", "./.")
-) -> beagler_result
+)
 ```
 
 **What it checks**
@@ -55,7 +55,7 @@ validate_marker_map(
   marker_ids       = NULL,
   require_alleles  = FALSE,
   chrom_style      = c("auto", "numeric", "chr_prefixed", "as_is")
-) -> beagler_result
+)
 ```
 
 **What it checks**
@@ -80,7 +80,7 @@ validate_vcf(
   vcf,
   target              = c("general", "beagle", "plink"),
   max_records_to_scan = Inf
-) -> beagler_result
+)
 ```
 
 Accepts plain `.vcf` or `.vcf.gz` (read transparently via `gzfile()`).
@@ -107,8 +107,9 @@ is `TRUE`.
 validate_reference_match(
   target_vcf,
   reference_vcf,
-  chrom_style = c("auto", "numeric", "chr_prefixed", "as_is")
-) -> beagler_result
+  chrom_style = c("auto", "numeric", "chr_prefixed", "as_is"),
+  require_phased = FALSE
+)
 ```
 
 Compare a target VCF to a reference panel for compatibility before
@@ -125,3 +126,8 @@ calling `run_beagle(..., ref = reference_vcf)`.
 `$summary` reports counts of shared / target-only / reference-only
 chromosomes and markers, plus the inferred chromosome styles on each
 side.
+
+Use `require_phased = TRUE` for the runner's stricter preflight: complete phased
+diploid reference calls and disjoint sample IDs. Assembly metadata is checked
+for conflicts where present, but no reference FASTA or biological relationships
+are checked.

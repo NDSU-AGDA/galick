@@ -14,6 +14,6 @@ A character scalar like \code{"5.4"}.
 }
 \description{
 Resolves the JAR the same way \code{\link[=run_beagle]{run_beagle()}} does (arg, then
-\code{BEAGLE_PATH}, then \code{tools::R_user_dir("beagler", "cache")}) and parses
+\code{BEAGLE_PATH}, then \code{tools::R_user_dir("galick", "cache")}) and parses
 the version banner.
 }

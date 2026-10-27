@@ -6,6 +6,10 @@ analysis (PCA, GRM construction, GWAS, ML pipelines, ...).
 Both functions accept `.vcf` and `.vcf.gz` and return matrices with
 **rows = samples, columns = markers**.
 
+Both read **GT**, not expected dosage from **DS**. For explicit expected-dosage
+export use `export_genotypes(vcf, output, format = "dosage", field = "DS")`.
+Missing DS is not replaced with GT.
+
 ## `vcf_to_dosage()`
 
 ```r
@@ -13,7 +17,7 @@ vcf_to_dosage(
   vcf,
   samples = NULL,
   markers = NULL
-) -> matrix
+)
 ```
 
 Returns a numeric matrix of ALT-allele counts. For diploid biallelic
@@ -36,10 +40,6 @@ ALT-allele identity isn't disambiguated by GT alone.
 d <- vcf_to_dosage("imputed.vcf.gz")
 dim(d)                             # samples × markers
 d[1:3, 1:5]
-#>    rs1 rs2 rs3 rs4 rs5
-#> s1   2   0   1   2   1
-#> s2   0   2   1   0   2
-#> s3   1   1   2   1   0
 ```
 
 **Filtering**
@@ -62,7 +62,7 @@ vcf_to_hardcalls(
   samples  = NULL,
   markers  = NULL,
   encoding = c("012", "AHB", "AABB")
-) -> character matrix
+)
 ```
 
 Same shape and filtering as `vcf_to_dosage()`, but returns character
@@ -78,8 +78,4 @@ hard calls. Mapping is dosage-based:
 ```r
 hard <- vcf_to_hardcalls("imputed.vcf.gz", encoding = "AHB")
 hard[1:3, 1:5]
-#>    rs1 rs2 rs3 rs4 rs5
-#> s1   B   A   H   B   H
-#> s2   A   B   H   A   B
-#> s3   H   H   B   H   A
 ```

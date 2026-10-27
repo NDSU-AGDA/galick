@@ -21,7 +21,7 @@ csv_to_vcf(
   aabb_ref_homo = c("AA", "BB"),
   missing_codes = c(NA, ".", "--", "", "N", "NN", "./."),
   overwrite     = FALSE
-) -> beagler_result
+)
 ```
 
 `csv` may be a path to a CSV file or an in-memory data frame.
@@ -66,7 +66,7 @@ hapmap_to_vcf(
   chrom_style   = c("auto", "numeric", "chr_prefixed", "as_is"),
   missing_codes = c(NA, ".", "--", "", "N", "NN"),
   overwrite     = FALSE
-) -> beagler_result
+)
 ```
 
 Reads TASSEL HapMap (`.hmp.txt`): standard 11 metadata columns
@@ -76,6 +76,10 @@ of single-character IUPAC codes.
 The `alleles` column ("A/T") gives REF/ALT directly; the function
 decodes IUPAC heterozygous codes per marker (e.g. `W` is the het code
 for `A/T`).
+
+Alleles are used as declared. The converter does not use the HapMap `strand`
+column to reverse-complement calls or check them against a reference FASTA.
+Normalize strand and reference orientation upstream before biological analysis.
 
 **Optional `build`**
 

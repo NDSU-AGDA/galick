@@ -1,7 +1,7 @@
 # PLINK bridge
 
 Two thin wrappers around PLINK 1.9 / 2.0. Both shell out via
-`processx::run()` and return `beagler_run` objects.
+`processx::run()` and return `galick_run` objects.
 
 PLINK must be on `PATH` or passed explicitly via the `plink = ` argument.
 
@@ -13,7 +13,7 @@ vcf_to_plink(
   plink_prefix,
   plink     = NULL,
   overwrite = FALSE
-) -> beagler_run
+)
 ```
 
 Runs `plink --vcf <vcf> --make-bed --out <plink_prefix>`. PLINK writes
@@ -22,13 +22,11 @@ Runs `plink --vcf <vcf> --make-bed --out <plink_prefix>`. PLINK writes
 ```r
 result <- vcf_to_plink("data.vcf.gz", "data")
 result$status
-#> [1] 0
 result$output_paths
-#> [1] "data.bed" "data.bim" "data.fam"
 ```
 
 If any of `<prefix>.{bed,bim,fam}` already exist and `overwrite =
-FALSE`, the function aborts with `beagler_error_vcf_to_plink_output_exists`.
+FALSE`, the function aborts with `galick_error_vcf_to_plink_output_exists`.
 
 ## `plink_to_vcf()`
 
@@ -38,7 +36,7 @@ plink_to_vcf(
   vcf,
   plink     = NULL,
   overwrite = FALSE
-) -> beagler_run
+)
 ```
 
 Runs `plink --bfile <plink_prefix> --recode vcf --out <derived_prefix>`
@@ -47,9 +45,7 @@ where `derived_prefix` is `vcf` with the `.vcf` extension stripped.
 ```r
 result <- plink_to_vcf("data", "data.vcf")
 result$status
-#> [1] 0
 file.exists("data.vcf")
-#> [1] TRUE
 ```
 
 ## What's not in v0.1.0

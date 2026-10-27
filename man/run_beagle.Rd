@@ -52,18 +52,18 @@ Auto-created if \code{NULL}.}
 \item{overwrite}{Refuse to clobber \verb{<out>.vcf.gz} unless \code{TRUE}.}
 }
 \value{
-A \code{beagler_run} S3 object.
+A \code{galick_run} S3 object.
 }
 \description{
 Wraps Beagle 5.x with safe defaults, structured argv (no shell strings),
-and a captured run record. Returns a \code{beagler_run} even when Beagle
+and a captured run record. Returns a \code{galick_run} even when Beagle
 itself exits non-zero — callers can inspect stderr via \code{print()}.
 }
 \details{
 Pre-flight: \code{validate_vcf(gt, target = "beagle")} must succeed. Pre-flight
-failure raises \code{beagler_error_run_beagle_invalid_input} (repair the input
+failure raises \code{galick_error_run_beagle_invalid_input} (repair the input
 with \code{\link[=repair_vcf]{repair_vcf()}} first). Post-flight failures (Beagle exits non-zero)
-come back as a \code{beagler_run} with \code{status != 0}.
+come back as a \code{galick_run} with \code{status != 0}.
 
 v0.1.0 limitations:
 \itemize{

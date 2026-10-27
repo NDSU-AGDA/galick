@@ -71,8 +71,8 @@ test_that("vcf_to_dosage reads .vcf.gz transparently", {
 })
 
 test_that("vcf_to_dosage aborts on bad input", {
-  expect_error(vcf_to_dosage(NULL), class = "beagler_error_vcf_to_dosage_invalid_input")
+  expect_error(vcf_to_dosage(NULL), class = "galick_error_vcf_to_dosage_invalid_input")
   expect_error(vcf_to_dosage("/no-such-file.vcf"),
-    class = "beagler_error_vcf_to_dosage_invalid_input"
+    class = "galick_error_vcf_to_dosage_invalid_input"
   )
 })

@@ -7,13 +7,10 @@ inline (`A/T`) and uses single-character IUPAC codes for genotypes.
 ## A peek at the format
 
 ```r
-library(beagler)
+library(galick)
 
-hmp_path <- system.file("extdata", "tiny.hmp.txt", package = "beagler")
+hmp_path <- system.file("extdata", "tiny.hmp.txt", package = "galick")
 cat(readLines(hmp_path)[1:3], sep = "\n")
-#> rs# alleles chrom pos strand assembly# center protLSID assayLSID panel QCcode s1 s2 s3 s4 s5
-#> rs1 A/T chr1 100 + NA NA NA NA NA NA T A W T T
-#> rs2 C/G chr1 1100 + NA NA NA NA NA NA G C S G C
 ```
 
 Each cell is a single character:
@@ -39,18 +36,14 @@ out <- tempfile(fileext = ".vcf")
 result <- hapmap_to_vcf(hmp_path, out)
 
 result$ok
-#> [1] TRUE
 result$summary$n_samples
-#> [1] 5
 result$summary$n_markers
-#> [1] 20
 ```
 
 The output passes Beagle-target validation:
 
 ```r
 validate_vcf(out, target = "beagle")$ok
-#> [1] TRUE
 ```
 
 ## Reference build
@@ -62,7 +55,6 @@ out <- tempfile(fileext = ".vcf")
 hapmap_to_vcf(hmp_path, out, build = "GRCh38")
 
 grep("^##reference", readLines(out), value = TRUE)
-#> [1] "##reference=GRCh38"
 ```
 
 It lands as `##reference=` in the VCF header. Beagle ignores it; it's
@@ -85,11 +77,8 @@ writeLines(c(
 bad_out <- tempfile(fileext = ".vcf")
 result <- hapmap_to_vcf(bad_hmp, bad_out)
 result$ok
-#> [1] FALSE
 result$errors$code
-#> [1] "hapmap_to_vcf_invalid_iupac_token"
 file.exists(bad_out)
-#> [1] FALSE
 ```
 
 ## Round-trip with CSV
@@ -103,8 +92,8 @@ csv_out <- tempfile(fileext = ".vcf")
 hmp_out <- tempfile(fileext = ".vcf")
 
 csv_to_vcf(
-  system.file("extdata", "tiny.csv", package = "beagler"),
-  system.file("extdata", "tiny_map.tsv", package = "beagler"),
+  system.file("extdata", "tiny.csv", package = "galick"),
+  system.file("extdata", "tiny_map.tsv", package = "galick"),
   csv_out
 )
 hapmap_to_vcf(hmp_path, hmp_out)
@@ -116,5 +105,4 @@ hmp_body <- readLines(hmp_out)
 hmp_body <- hmp_body[!startsWith(hmp_body, "#")]
 
 identical(csv_body, hmp_body)
-#> [1] TRUE
 ```

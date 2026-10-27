@@ -28,7 +28,7 @@ orientations cannot be reconciled by selecting one call.}
 \item{overwrite}{Refuse to replace \code{output_vcf} unless \code{TRUE}.}
 }
 \value{
-A \code{beagler_result} whose summary is the merge report.
+A \code{galick_result} whose summary is the merge report.
 }
 \description{
 \code{by_sample} combines different sample columns for the same marker

@@ -4,7 +4,7 @@
       print(result)
     Message
       
-      -- beagler_result: OK ----------------------------------------------------------
+      -- galick_result: OK -----------------------------------------------------------
       Errors: 0; Warnings: 0
       
       -- Summary 
@@ -25,7 +25,7 @@
       print(result)
     Message
       
-      -- beagler_result: NOT OK ------------------------------------------------------
+      -- galick_result: NOT OK -------------------------------------------------------
       Errors: 1; Warnings: 1
       
       -- Errors (top 3) 

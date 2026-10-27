@@ -6,7 +6,7 @@ NULL
 #' Locate the Java executable
 #'
 #' Resolution order: explicit `java` arg → `JAVA_HOME/bin/java` →
-#' `Sys.which("java")`. Aborts with `beagler_error_java_not_found` if
+#' `Sys.which("java")`. Aborts with `galick_error_java_not_found` if
 #' nothing usable is found.
 #'
 #' @keywords internal
@@ -16,13 +16,13 @@ find_java <- function(java = NULL) {
     if (length(java) != 1L || !is.character(java) || is.na(java)) {
       cli::cli_abort(
         "{.arg java} must be a single non-NA character string.",
-        class = "beagler_error_java_not_found"
+        class = "galick_error_java_not_found"
       )
     }
     if (!file.exists(java)) {
       cli::cli_abort(
         "Java path does not exist: {.file {java}}",
-        class = "beagler_error_java_not_found"
+        class = "galick_error_java_not_found"
       )
     }
     return(normalize_path_safe(java, must_exist = TRUE))
@@ -50,7 +50,7 @@ find_java <- function(java = NULL) {
       i = "Install Java 8+ or set {.envvar JAVA_HOME}.",
       i = "macOS: {.code brew install openjdk}; Ubuntu: {.code apt install default-jre}."
     ),
-    class = "beagler_error_java_not_found"
+    class = "galick_error_java_not_found"
   )
 }
 
@@ -63,13 +63,13 @@ detect_java_version <- function(java) {
   if (is.null(parsed)) {
     cli::cli_abort(
       "Could not parse Java version from {.code {java} -version}.",
-      class = "beagler_error_java_version_unknown"
+      class = "galick_error_java_version_unknown"
     )
   }
   if (parsed$major < 8L) {
     cli::cli_abort(
       "Java 8 or later required; found {.val {parsed$raw}}.",
-      class = "beagler_error_java_version_too_old"
+      class = "galick_error_java_version_too_old"
     )
   }
   parsed
@@ -113,8 +113,8 @@ parse_java_version_output <- function(text) {
 #' Locate the Beagle JAR
 #'
 #' Resolution order: explicit `beagle_jar` arg → `BEAGLE_PATH` env →
-#' `tools::R_user_dir("beagler", "cache")/beagle.jar`. Aborts with
-#' `beagler_error_beagle_not_found` and points at `install_beagle()`
+#' `tools::R_user_dir("galick", "cache")/beagle.jar`. Aborts with
+#' `galick_error_beagle_not_found` and points at `install_beagle()`
 #' if nothing is found.
 #'
 #' @keywords internal
@@ -124,13 +124,13 @@ find_beagle_jar <- function(beagle_jar = NULL) {
     if (length(beagle_jar) != 1L || !is.character(beagle_jar) || is.na(beagle_jar)) {
       cli::cli_abort(
         "{.arg beagle_jar} must be a single non-NA character string.",
-        class = "beagler_error_beagle_not_found"
+        class = "galick_error_beagle_not_found"
       )
     }
     if (!file.exists(beagle_jar)) {
       cli::cli_abort(
         "Beagle JAR does not exist: {.file {beagle_jar}}",
-        class = "beagler_error_beagle_not_found"
+        class = "galick_error_beagle_not_found"
       )
     }
     return(normalize_path_safe(beagle_jar, must_exist = TRUE))
@@ -141,7 +141,7 @@ find_beagle_jar <- function(beagle_jar = NULL) {
     return(normalize_path_safe(env_path, must_exist = TRUE))
   }
 
-  cache_path <- file.path(tools::R_user_dir("beagler", "cache"), "beagle.jar")
+  cache_path <- file.path(tools::R_user_dir("galick", "cache"), "beagle.jar")
   if (file.exists(cache_path)) {
     return(normalize_path_safe(cache_path, must_exist = TRUE))
   }
@@ -151,9 +151,9 @@ find_beagle_jar <- function(beagle_jar = NULL) {
       "Could not find a Beagle JAR.",
       i = "Pass {.arg beagle_jar} explicitly,",
       i = "set {.envvar BEAGLE_PATH} to its location,",
-      i = "or run {.code beagler::install_beagle()} to download it."
+      i = "or run {.code galick::install_beagle()} to download it."
     ),
-    class = "beagler_error_beagle_not_found"
+    class = "galick_error_beagle_not_found"
   )
 }
 
@@ -166,13 +166,13 @@ detect_beagle_version <- function(beagle_jar, java) {
   if (is.null(parsed)) {
     cli::cli_abort(
       "Could not parse Beagle version from {.file {beagle_jar}}.",
-      class = "beagler_error_beagle_version_unknown"
+      class = "galick_error_beagle_version_unknown"
     )
   }
   if (parsed$major < 5L) {
     cli::cli_abort(
       "Beagle 5.x or later required; found {.val {parsed$raw}}.",
-      class = "beagler_error_beagle_version_too_old"
+      class = "galick_error_beagle_version_too_old"
     )
   }
   parsed
@@ -212,7 +212,7 @@ parse_beagle_version_output <- function(text) {
 #' Locate the PLINK executable
 #'
 #' Resolution order: explicit `plink` arg -> `Sys.which("plink")`.
-#' Aborts with `beagler_error_plink_not_found` if nothing usable.
+#' Aborts with `galick_error_plink_not_found` if nothing usable.
 #'
 #' @keywords internal
 #' @noRd
@@ -221,13 +221,13 @@ find_plink <- function(plink = NULL) {
     if (length(plink) != 1L || !is.character(plink) || is.na(plink)) {
       cli::cli_abort(
         "{.arg plink} must be a single non-NA character string.",
-        class = "beagler_error_plink_not_found"
+        class = "galick_error_plink_not_found"
       )
     }
     if (!file.exists(plink)) {
       cli::cli_abort(
         "PLINK path does not exist: {.file {plink}}",
-        class = "beagler_error_plink_not_found"
+        class = "galick_error_plink_not_found"
       )
     }
     return(normalize_path_safe(plink, must_exist = TRUE))
@@ -242,7 +242,7 @@ find_plink <- function(plink = NULL) {
       i = "Install PLINK 1.9 or 2.0 and ensure it is on PATH.",
       i = "macOS: {.code brew install plink}; Ubuntu: {.code apt install plink1.9}."
     ),
-    class = "beagler_error_plink_not_found"
+    class = "galick_error_plink_not_found"
   )
 }
 

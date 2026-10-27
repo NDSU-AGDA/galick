@@ -1,5 +1,5 @@
 test_that("build_beagle_argv produces the expected argv vector for impute mode", {
-  args <- beagler:::build_beagle_argv(
+  args <- galick:::build_beagle_argv(
     beagle_jar = "/p/beagle.jar",
     gt = "/p/in.vcf",
     out = "/p/out_prefix",
@@ -16,7 +16,7 @@ test_that("build_beagle_argv produces the expected argv vector for impute mode",
 })
 
 test_that("build_beagle_argv adds impute=false in phase mode", {
-  args <- beagler:::build_beagle_argv(
+  args <- galick:::build_beagle_argv(
     beagle_jar = "/p/b.jar",
     gt = "/p/in.vcf",
     out = "/p/out",
@@ -26,7 +26,7 @@ test_that("build_beagle_argv adds impute=false in phase mode", {
 })
 
 test_that("build_beagle_argv passes ref, map, seed only when given", {
-  args <- beagler:::build_beagle_argv(
+  args <- galick:::build_beagle_argv(
     beagle_jar = "/p/b.jar",
     gt = "/p/in.vcf",
     out = "/p/out",
@@ -40,7 +40,7 @@ test_that("build_beagle_argv passes ref, map, seed only when given", {
 })
 
 test_that("build_beagle_argv appends extra_args verbatim after defaults", {
-  args <- beagler:::build_beagle_argv(
+  args <- galick:::build_beagle_argv(
     beagle_jar = "/p/b.jar",
     gt = "/p/in.vcf",
     out = "/p/out",
@@ -58,11 +58,11 @@ test_that("run_beagle rejects out endings of .vcf or .vcf.gz", {
   ), gt)
   expect_error(
     run_beagle(gt = gt, out = "/tmp/foo.vcf"),
-    class = "beagler_error_run_beagle_invalid_input"
+    class = "galick_error_run_beagle_invalid_input"
   )
   expect_error(
     run_beagle(gt = gt, out = "/tmp/foo.vcf.gz"),
-    class = "beagler_error_run_beagle_invalid_input"
+    class = "galick_error_run_beagle_invalid_input"
   )
 })
 
@@ -84,7 +84,7 @@ test_that("run_beagle accepts gt of .vcf.gz", {
   out_dir <- withr::local_tempdir()
   out_prefix <- file.path(out_dir, "result")
   result <- run_beagle(gt = gt, out = out_prefix, mode = "phase")
-  expect_s3_class(result, "beagler_run")
+  expect_s3_class(result, "galick_run")
 })
 
 test_that("run_beagle rejects an empty reference VCF", {
@@ -101,7 +101,7 @@ test_that("run_beagle rejects an empty reference VCF", {
   out <- withr::local_tempfile()
   expect_error(
     run_beagle(gt = gt, out = out, ref = bad_ref),
-    class = "beagler_error_run_beagle_invalid_input"
+    class = "galick_error_run_beagle_invalid_input"
   )
 })
 
@@ -117,7 +117,7 @@ test_that("run_beagle preflight raises when gt fails validate_vcf(target='beagle
   out <- withr::local_tempfile()
   expect_error(
     run_beagle(gt = bad_gt, out = out),
-    class = "beagler_error_run_beagle_invalid_input"
+    class = "galick_error_run_beagle_invalid_input"
   )
 })
 
@@ -135,11 +135,11 @@ test_that("run_beagle refuses to overwrite <out>.vcf.gz unless overwrite = TRUE"
   file.create(paste0(out_prefix, ".vcf.gz"))
   expect_error(
     run_beagle(gt = gt, out = out_prefix),
-    class = "beagler_error_run_beagle_output_exists"
+    class = "galick_error_run_beagle_output_exists"
   )
 })
 
-test_that("run_beagle integration: phase a tiny VCF and return ok beagler_run", {
+test_that("run_beagle integration: phase a tiny VCF and return ok galick_run", {
   skip_if_no_java()
   skip_if_no_beagle()
   gt <- withr::local_tempfile(fileext = ".vcf")
@@ -158,7 +158,7 @@ test_that("run_beagle integration: phase a tiny VCF and return ok beagler_run", 
   out_prefix <- file.path(out_dir, "phased")
   result <- run_beagle(gt = gt, out = out_prefix, mode = "phase")
 
-  expect_s3_class(result, "beagler_run")
+  expect_s3_class(result, "galick_run")
   expect_equal(result$status, 0L)
   expect_true(file.exists(paste0(out_prefix, ".vcf.gz")))
   expect_true(file.exists(result$run_record))
@@ -166,12 +166,12 @@ test_that("run_beagle integration: phase a tiny VCF and return ok beagler_run", 
   expect_true(file.exists(result$stderr_log))
 
   rec <- jsonlite::fromJSON(result$run_record, simplifyVector = FALSE)
-  expect_equal(rec$schema_version, "1.0.0")
+  expect_equal(rec$schema_version, "2.0.0")
   expect_equal(rec$status, 0L)
   expect_match(rec$inputs[[1]]$sha256, "^[0-9a-f]{64}$")
 })
 
-test_that("run_beagle integration: bad extra_args produce a non-zero beagler_run", {
+test_that("run_beagle integration: bad extra_args produce a non-zero galick_run", {
   skip_if_no_java()
   skip_if_no_beagle()
   gt <- withr::local_tempfile(fileext = ".vcf")
@@ -192,6 +192,6 @@ test_that("run_beagle integration: bad extra_args produce a non-zero beagler_run
     extra_args = c("nonsense_flag=true")
   )
 
-  expect_s3_class(result, "beagler_run")
+  expect_s3_class(result, "galick_run")
   expect_true(result$status != 0L)
 })

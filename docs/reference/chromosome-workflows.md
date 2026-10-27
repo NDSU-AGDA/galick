@@ -12,7 +12,7 @@ split_vcf_by_chrom(
   chrom_filter = NULL,
   bcftools     = NULL,
   overwrite    = FALSE
-) -> list(output_dir, chrom_paths)
+)
 ```
 
 Reads `vcf` (`.vcf` or `.vcf.gz`) and writes one `.vcf` per unique
@@ -21,8 +21,6 @@ CHROM into `out_dir`. Pure R; no `bcftools` dependency.
 ```r
 res <- split_vcf_by_chrom("data.vcf.gz", "split_out")
 res$chrom_paths
-#>      chr1                     chr2                     chr3
-#> "split_out/chr1.vcf"     "split_out/chr2.vcf"     "split_out/chr3.vcf"
 ```
 
 Use `chrom_filter` to keep only listed chromosomes; the rest are
@@ -40,7 +38,7 @@ run_beagle_by_chrom(
   parallel     = c("none", "future", "mclapply"),
   workers      = 1L,
   ...
-) -> list of beagler_run, named by chromosome
+)
 ```
 
 Splits `gt` under `out_dir/_split/`, then calls `run_beagle()` once
@@ -52,7 +50,7 @@ Beagle filters them by chromosome internally.
 A cache hit requires a successful run record, matching input/reference/map
 hashes, identical computational settings and Java/JAR identity, and a matching
 output checksum with valid, nonempty VCF content. Old records without a complete
-fingerprint are rerun. The cached `beagler_run` is returned only after these checks.
+fingerprint are rerun. The cached `galick_run` is returned only after these checks.
 
 ```r
 # First call: runs all chromosomes
@@ -88,10 +86,10 @@ merge_beagle_outputs(
   output_vcf,
   bcftools  = NULL,
   overwrite = FALSE
-) -> path (invisible)
+)
 ```
 
-Concatenates the `output_paths` from a list of `beagler_run` objects
+Concatenates the `output_paths` from a list of `galick_run` objects
 into a single `.vcf` or `.vcf.gz`. Every expected run must have succeeded with
 an existing valid output and disjoint chromosome coverage. Sample sets must
 match and columns are aligned by name. Compatible headers and FORMAT fields,

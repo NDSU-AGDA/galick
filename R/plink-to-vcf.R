@@ -11,7 +11,7 @@
 #' @param plink Optional path to `plink`; auto-discovered if `NULL`.
 #' @param overwrite Refuse to clobber existing `vcf` unless `TRUE`.
 #'
-#' @return A `beagler_run` S3 object.
+#' @return A `galick_run` S3 object.
 #' @export
 plink_to_vcf <- function(plink_prefix, vcf, plink = NULL, overwrite = FALSE) {
   the_call <- match.call()
@@ -19,7 +19,7 @@ plink_to_vcf <- function(plink_prefix, vcf, plink = NULL, overwrite = FALSE) {
   if (length(plink_prefix) != 1L || !is.character(plink_prefix) || is.na(plink_prefix)) {
     cli::cli_abort(
       "{.arg plink_prefix} must be a single non-NA character string.",
-      class = "beagler_error_plink_to_vcf_invalid_input"
+      class = "galick_error_plink_to_vcf_invalid_input"
     )
   }
   required <- paste0(plink_prefix, c(".bed", ".bim", ".fam"))
@@ -30,49 +30,47 @@ plink_to_vcf <- function(plink_prefix, vcf, plink = NULL, overwrite = FALSE) {
         "Missing PLINK input files for prefix {.file {plink_prefix}}:",
         i = paste(missing_files, collapse = ", ")
       ),
-      class = "beagler_error_plink_to_vcf_invalid_input"
+      class = "galick_error_plink_to_vcf_invalid_input"
     )
   }
   if (length(vcf) != 1L || !is.character(vcf) || is.na(vcf)) {
     cli::cli_abort(
       "{.arg vcf} must be a single non-NA character string.",
-      class = "beagler_error_plink_to_vcf_invalid_input"
+      class = "galick_error_plink_to_vcf_invalid_input"
     )
   }
   if (!grepl("\\.vcf$", vcf, ignore.case = TRUE)) {
     cli::cli_abort(
       "{.arg vcf} must end in {.val .vcf} (PLINK writes plain .vcf).",
-      class = "beagler_error_plink_to_vcf_invalid_input"
+      class = "galick_error_plink_to_vcf_invalid_input"
     )
   }
   if (file.exists(vcf) && !overwrite) {
     cli::cli_abort(
       "Output VCF already exists: {.file {vcf}} (use {.code overwrite = TRUE}).",
-      class = "beagler_error_plink_to_vcf_output_exists"
+      class = "galick_error_plink_to_vcf_output_exists"
     )
   }
 
   plink_path <- find_plink(plink)
-  out_prefix <- sub("\\.vcf$", "", vcf, ignore.case = TRUE)
   args <- c(
-    "--bfile", plink_prefix, "--recode", "vcf",
-    "--out", out_prefix
+    "--bfile", normalize_path_safe(plink_prefix, FALSE), "--recode", "vcf"
   )
-  result <- run_cli(plink_path, args = args)
+  result <- run_plink_bridge(plink_path, args, vcf)
 
-  output_paths <- if (file.exists(vcf)) vcf else character()
+  output_paths <- if (result$status == 0L) vcf else character()
 
   versions <- list(
-    beagler = as.character(utils::packageVersion("beagler")),
+    galick = as.character(utils::packageVersion("galick")),
     r = as.character(getRversion()),
     os = R.version$os,
     plink = "PLINK"
   )
 
-  new_beagler_run(
+  new_galick_run(
     status = result$status,
     runtime_sec = result$runtime_sec,
-    command = c(plink_path, args),
+    command = result$command,
     version = versions,
     output_paths = output_paths,
     stdout_log = NA_character_,

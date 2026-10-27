@@ -29,10 +29,10 @@
 #' @param max_runs Maximum Beagle computations (not version probes). Reserve the worst
 #'   case `(length(candidates) + 2) * repeats` before launching any jobs.
 #' @param beagle_jar,java Optional runtime paths passed to [run_beagle()].
-#' @return A `beagler_evaluation` inheriting from `beagler_result`, with `metrics`,
+#' @return A `galick_evaluation` inheriting from `galick_result`, with `metrics`,
 #'   `by_group`, `selection`, `runs`, `design` and `per_marker_paths`. Missing
 #'   predictions prevent selection. Execution/scoring failures are collected;
-#'   invalid experiment designs raise `beagler_error_evaluation_invalid_input`.
+#'   invalid experiment designs raise `galick_error_evaluation_invalid_input`.
 #' @export
 evaluate_imputation <- function(truth_vcf, sample_data, candidates, baseline, output_dir,
                                 design = c("sporadic", "array"), observed_markers = NULL,
@@ -144,7 +144,7 @@ evaluate_imputation <- function(truth_vcf, sample_data, candidates, baseline, ou
     min_improvement = min_improvement, max_group_regression = max_group_regression,
     max_runs = max_runs, nthreads = nthreads, memory_gb = memory_gb
   )
-  new_beagler_evaluation(state, experiment, output_dir, the_call)
+  new_galick_evaluation(state, experiment, output_dir, the_call)
 }
 
 #' @keywords internal

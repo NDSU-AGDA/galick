@@ -20,12 +20,12 @@ make_tiny_vcf_args <- function() {
 test_that("write_vcf_v4_2 writes a valid VCF 4.2 file", {
   out <- withr::local_tempfile(fileext = ".vcf")
   args <- make_tiny_vcf_args()
-  do.call(beagler:::write_vcf_v4_2, c(list(output_path = out), args))
+  do.call(galick:::write_vcf_v4_2, c(list(output_path = out), args))
 
   lines <- readLines(out)
   expect_true("##fileformat=VCFv4.2" %in% lines)
   expect_true(any(grepl("^##fileDate=\\d{8}$", lines)))
-  expect_true(any(grepl("^##source=beagler/", lines)))
+  expect_true(any(grepl("^##source=galick/", lines)))
   expect_true("##contig=<ID=chr1>" %in% lines)
   expect_true("##contig=<ID=chr2>" %in% lines)
   expect_true(any(grepl("^##FORMAT=<ID=GT,", lines)))
@@ -53,7 +53,7 @@ test_that("write_vcf_v4_2 always writes decimal integer positions", {
 test_that("write_vcf_v4_2 omits length from contig lines (per M4 spec)", {
   out <- withr::local_tempfile(fileext = ".vcf")
   args <- make_tiny_vcf_args()
-  do.call(beagler:::write_vcf_v4_2, c(list(output_path = out), args))
+  do.call(galick:::write_vcf_v4_2, c(list(output_path = out), args))
 
   lines <- readLines(out)
   contig_lines <- lines[grepl("^##contig=", lines)]
@@ -64,8 +64,8 @@ test_that("write_vcf_v4_2 refuses non-.vcf extensions", {
   out <- withr::local_tempfile(fileext = ".vcf.gz")
   args <- make_tiny_vcf_args()
   expect_error(
-    do.call(beagler:::write_vcf_v4_2, c(list(output_path = out), args)),
-    class = "beagler_error_unsupported_extension"
+    do.call(galick:::write_vcf_v4_2, c(list(output_path = out), args)),
+    class = "galick_error_unsupported_extension"
   )
 })
 
@@ -74,8 +74,8 @@ test_that("write_vcf_v4_2 refuses to overwrite by default", {
   file.create(out)
   args <- make_tiny_vcf_args()
   expect_error(
-    do.call(beagler:::write_vcf_v4_2, c(list(output_path = out), args)),
-    class = "beagler_error_output_exists"
+    do.call(galick:::write_vcf_v4_2, c(list(output_path = out), args)),
+    class = "galick_error_output_exists"
   )
 })
 
@@ -84,7 +84,7 @@ test_that("write_vcf_v4_2 overwrites when overwrite = TRUE", {
   file.create(out)
   args <- make_tiny_vcf_args()
   expect_no_error(
-    do.call(beagler:::write_vcf_v4_2, c(list(output_path = out, overwrite = TRUE), args))
+    do.call(galick:::write_vcf_v4_2, c(list(output_path = out, overwrite = TRUE), args))
   )
 })
 
@@ -93,8 +93,8 @@ test_that("write_vcf_v4_2 errors on length-mismatched marker vectors", {
   args$pos <- c(100L, 200L)
   out <- withr::local_tempfile(fileext = ".vcf")
   expect_error(
-    do.call(beagler:::write_vcf_v4_2, c(list(output_path = out), args)),
-    class = "beagler_error_invalid_argument"
+    do.call(galick:::write_vcf_v4_2, c(list(output_path = out), args)),
+    class = "galick_error_invalid_argument"
   )
 })
 
@@ -103,7 +103,7 @@ test_that("write_vcf_v4_2 errors on samples mismatch with gt_matrix columns", {
   args$samples <- c("s1", "s2")
   out <- withr::local_tempfile(fileext = ".vcf")
   expect_error(
-    do.call(beagler:::write_vcf_v4_2, c(list(output_path = out), args)),
-    class = "beagler_error_invalid_argument"
+    do.call(galick:::write_vcf_v4_2, c(list(output_path = out), args)),
+    class = "galick_error_invalid_argument"
   )
 })

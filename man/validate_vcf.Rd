@@ -23,7 +23,7 @@ in full and only this many body records. Sortedness and duplicate
 at chunk boundaries).}
 }
 \value{
-A \code{beagler_result} S3 object.
+A \code{galick_result} S3 object.
 }
 \description{
 Reads a \code{.vcf} or \code{.vcf.gz} via the tolerant internal \code{parse_vcf_raw()} and

@@ -34,7 +34,7 @@
 #' @param max_allele_cells Conservative ceiling on simulation allele-array entries,
 #'   checked after reading founders but before population-array allocation. This is
 #'   not a bound on total R memory or output size; GT strings and ledgers add overhead.
-#' @return A beagler_simulation inheriting from beagler_result, with paths, samples,
+#' @return A galick_simulation inheriting from galick_result, with paths, samples,
 #'   observation rates, diagnostics and versioned model/input/output provenance.
 #' @export
 simulate_vcf <- function(founder_vcf, map, output_dir,
@@ -47,14 +47,15 @@ simulate_vcf <- function(founder_vcf, map, output_dir,
   the_call <- match.call()
   scenario <- match.arg(scenario)
   if (length(inheritance) != 1L && !identical(inheritance, c("diploid", "autotetraploid_bivalent"))) {
-    simulation_abort("Specify one supported inheritance model.", "beagler_error_simulation_unsupported_inheritance")
+    simulation_abort("Specify one supported inheritance model.", "galick_error_simulation_unsupported_inheritance")
   }
   if (identical(inheritance, c("diploid", "autotetraploid_bivalent"))) inheritance <- "diploid"
   if (!is.character(inheritance) || length(inheritance) != 1L || is.na(inheritance) ||
         !inheritance %in% c("diploid", "autotetraploid_bivalent") ||
         (inheritance != "diploid" && scenario != "outbred")) {
-    simulation_abort("Unsupported inheritance/scenario combination.",
-      "beagler_error_simulation_unsupported_inheritance"
+    simulation_abort(
+      "Unsupported inheritance/scenario combination.",
+      "galick_error_simulation_unsupported_inheritance"
     )
   }
   ploidy <- if (inheritance == "diploid") 2L else 4L
@@ -100,8 +101,9 @@ simulate_vcf <- function(founder_vcf, map, output_dir,
   census <- if (scenario == "outbred") population_size * length(groups) else sum(pmax(2, totals))
   estimated <- nrow(founders$vcf$gt) * ploidy * (ncol(founders$vcf$gt) + 2 * census + 3 * sum(totals))
   if (!is.finite(estimated) || estimated > max_allele_cells) {
-    simulation_abort("Simulation exceeds max_allele_cells before population allocation.",
-      "beagler_error_simulation_resource_limit"
+    simulation_abort(
+      "Simulation exceeds max_allele_cells before population allocation.",
+      "galick_error_simulation_resource_limit"
     )
   }
   settings <- simulation_noise_settings(missingness, error_rate, observed_markers, founders)
@@ -109,7 +111,7 @@ simulate_vcf <- function(founder_vcf, map, output_dir,
   map_file_hash <- if (is.character(map)) file_sha256(map) else NULL
   output_dir <- normalize_path_safe(output_dir, must_exist = FALSE)
   if (!dir.exists(dirname(output_dir))) dir.create(dirname(output_dir), recursive = TRUE)
-  stage <- tempfile("beagler_simulation_", tmpdir = dirname(output_dir))
+  stage <- tempfile("galick_simulation_", tmpdir = dirname(output_dir))
   if (!dir.create(stage)) simulation_abort("Cannot create staging directory.")
   on.exit(unlink(stage, recursive = TRUE), add = TRUE)
   event_path <- file.path(stage, "recombination.tsv")
@@ -132,7 +134,7 @@ simulate_vcf <- function(founder_vcf, map, output_dir,
         (!is.null(map_file_hash) && !identical(file_sha256(map), map_file_hash))) {
     simulation_abort("An input changed during simulation.")
   }
-  new_beagler_simulation(
+  new_galick_simulation(
     founders, population, truth, reference, observed, stage, output_dir,
     list(
       model_version = "1.0.0", scenario = scenario, inheritance = inheritance, ploidy = ploidy,

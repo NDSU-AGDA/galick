@@ -6,9 +6,9 @@
 #' Header structure:
 #' - `##fileformat=VCFv4.2`
 #' - `##fileDate=YYYYMMDD`
-#' - `##source=<source string>` (defaults to `beagler/<version>`)
+#' - `##source=<source string>` (defaults to `galick/<version>`)
 #' - `##contig=<ID=<chrom>>` per unique chromosome — length deliberately
-#'   omitted because beagler does not require a reference assembly.
+#'   omitted because galick does not require a reference assembly.
 #' - `##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">`
 #' - `#CHROM POS ID REF ALT QUAL FILTER INFO FORMAT <samples...>`
 #'
@@ -31,19 +31,19 @@ write_vcf_v4_2 <- function(output_path,
   if (length(output_path) != 1L || !is.character(output_path) || is.na(output_path)) {
     cli::cli_abort(
       "{.arg output_path} must be a single non-NA character string.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
   if (!grepl("\\.vcf$", output_path, ignore.case = TRUE)) {
     cli::cli_abort(
       "Output path must end in {.val .vcf}; got {.file {output_path}}.",
-      class = "beagler_error_unsupported_extension"
+      class = "galick_error_unsupported_extension"
     )
   }
   if (file.exists(output_path) && !overwrite) {
     cli::cli_abort(
       "Output file exists: {.file {output_path}} (use {.code overwrite = TRUE}).",
-      class = "beagler_error_output_exists"
+      class = "galick_error_output_exists"
     )
   }
 
@@ -52,24 +52,24 @@ write_vcf_v4_2 <- function(output_path,
         length(ref) != n_markers || length(alt) != n_markers) {
     cli::cli_abort(
       "Marker metadata vectors must all have the same length.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
   if (!is.matrix(gt_matrix) || nrow(gt_matrix) != n_markers) {
     cli::cli_abort(
       "{.arg gt_matrix} must be a character matrix with one row per marker.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
   if (length(samples) != ncol(gt_matrix)) {
     cli::cli_abort(
       "{.arg samples} length must match {.arg gt_matrix} column count.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
 
   if (is.null(source)) {
-    source <- sprintf("beagler/%s", utils::packageVersion("beagler"))
+    source <- sprintf("galick/%s", utils::packageVersion("galick"))
   }
   unique_chroms <- unique(chrom)
 

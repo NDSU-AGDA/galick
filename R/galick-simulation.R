@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
-new_beagler_simulation <- function(founders, population, truth, reference, observed, stage, destination,
-                                   parameters, call) {
+new_galick_simulation <- function(founders, population, truth, reference, observed, stage, destination,
+                                  parameters, call) {
   names <- c(
     truth = "truth.vcf", observed = "observed.vcf", reference = "reference.vcf",
     samples = "samples.tsv", pedigree = "pedigree.tsv", recombination = "recombination.tsv",
@@ -71,7 +71,7 @@ new_beagler_simulation <- function(founders, population, truth, reference, obser
     list(
       schema_version = "1.0.0", parameters = record_parameters,
       observation = observed$summary, artifacts = artifacts,
-      package_version = as.character(utils::packageVersion("beagler")), r_version = as.character(getRversion())
+      package_version = as.character(utils::packageVersion("galick")), r_version = as.character(getRversion())
     ),
     file.path(stage, "simulation.json")
   )
@@ -83,7 +83,7 @@ new_beagler_simulation <- function(founders, population, truth, reference, obser
     simulation_abort("Could not publish the completed simulation bundle.")
   }
   paths <- stats::setNames(file.path(destination, names), names(names))
-  object <- new_beagler_result(summary = list(
+  object <- new_galick_result(summary = list(
     scenario = parameters$scenario, inheritance = parameters$inheritance,
     n_target = sum(parameters$n_target), n_reference = sum(parameters$n_reference), n_markers = nrow(truth$gt),
     generations = parameters$generations, output_dir = destination
@@ -94,12 +94,12 @@ new_beagler_simulation <- function(founders, population, truth, reference, obser
   object$diagnostics <- tibble::as_tibble(diagnostics)
   object$ld <- tibble::as_tibble(ld)
   object$model <- parameters
-  class(object) <- c("beagler_simulation", class(object))
+  class(object) <- c("galick_simulation", class(object))
   object
 }
 
 #' @export
-print.beagler_simulation <- function(x, ...) {
+print.galick_simulation <- function(x, ...) {
   cli::cli_h1("Founder-conditioned simulation: {x$summary$scenario}")
   cli::cli_text("{x$summary$n_target} targets; {x$summary$n_reference} references; {x$summary$n_markers} SNPs")
   cli::cli_text("Inheritance: {x$summary$inheritance}; generation: {x$summary$generations}")
@@ -108,6 +108,6 @@ print.beagler_simulation <- function(x, ...) {
 }
 
 #' @export
-as.data.frame.beagler_simulation <- function(x, ...) {
+as.data.frame.galick_simulation <- function(x, ...) {
   as.data.frame(x$diagnostics)
 }
