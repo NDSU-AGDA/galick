@@ -7,7 +7,8 @@
 validate_vcf(
   vcf,
   target = c("general", "beagle", "plink"),
-  max_records_to_scan = Inf
+  max_records_to_scan = Inf,
+  progress = interactive()
 )
 }
 \arguments{
@@ -21,6 +22,9 @@ shift severity by target.}
 in full and only this many body records. Sortedness and duplicate
 \verb{(chrom, pos)} checks are skipped in partial mode (would false-positive
 at chunk boundaries).}
+
+\item{progress}{Show validation stages and record-level progress. Defaults
+to \code{interactive()}; use \code{FALSE} to silence progress in scripts.}
 }
 \value{
 A \code{galick_result} S3 object.

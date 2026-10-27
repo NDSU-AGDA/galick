@@ -17,14 +17,20 @@
 #'   in full and only this many body records. Sortedness and duplicate
 #'   `(chrom, pos)` checks are skipped in partial mode (would false-positive
 #'   at chunk boundaries).
+#' @param progress Show validation stages and record-level progress. Defaults
+#'   to `interactive()`; use `FALSE` to silence progress in scripts.
 #'
 #' @return A `galick_result` S3 object.
 #' @export
 validate_vcf <- function(vcf,
                          target = c("general", "beagle", "plink"),
-                         max_records_to_scan = Inf) {
+                         max_records_to_scan = Inf,
+                         progress = interactive()) {
   the_call <- match.call()
   target <- match.arg(target)
+  if (!is.logical(progress) || length(progress) != 1L || is.na(progress)) {
+    cli::cli_abort("{.arg progress} must be TRUE or FALSE.", class = "galick_error_invalid_argument")
+  }
 
   if (length(vcf) != 1L || !is.character(vcf) || is.na(vcf)) {
     cli::cli_abort(
@@ -40,7 +46,10 @@ validate_vcf <- function(vcf,
   }
   has_vcf_gz_extension <- grepl("\\.vcf\\.gz$", vcf, ignore.case = TRUE)
 
+  progress_id <- vcf_validation_progress(progress, "Reading and parsing VCF")
   parsed <- parse_vcf_raw(vcf)
+  if (progress) cli::cli_progress_done(id = progress_id)
+  progress_id <- vcf_validation_progress(progress, "Checking VCF structure")
 
   errors <- list()
   warnings <- list()
@@ -275,15 +284,17 @@ validate_vcf <- function(vcf,
       warnings <- c(warnings, sortedness_issues)
     }
 
+    if (progress) cli::cli_progress_done(id = progress_id)
+    progress_id <- NULL
     format_issues <- check_format_and_gt(
-      format_field, sample_cells, n_samples, good_rows, alt
+      format_field, sample_cells, n_samples, good_rows, alt, progress = progress
     )
     errors <- c(errors, format_issues$errors)
     warnings <- c(warnings, format_issues$warnings)
 
     if (target == "beagle") {
       beagle_issues <- check_beagle_specific(
-        ref, alt_lists, sample_cells, format_field, n_samples, good_rows
+        ref, alt_lists, sample_cells, format_field, n_samples, good_rows, progress = progress
       )
       errors <- c(errors, beagle_issues$errors)
       warnings <- c(warnings, beagle_issues$warnings)
@@ -313,6 +324,8 @@ validate_vcf <- function(vcf,
     )
   }
 
+  if (!is.null(progress_id)) cli::cli_progress_done(id = progress_id)
+  progress_id <- vcf_validation_progress(progress, "Summarizing validation")
   summary_list <- list(
     target = target,
     n_samples = n_samples,
@@ -406,12 +419,13 @@ check_sortedness <- function(chrom, pos, row_numbers) {
 #' @keywords internal
 #' @noRd
 check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbers,
-                                alt = NULL) {
+                                alt = NULL, progress = FALSE) {
   errors <- list()
   warnings <- list()
   if (n_samples == 0L) {
     return(list(errors = errors, warnings = warnings))
   }
+  progress_id <- vcf_validation_progress(progress, "Genotypes", length(format_field))
 
   format_subfields <- strsplit(format_field, ":", fixed = TRUE)
   gt_idx <- vapply(format_subfields, function(f) {
@@ -434,6 +448,7 @@ check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbe
   gt_token_re <- "^(\\.|[0-9]+)([/|](\\.|[0-9]+))*$"
   bad_gt_rows <- integer()
   for (i in which(!bad_format_mask)) {
+    if (progress) cli::cli_progress_update(set = i - 1L, id = progress_id)
     expected_n <- length(format_subfields[[i]])
     cells <- sample_cells[i, ]
     cell_subfields <- strsplit(cells, ":", fixed = TRUE)
@@ -461,6 +476,7 @@ check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbe
       bad_gt_rows <- c(bad_gt_rows, row_numbers[i])
     }
   }
+  if (progress) cli::cli_progress_update(set = length(format_field), id = progress_id)
   if (length(bad_gt_rows) > 0L) {
     errors[[length(errors) + 1L]] <- list(
       code = "vcf_invalid_gt",
@@ -478,9 +494,10 @@ check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbe
 #' @keywords internal
 #' @noRd
 check_beagle_specific <- function(ref, alt_lists, sample_cells, format_field,
-                                  n_samples, row_numbers) {
+                                  n_samples, row_numbers, progress = FALSE) {
   errors <- list()
   warnings <- list()
+  progress_id <- vcf_validation_progress(progress, "Beagle checks", length(format_field))
 
   same_alleles <- vapply(seq_along(alt_lists), function(i) {
     a <- alt_lists[[i]]
@@ -502,6 +519,7 @@ check_beagle_specific <- function(ref, alt_lists, sample_cells, format_field,
     }, integer(1))
     non_diploid_rows <- integer()
     for (i in seq_along(format_subfields)) {
+      if (progress) cli::cli_progress_update(set = i - 1L, id = progress_id)
       if (is.na(gt_idx[i])) next
       cells <- sample_cells[i, ]
       cell_subfields <- strsplit(cells, ":", fixed = TRUE)
@@ -524,8 +542,29 @@ check_beagle_specific <- function(ref, alt_lists, sample_cells, format_field,
       )
     }
   }
+  if (progress) cli::cli_progress_update(set = length(format_field), id = progress_id)
 
   list(errors = errors, warnings = warnings)
+}
+
+#' @keywords internal
+#' @noRd
+vcf_validation_progress <- function(enabled, label, total = NA) {
+  if (!enabled) return(NULL)
+  format <- if (is.na(total)) {
+    "{cli::pb_spin} {cli::pb_name} {cli::pb_elapsed}"
+  } else {
+    paste0(
+      "{cli::pb_name} {cli::pb_bar} {cli::pb_percent} | ",
+      "{cli::pb_current}/{cli::pb_total} | {cli::pb_elapsed} | ETA {cli::pb_eta}"
+    )
+  }
+  id <- cli::cli_progress_bar(
+    name = label, total = total, format = format,
+    auto_terminate = FALSE, .envir = parent.frame()
+  )
+  cli::cli_progress_update(set = 0, id = id, force = TRUE)
+  invisible(id)
 }
 
 #' @keywords internal

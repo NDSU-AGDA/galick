@@ -1,5 +1,11 @@
 # galick 0.1.0
 
+## Validation progress
+
+- `validate_vcf()` shows staged progress in interactive sessions, with
+  record counts, elapsed time and estimated time remaining for genotype checks.
+  Set `progress = FALSE` to disable it or `progress = TRUE` to request it explicitly.
+
 ## Package rename and documentation audit
 
 - The package namespace is now `galick`; result classes, condition prefixes,

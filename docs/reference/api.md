@@ -333,7 +333,8 @@ validate_reference_match(
 validate_vcf(
   vcf,
   target = c("general", "beagle", "plink"),
-  max_records_to_scan = Inf
+  max_records_to_scan = Inf,
+  progress = interactive()
 )
 ```
 

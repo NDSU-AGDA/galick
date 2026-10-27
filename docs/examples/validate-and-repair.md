@@ -34,6 +34,12 @@ chr2   300 rs9   A   C   .    PASS   .    GT:DP  0/1:30 1/1:25
 
 ## Validate first
 
+Interactive sessions display the current validation stage and record-level
+progress for genotype checks, including elapsed time and ETA. Use
+`progress = FALSE` to suppress it or `progress = TRUE` to request it explicitly.
+Reading/parsing uses an indeterminate indicator; it does not estimate a file-read
+percentage or reduce the validator's memory requirements.
+
 ```r
 v <- validate_vcf(dirty, target = "beagle")
 v$ok
