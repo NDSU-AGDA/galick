@@ -1,0 +1,49 @@
+name: MkDocs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'mkdocs.yaml'
+      - 'README.md'
+      - '.github/workflows/mkdocs.yaml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'mkdocs.yaml'
+      - 'README.md'
+      - '.github/workflows/mkdocs.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mkdocs-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+      - name: Install documentation dependencies
+        run: python -m pip install -r docs/requirements.txt
+      - name: Build documentation
+        run: python -m mkdocs build --strict
+      - name: Save documentation preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: galick-docs
+          path: site/
+          retention-days: 3
