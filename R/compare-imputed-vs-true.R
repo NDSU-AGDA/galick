@@ -11,7 +11,7 @@
 #'   GT cells marked missing. Only those cells are eligible.
 #' @param field `"GT"` for ALT copy counts or `"DS"` for expected ALT dosage.
 #'   DS never falls back to GT. Evaluation requires diploid biallelic calls.
-#' @return A `beagler_result` with eligible, evaluated and missing counts,
+#' @return A `galick_result` with eligible, evaluated and missing counts,
 #'   completion, unconditional and conditional GT concordance, RMSE,
 #'   mean defined per-marker `dosage_r2`, `pooled_dosage_r2`, and `per_marker`.
 #'   GT concordance is never obtained by rounding DS.
@@ -26,7 +26,7 @@ compare_imputed_vs_true <- function(imputed_vcf, true_vcf, masked_vcf = NULL,
     if (!is.character(value) || length(value) != 1L || is.na(value) ||
           !file.exists(value)) {
       cli::cli_abort("{.arg {arg}} must name an existing VCF.",
-        class = "beagler_error_compare_imputed_invalid_input"
+        class = "galick_error_compare_imputed_invalid_input"
       )
     }
   }
@@ -34,7 +34,7 @@ compare_imputed_vs_true <- function(imputed_vcf, true_vcf, masked_vcf = NULL,
   summary$field <- field
   summary$used_mask_filter <- !is.null(masked_vcf)
   fail <- function(code, message) {
-    new_beagler_result(
+    new_galick_result(
       errors = issues_tibble(list(list(
         code = code, message = message,
         where = list()
@@ -148,7 +148,7 @@ compare_imputed_vs_true <- function(imputed_vcf, true_vcf, masked_vcf = NULL,
   } else {
     list()
   }
-  new_beagler_result(
+  new_galick_result(
     warnings = issues_tibble(warnings),
     summary = summary, call = the_call
   )

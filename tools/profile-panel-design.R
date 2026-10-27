@@ -14,17 +14,17 @@ fixed <- data.table::data.table(
   CHROM = rep(c("1", "2"), each = 120), POS = rep(seq_len(120) * 1000, 2),
   ID = paste0("m", seq_len(240)), REF = "A", ALT = "G", QUAL = ".", FILTER = ".", INFO = "."
 )
-truth <- beagler:::new_genotype_vcf(
+truth <- galick:::new_genotype_vcf(
   fixed, gt, samples, c("##fileformat=VCFv4.2", "##contig=<ID=1>", "##contig=<ID=2>")
 )
 truth_path <- file.path(directory, "truth.vcf")
-beagler:::write_genotype_vcf(truth, truth_path)
+galick:::write_genotype_vcf(truth, truth_path)
 reference <- truth
 reference$samples <- paste0("reference", seq_along(samples))
 reference$gt[, ] <- gsub("/", "|", reference$gt, fixed = TRUE)
 colnames(reference$gt) <- reference$samples
 reference_path <- file.path(directory, "reference.vcf")
-beagler:::write_genotype_vcf(reference, reference_path)
+galick:::write_genotype_vcf(reference, reference_path)
 metadata <- data.frame(
   sample_id = samples, partition = rep(c("design", "tune", "test"), each = 40),
   group = rep(rep(c("A", "B"), each = 20), 3), block = samples
@@ -42,7 +42,7 @@ stopifnot(result$ok)
 profile <- list(
   elapsed_sec = unname(elapsed["elapsed"]), summary = result$summary,
   n_truth_samples = 120L, n_reference_samples = 120L, n_candidates = 160L, n_scoring = 80L,
-  r_version = as.character(getRversion()), package_version = as.character(utils::packageVersion("beagler"))
+  r_version = as.character(getRversion()), package_version = as.character(utils::packageVersion("galick"))
 )
 jsonlite::write_json(profile, file.path(directory, "profile.json"), auto_unbox = TRUE, pretty = TRUE)
 print(profile)

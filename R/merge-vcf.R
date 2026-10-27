@@ -19,7 +19,7 @@
 #'   orientations cannot be reconciled by selecting one call.
 #' @param overwrite Refuse to replace `output_vcf` unless `TRUE`.
 #'
-#' @return A `beagler_result` whose summary is the merge report.
+#' @return A `galick_result` whose summary is the merge report.
 #' @export
 merge_vcf <- function(vcfs,
                       output_vcf,
@@ -32,20 +32,20 @@ merge_vcf <- function(vcfs,
   if (!is.character(vcfs) || length(vcfs) < 2L || anyNA(vcfs)) {
     cli::cli_abort(
       "{.arg vcfs} must contain at least two VCF paths.",
-      class = "beagler_error_merge_invalid_input"
+      class = "galick_error_merge_invalid_input"
     )
   }
   if (any(!file.exists(vcfs))) {
     cli::cli_abort(
       "VCF input file(s) not found: {.file {vcfs[!file.exists(vcfs)]}}.",
-      class = "beagler_error_merge_invalid_input"
+      class = "galick_error_merge_invalid_input"
     )
   }
   assert_export_output(output_vcf)
   if (!grepl("\\.vcf(?:\\.gz)?$", output_vcf, ignore.case = TRUE)) {
     cli::cli_abort(
       "{.arg output_vcf} must end in .vcf or .vcf.gz.",
-      class = "beagler_error_merge_invalid_input"
+      class = "galick_error_merge_invalid_input"
     )
   }
   assert_output_available(output_vcf, overwrite)
@@ -65,7 +65,7 @@ merge_vcf <- function(vcfs,
     if (phased_collision) {
       cli::cli_abort(
         "Coalescing phased samples requires explicit phase reconciliation.",
-        class = "beagler_error_merge_phase_conflict"
+        class = "galick_error_merge_phase_conflict"
       )
     }
   }
@@ -85,7 +85,7 @@ merge_vcf <- function(vcfs,
   inputs <- ref_mismatch$inputs
   dropped <- rbind(unresolved$dropped, ref_mismatch$dropped)
   if (all(vapply(inputs, function(x) nrow(x$fixed) == 0L, logical(1)))) {
-    return(new_beagler_result(
+    return(new_galick_result(
       errors = issues_tibble(list(list(
         code = "merge_no_records_left",
         message = "No records remain; no output was written.", where = list()
@@ -157,7 +157,7 @@ merge_vcf <- function(vcfs,
     )
   }
 
-  new_beagler_result(
+  new_galick_result(
     warnings = issues_tibble(warnings),
     summary = list(
       operation = "merge",
@@ -255,7 +255,7 @@ merge_vcf_by_sample <- function(inputs, sample_collision) {
     if (length(unique(refs)) != 1L) {
       cli::cli_abort(
         "Internal REF reconciliation failed at merged record {i}.",
-        class = "beagler_error_merge_ref_mismatch"
+        class = "galick_error_merge_ref_mismatch"
       )
     }
     union_alt <- unique(unlist(lapply(aligned, function(x) {
@@ -318,7 +318,7 @@ merge_vcf_by_marker <- function(inputs) {
         "{.code mode = \"by_marker\"} requires the same sample names in ",
         "every file."
       ),
-      class = "beagler_error_merge_sample_contract"
+      class = "galick_error_merge_sample_contract"
     )
   }
 
@@ -336,7 +336,7 @@ merge_vcf_by_marker <- function(inputs) {
   if (duplicated_across_files) {
     cli::cli_abort(
       "{.code mode = \"by_marker\"} requires non-overlapping marker records.",
-      class = "beagler_error_merge_marker_contract"
+      class = "galick_error_merge_marker_contract"
     )
   }
 
@@ -368,7 +368,7 @@ combine_sample_matrices <- function(matrices, samples, policy) {
   if (length(duplicates) > 0L && policy == "error") {
     cli::cli_abort(
       "Duplicate sample name(s): {.val {duplicates}}.",
-      class = "beagler_error_merge_sample_collision"
+      class = "galick_error_merge_sample_collision"
     )
   }
 
@@ -418,7 +418,7 @@ combine_sample_matrices <- function(matrices, samples, policy) {
               "Conflicting calls while coalescing sample ",
               "{.val {samples[[j]][k]}}."
             ),
-            class = "beagler_error_merge_coalesce_conflict"
+            class = "galick_error_merge_coalesce_conflict"
           )
         }
         replace <- current_missing & !incoming_missing
@@ -454,7 +454,7 @@ reindex_gt_call <- function(gt, old_ref, old_alt, new_ref, new_alt) {
     if (is.na(index)) {
       cli::cli_abort(
         "An allele could not be reindexed during VCF merge.",
-        class = "beagler_error_unresolvable_alleles"
+        class = "galick_error_unresolvable_alleles"
       )
     }
     as.character(index)
@@ -496,7 +496,7 @@ align_sample_inputs <- function(inputs) {
     if (!identical(sort(positions[[1]]), sort(positions[[j]]))) {
       cli::cli_abort(
         "Sample merges require the same positions and record multiplicities.",
-        class = "beagler_error_merge_marker_contract"
+        class = "galick_error_merge_marker_contract"
       )
     }
     index <- integer(nrow(reference))
@@ -519,7 +519,7 @@ align_sample_inputs <- function(inputs) {
             "Repeated-coordinate marker alignment is ambiguous;",
             "normalize or supply unique matching IDs."
           ),
-          class = "beagler_error_merge_ambiguous_markers"
+          class = "galick_error_merge_ambiguous_markers"
         )
       }
     }
@@ -586,7 +586,7 @@ new_genotype_vcf <- function(fixed, gt, samples, meta, format_fields = list()) {
       contigs = vcf_contig_order(meta, fixed$CHROM),
       source = character()
     ),
-    class = c("beagler_genotype_vcf", "list")
+    class = c("galick_genotype_vcf", "list")
   )
 }
 

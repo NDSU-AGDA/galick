@@ -22,13 +22,13 @@ test_that("repair_vcf is idempotent on a clean valid VCF", {
   output <- withr::local_tempfile(fileext = ".vcf")
   result <- repair_vcf(input, output)
 
-  expect_s3_class(result, "beagler_result")
+  expect_s3_class(result, "galick_result")
   expect_true(result$ok)
   expect_equal(result$summary$n_records_in, 3L)
   expect_equal(result$summary$n_records_out, 3L)
   expect_equal(result$summary$output_path, output)
 
-  parsed <- beagler:::read_vcf_minimal(output)
+  parsed <- galick:::read_vcf_minimal(output)
   expect_equal(parsed$id, c("rs1", "rs2", "rs3"))
 })
 
@@ -42,7 +42,7 @@ test_that("repair_vcf step drop_invalid_records removes rows with invalid POS", 
   expect_true(result$ok)
   expect_equal(result$summary$n_records_in, 4L)
   expect_equal(result$summary$n_records_out, 3L)
-  parsed <- beagler:::read_vcf_minimal(output)
+  parsed <- galick:::read_vcf_minimal(output)
   expect_false("rs_bad" %in% parsed$id)
 })
 
@@ -73,7 +73,7 @@ test_that("repair_vcf step filter_biallelic removes multiallelic rows", {
   output <- withr::local_tempfile(fileext = ".vcf")
   result <- repair_vcf(input, output, steps = c("drop_invalid_records", "filter_biallelic"))
   expect_true(result$ok)
-  parsed <- beagler:::read_vcf_minimal(output)
+  parsed <- galick:::read_vcf_minimal(output)
   expect_false("rs_multi" %in% parsed$id)
 })
 
@@ -84,7 +84,7 @@ test_that("repair_vcf step fix_marker_ids fills '.' with chrom_pos_ref_alt", {
   output <- withr::local_tempfile(fileext = ".vcf")
   result <- repair_vcf(input, output, steps = c("drop_invalid_records", "fix_marker_ids"))
   expect_true(result$ok)
-  parsed <- beagler:::read_vcf_minimal(output)
+  parsed <- galick:::read_vcf_minimal(output)
   expect_true("chr1_100_A_T" %in% parsed$id)
 })
 
@@ -99,7 +99,7 @@ test_that("repair_vcf step remove_duplicates drops by ID and (chrom, pos)", {
   output <- withr::local_tempfile(fileext = ".vcf")
   result <- repair_vcf(input, output, steps = c("drop_invalid_records", "remove_duplicates"))
   expect_true(result$ok)
-  parsed <- beagler:::read_vcf_minimal(output)
+  parsed <- galick:::read_vcf_minimal(output)
   expect_false(any(duplicated(parsed$id)))
 })
 
@@ -112,7 +112,7 @@ test_that("repair_vcf step sort orders by (chrom, pos)", {
   output <- withr::local_tempfile(fileext = ".vcf")
   result <- repair_vcf(input, output, steps = "sort")
   expect_true(result$ok)
-  parsed <- beagler:::read_vcf_minimal(output)
+  parsed <- galick:::read_vcf_minimal(output)
   expect_equal(parsed$chrom, c("chr1", "chr1", "chr2"))
   expect_equal(parsed$pos, c(100L, 200L, 50L))
 })
@@ -136,7 +136,7 @@ test_that("repair_vcf chrom_style = 'numeric' rewrites CHROM in output", {
   output <- withr::local_tempfile(fileext = ".vcf")
   result <- repair_vcf(input, output, chrom_style = "numeric")
   expect_true(result$ok)
-  parsed <- beagler:::read_vcf_minimal(output)
+  parsed <- galick:::read_vcf_minimal(output)
   expect_equal(parsed$chrom, c("1", "1", "2"))
 })
 
@@ -213,7 +213,7 @@ test_that("repair_vcf raises on output_vcf existing without overwrite", {
   file.create(output)
   expect_error(
     repair_vcf(input, output),
-    class = "beagler_error_repair_vcf_output_exists"
+    class = "galick_error_repair_vcf_output_exists"
   )
 })
 
@@ -226,12 +226,23 @@ test_that("repair_vcf overwrites when overwrite = TRUE", {
   expect_gt(file.size(output), 0)
 })
 
+test_that("repair_vcf does not remove previous output before publication succeeds", {
+  input <- write_vcf_lines(clean_vcf_lines())
+  output <- withr::local_tempfile(fileext = ".vcf")
+  writeLines("previous output", output)
+  local_mocked_bindings(write_exact_lines = function(...) {
+    cli::cli_abort("Publication failed.", class = "galick_error_export_write_failed")
+  })
+  expect_error(repair_vcf(input, output, overwrite = TRUE), class = "galick_error_export_write_failed")
+  expect_identical(readLines(output), "previous output")
+})
+
 test_that("repair_vcf raises on bad output extension", {
   input <- write_vcf_lines(clean_vcf_lines())
   bad_out <- withr::local_tempfile(fileext = ".vcf.gz")
   expect_error(
     repair_vcf(input, bad_out),
-    class = "beagler_error_repair_vcf_unsupported_extension"
+    class = "galick_error_repair_vcf_unsupported_extension"
   )
 })
 
@@ -240,7 +251,7 @@ test_that("repair_vcf raises on unknown step name", {
   output <- withr::local_tempfile(fileext = ".vcf")
   expect_error(
     repair_vcf(input, output, steps = c("not_a_step")),
-    class = "beagler_error_repair_vcf_invalid_input"
+    class = "galick_error_repair_vcf_invalid_input"
   )
 })
 
@@ -258,7 +269,7 @@ test_that("repair_vcf surfaces repair_vcf_remaining_* when user excludes a neede
 })
 
 test_that("repair_vcf end-to-end on inst/extdata/tiny_dirty.vcf passes validate_vcf(target = 'beagle')", {
-  dirty <- system.file("extdata", "tiny_dirty.vcf", package = "beagler")
+  dirty <- system.file("extdata", "tiny_dirty.vcf", package = "galick")
   skip_if(dirty == "", "tiny_dirty.vcf fixture not installed")
   output <- withr::local_tempfile(fileext = ".vcf")
   result <- repair_vcf(dirty, output)

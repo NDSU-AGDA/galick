@@ -1,186 +1,153 @@
-# beagler <a href="https://didiermurillof.github.io/beagleR/"><img src="man/figures/logo.png" align="right" height="139" alt="beagler logo" /></a>
+# Galick <img src="man/figures/logo.svg" align="right" width="120" alt="Galick" />
 
-<!-- badges: start -->
-[![R-CMD-check](https://github.com/DidierMurilloF/beagleR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/DidierMurilloF/beagleR/actions/workflows/R-CMD-check.yaml)
-[![lint](https://github.com/DidierMurilloF/beagleR/actions/workflows/lint.yaml/badge.svg)](https://github.com/DidierMurilloF/beagleR/actions/workflows/lint.yaml)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
-[![Docs: mkdocs-material](https://img.shields.io/badge/docs-mkdocs--material-3949AB.svg)](https://didiermurillof.github.io/beagleR/)
-<!-- badges: end -->
+[![R CMD check](https://github.com/DidierMurilloF/galick/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/DidierMurilloF/galick/actions/workflows/R-CMD-check.yaml)
+[![Lint](https://github.com/DidierMurilloF/galick/actions/workflows/lint.yaml/badge.svg)](https://github.com/DidierMurilloF/galick/actions/workflows/lint.yaml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
-> Genotype validation, conversion, repair, and Beagle imputation workflows
-> for plant- and animal-breeding pipelines — pure R, with Beagle and PLINK
-> shelled out as external tools.
+**Genotype preparation, simulation and imputation evaluation in R.**
 
-beagler turns the messy front end of a breeding genotype pipeline (CSVs from arrays, TASSEL HapMap exports, hand-edited spreadsheets) into clean VCF v4.2 ready for [Beagle 5](https://faculty.washington.edu/browning/beagle/beagle.html) imputation — and pulls the results back into R as dosage or hard-call matrices. Every step has strict validation, a tolerant parser, classed errors you can dispatch on, and a JSON audit record with SHA-256 hashes.
+Galick supports plant- and animal-breeding genotype workflows: convert CSV and
+HapMap to VCF, validate and repair records, run Beagle, and extract genotypes.
+It also simulates linked descendants, compares Beagle configurations using
+separate tuning and test samples, and designs smaller marker panels for
+imputation of future individuals.
 
-It deliberately stays out of downstream analysis. GRMs, GWAS, mixed models, and breeding-value estimation are someone else's job.
+The package does not perform GWAS, estimate breeding values or guarantee that
+better imputation improves trait prediction. Beagle remains the imputation
+engine; Galick provides preparation, experiment design and inspectable results.
 
-## Why beagler?
+## Installation
 
-- 🛡️ **Inspectable validation.** Issues are aggregated into a `beagler_result`. Programmer mistakes raise immediately; data issues come back as `$errors`. Repairs report record removals explicitly.
-- 📜 **Real audit trail.** Every Beagle run emits a v1.0.0 JSON record with input/output SHA-256s, the full argv, and tool versions — what regulatory and IP-conscious breeding programs actually need.
-- 🔁 **Resumable chromosome workflows.** When chromosome 7 fails three hours into a million-marker run, only chromosome 7 re-runs. Hash-checked resume guards against silent data churn.
-- 🧬 **Honest with the format.** Seven encodings (`AHB`, `012`, `centered`, `AABB`, `VCF`, `REFHET`, `IUPAC`), TASSEL HapMap support with proper IUPAC decoding, BGZF input, chromosome-style normalization (`chr1` ↔ `1`).
-
-## Install
+Galick requires R 4.1 or later and is not yet on CRAN. The GitHub repository is
+`DidierMurilloF/galick`; the installed R package is **`galick`**.
 
 ```r
-# pak (recommended)
-pak::pak("DidierMurilloF/beagleR")
-
-# remotes
-remotes::install_github("DidierMurilloF/beagleR")
+install.packages("pak")
+pak::pak("DidierMurilloF/galick")
 ```
 
-R >= 4.1 is required. You'll also need Java ≥ 8 and the Beagle JAR. Fastest setup:
+This installs the default branch. Until the rename is merged, install the
+development branch with `pak::pak("DidierMurilloF/galick@feat/evaluate-imputation")`.
+
+Java 8+ and a Beagle 5 JAR are needed only for Beagle execution. With Java
+installed, `galick::install_beagle()` downloads the pinned Beagle 5.4 build.
+Other functions have their own tool requirements; see
+[Installation](https://didiermurillof.github.io/galick/getting-started/installation/).
+
+## Quick Start
+
+This example uses bundled data and does not need Java or Beagle. The five-sample,
+20-marker fixture demonstrates the API, not biological performance.
 
 ```r
-library(beagler)
+library(galick)
 
-install_beagle()      # downloads pinned Beagle 5.4 to user cache
-beagle_version()
-#> [1] "5.4"
-```
+csv <- system.file("extdata", "tiny.csv", package = "galick")
+map <- system.file("extdata", "tiny_map.tsv", package = "galick")
+vcf <- tempfile(fileext = ".vcf")
 
-The full [installation guide](https://didiermurillof.github.io/beagleR/getting-started/installation/) covers Java, Beagle, and the optional `bcftools` / `tabix` / `plink` toolchain.
-
-## 30-second tour
-
-```r
-library(beagler)
-
-# 1. Convert a breeder CSV to VCF
-csv_to_vcf(
-  csv        = "genotypes.csv",
-  marker_map = "markers.tsv",
-  output_vcf = "data.vcf"
+conversion <- csv_to_vcf(
+  csv = csv,
+  marker_map = map,
+  output_vcf = vcf,
+  encoding = "AHB"
 )
+stopifnot(conversion$ok)
 
-# 2. Validate against Beagle's requirements; repair if needed
-v <- validate_vcf("data.vcf", target = "beagle")
-input_vcf <- "data.vcf"
-if (!v$ok) {
-  repaired <- repair_vcf(input_vcf, "data.clean.vcf")
-  stopifnot(repaired$ok)
-  input_vcf <- repaired$summary$output_path
-  stopifnot(validate_vcf(input_vcf, target = "beagle")$ok)
-}
+validation <- validate_vcf(vcf, target = "beagle")
+stopifnot(validation$ok)
 
-# 3. Run Beagle (Java + JAR auto-discovered)
+counts <- vcf_to_dosage(vcf)
+stopifnot(identical(dim(counts), c(5L, 20L)))
+counts[1:3, 1:4]
+```
+
+`vcf_to_dosage()` counts ALT alleles from **GT**. It does not read expected
+dosage from **DS**. Use `export_genotypes(..., format = "dosage", field = "DS")`
+when expected dosage is required.
+
+For an existing validated VCF, the Beagle step is:
+
+```r
 run <- run_beagle(
-  gt       = input_vcf,
-  out      = "imputed",
-  mode     = "impute",
-  nthreads = 4L
+  gt = vcf,
+  out = tempfile("phased_"),
+  mode = "phase",
+  nthreads = 1L,
+  seed = 42L
 )
-
-# 4. Pull results back into R
-stopifnot(run$status == 0L)
-dosage <- vcf_to_dosage("imputed.vcf.gz")
-hard   <- vcf_to_hardcalls("imputed.vcf.gz", encoding = "012")
+stopifnot(identical(run$status, 0L))
+calls <- vcf_to_hardcalls(run$output_paths[[1]], encoding = "012")
 ```
 
-## The pipeline
+Check the returned status before reading output. Successful Beagle runs retain
+commands, versions, input/output hashes and logs. Validation warnings are stored
+in results; `$ok` means no collected errors, not proof of biological suitability.
+
+## Three Experimental Workflows
+
+| Function | Purpose | Main limitation |
+|---|---|---|
+| `simulate_vcf()` | Generate linked descendants from phased founders and a genetic map. | Realism depends on the founders and inheritance assumptions; no phenotype simulation. |
+| `evaluate_imputation()` | Compare two to four Beagle configurations with separate tuning and test samples. | Trusted truth and deployment-appropriate holdouts are the user's responsibility. |
+| `design_marker_panel()` | Select a fixed-size SNP panel, then independently test its imputation recovery. | A computational marker list is not a laboratory-ready assay or a trait predictor. |
+
+These functions retain experiment records and can return a valid experiment
+with **no recommended winner**. Inspect selection decisions, completion and
+group metrics, not only `$ok`.
 
 ```mermaid
-flowchart LR
-    A[CSV / HapMap] -->|csv_to_vcf<br>hapmap_to_vcf| B[VCF v4.2]
-    B -->|validate_vcf| C{target=beagle<br>OK?}
-    C -- no --> D[repair_vcf]
-    D --> B
-    C -- yes --> E[run_beagle]
-    E --> F[Imputed VCF]
-    F -->|vcf_to_dosage| G[Numeric matrix]
-    F -->|vcf_to_plink| H[PLINK BED/BIM/FAM]
+flowchart TD
+    A[CSV or HapMap] --> B[Convert and validate VCF]
+    F[Phased founders and genetic map] --> S[Simulate linked descendants]
+    S --> T[Truth, observed and reference VCFs]
+    B --> R[Run Beagle]
+    T --> E[Evaluate configurations or design a panel]
+    E --> H[Tune, freeze choice, confirm on test samples]
+    R --> O[Extract, export and inspect results]
 ```
 
-## What's in v0.1.0
+## Public API
 
-The package also includes loss-aware genotype export and general VCF merge
-workflows:
-
-```r
-# Lossless export keeps phase and arbitrary ploidy
-export_genotypes("calls.vcf", "calls.export.vcf", format = "vcf")
-
-# HapMap cannot retain arbitrary ploidy or phase; losses are reported
-export_genotypes("calls.vcf", "calls.hmp.txt", format = "hapmap")
-
-# Merge the same marker set across different samples
-merge_vcf(
-  c("cohort_a.vcf", "cohort_b.vcf"),
-  "cohort_merged.vcf",
-  mode = "by_sample",
-  sample_collision = "error"
-)
-```
-
-28 user-facing functions:
+28 functions, grouped by purpose:
 
 | Area | Functions |
 |---|---|
-| **Validate** | `validate_genotype_table()` · `validate_marker_map()` · `validate_vcf()` · `validate_reference_match()` |
-| **Convert (to VCF)** | `csv_to_vcf()` · `hapmap_to_vcf()` |
-| **Convert (from VCF)** | `vcf_to_dosage()` · `vcf_to_hardcalls()` |
-| **Export** | `export_genotypes()` · `detect_subgenome_labels()` · `detect_genotype_ploidy()` |
-| **VCF merge** | `merge_vcf()` |
-| **Repair** | `repair_vcf()` |
-| **Run Beagle** | `run_beagle()` · `install_beagle()` · `beagle_version()` |
-| **Chromosome workflows** | `split_vcf_by_chrom()` · `run_beagle_by_chrom()` · `merge_beagle_outputs()` |
-| **PLINK bridge** | `vcf_to_plink()` · `plink_to_vcf()` |
-| **Reports** | `imputation_report()` |
-| **Benchmarking** | `mask_genotypes()` · `compare_imputed_vs_true()` · `benchmark_imputation()` · `evaluate_imputation()` |
-| **Simulation** | `simulate_vcf()` |
-| **Panel design** | `design_marker_panel()` |
+| Validation | `validate_genotype_table()`, `validate_marker_map()`, `validate_vcf()`, `validate_reference_match()` |
+| Conversion | `csv_to_vcf()`, `hapmap_to_vcf()`, `vcf_to_dosage()`, `vcf_to_hardcalls()` |
+| Export and merge | `export_genotypes()`, `merge_vcf()`, `detect_genotype_ploidy()`, `detect_subgenome_labels()` |
+| Repair | `repair_vcf()` |
+| Beagle | `run_beagle()`, `install_beagle()`, `beagle_version()` |
+| Chromosomes | `split_vcf_by_chrom()`, `run_beagle_by_chrom()`, `merge_beagle_outputs()` |
+| PLINK | `vcf_to_plink()`, `plink_to_vcf()` |
+| Reporting | `imputation_report()` |
+| Benchmarking | `mask_genotypes()`, `compare_imputed_vs_true()`, `benchmark_imputation()`, `evaluate_imputation()` |
+| Simulation | `simulate_vcf()` |
+| Panel design | `design_marker_panel()` |
 
 ## Documentation
 
-`design_marker_panel()` constructs fixed-size marker panels, refines them using
-measured Beagle recovery, and independently confirms a frozen choice. Scoring
-markers never enter any candidate panel. Design, tuning and test samples remain
-separate; recommendations require complete predictions and group safeguards.
-See `vignette("design-marker-panel", package = "beagler")`.
+- [Quick tour](https://didiermurillof.github.io/galick/getting-started/quick-tour/)
+- [Reference](https://didiermurillof.github.io/galick/reference/)
+- [Worked examples](https://didiermurillof.github.io/galick/examples/)
+- [Migration to Galick](docs/getting-started/migration.md)
 
-`simulate_vcf()` creates founder-conditioned linked genotypes, complete truth
-and references, observed targets, pedigree and diagnostics. It uses a supplied
-phased founder VCF and cM map, with no new runtime dependencies. Diploid outbred,
-F2 and selfed scenarios are supported; tetraploid support is restricted to
-random-bivalent outbred inheritance, not polyploid Beagle imputation.
-See `vignette("simulate-vcf", package = "beagler")`.
+Installed tutorials are available through `browseVignettes("galick")`, including
+`simulate-vcf`, `evaluate-imputation` and `design-marker-panel`.
 
-`evaluate_imputation()` compares two to four Beagle configurations using paired
-held-out calls or an actual marker panel. Tuning samples select a configuration;
-separate test samples confirm it against a baseline. Results include completion,
-RMSE, group diagnostics, per-marker metrics and hashed experiment records.
-It reports no recommendation when predictions are incomplete, candidates tie,
-or confirmation fails. See `vignette("evaluate-imputation", package = "beagler")`.
+## Scope and Status
 
-📖 **<https://didiermurillof.github.io/beagleR/>**
+Version 0.1.0 is a pre-release toolkit. Validate representative data before
+production use. VCF operations are primarily in-memory; workload limits are not
+total-memory guarantees. Beagle workflows and imputation evaluation are diploid.
+The simulator additionally supports restricted random-bivalent autotetraploid
+inheritance; this does not enable polyploid Beagle imputation.
 
-- [Quick tour](https://didiermurillof.github.io/beagleR/getting-started/quick-tour/) — 5-minute walkthrough using bundled fixtures.
-- [Reference](https://didiermurillof.github.io/beagleR/reference/) — every export grouped by workflow area.
-- [Examples](https://didiermurillof.github.io/beagleR/examples/) — six end-to-end walkthroughs (CSV→VCF, HapMap→VCF, validate-and-repair, run Beagle, chromosome-parallel imputation, accuracy benchmarking).
-- [Roadmap](beagler_roadmap.md) — full milestone log.
-- [Conventions](docs/about/conventions.md) — project conventions (S3-only, tidyverse style, no shell composition).
+## Citation and License
 
-## Citation
+Use `citation("galick")` for the current authors and version. Cite Beagle and any
+other external methods used in your analysis separately.
 
-If you use beagler in published work:
-
-```
-Murillo, D., Atanda, S., Quintero, A. (2026).
-beagler: Genotype Validation, Conversion, Repair, and Beagle Imputation Workflows.
-R package version 0.1.0.
-https://github.com/DidierMurilloF/beagleR
-```
-
-## Status
-
-beagler is at **v0.1.0**, the first public release. The 28 exported functions and S3 result classes form the v0.1.x public API. Please validate the workflow on representative data before production use.
-
-Bug reports and feature requests are very welcome — please open an [issue on GitHub](https://github.com/DidierMurilloF/beagleR/issues) with a reproducible example.
-
-## License
-
-MIT. See [LICENSE.md](LICENSE.md). External tools and dependencies retain their own licenses.
+Galick is MIT licensed; see [LICENSE.md](LICENSE.md). External tools and R
+dependencies retain their own licenses. Report problems through
+[GitHub issues](https://github.com/DidierMurilloF/galick/issues).

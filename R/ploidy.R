@@ -7,7 +7,7 @@
 #' @return A character vector of observed labels, empty when none match.
 #' @export
 detect_subgenome_labels <- function(vcf) {
-  x <- if (inherits(vcf, "beagler_genotype_vcf")) {
+  x <- if (inherits(vcf, "galick_genotype_vcf")) {
     vcf
   } else {
     read_genotype_vcf(vcf)
@@ -42,7 +42,7 @@ detect_subgenome_labels <- function(vcf) {
 #' @return A single integer maximum observed genotype ploidy.
 #' @export
 detect_genotype_ploidy <- function(vcf) {
-  x <- if (inherits(vcf, "beagler_genotype_vcf")) {
+  x <- if (inherits(vcf, "galick_genotype_vcf")) {
     vcf
   } else {
     read_genotype_vcf(vcf)

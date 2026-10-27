@@ -1,9 +1,9 @@
-#' beagler_result S3 class (internal)
-#' @name beagler-result
+#' galick_result S3 class (internal)
+#' @name galick-result
 #' @keywords internal
 NULL
 
-#' Construct a beagler_result
+#' Construct a galick_result
 #'
 #' @param errors A data frame / tibble with columns `code`, `message`, and
 #'   optional `where` (list-column). `NULL` is treated as an empty issues
@@ -13,14 +13,14 @@ NULL
 #' @param call The captured call expression (e.g. `match.call()`).
 #' @param ok Optional logical override; if `NULL`, derived as `nrow(errors) == 0`.
 #'
-#' @return A `beagler_result` S3 object.
+#' @return A `galick_result` S3 object.
 #' @keywords internal
 #' @noRd
-new_beagler_result <- function(errors = NULL,
-                               warnings = NULL,
-                               summary = list(),
-                               call = NULL,
-                               ok = NULL) {
+new_galick_result <- function(errors = NULL,
+                              warnings = NULL,
+                              summary = list(),
+                              call = NULL,
+                              ok = NULL) {
   errors <- normalize_issues(errors)
   warnings <- normalize_issues(warnings)
 
@@ -30,7 +30,7 @@ new_beagler_result <- function(errors = NULL,
 
   metadata <- list(
     call = call,
-    package_version = utils::packageVersion("beagler"),
+    package_version = utils::packageVersion("galick"),
     time = format(Sys.time(), "%Y-%m-%dT%H:%M:%OS3Z", tz = "UTC")
   )
 
@@ -42,7 +42,7 @@ new_beagler_result <- function(errors = NULL,
       summary = as.list(summary),
       metadata = metadata
     ),
-    class = c("beagler_result", "list")
+    class = c("galick_result", "list")
   )
 }
 
@@ -61,13 +61,13 @@ normalize_issues <- function(x) {
   if (!inherits(x, "data.frame")) {
     cli::cli_abort(
       "Issues must be a data.frame or tibble; got {.cls {class(x)[1]}}.",
-      class = "beagler_error_invalid_issues"
+      class = "galick_error_invalid_issues"
     )
   }
   if (!all(c("code", "message") %in% names(x))) {
     cli::cli_abort(
       "Issues must have at least {.field code} and {.field message} columns.",
-      class = "beagler_error_invalid_issues"
+      class = "galick_error_invalid_issues"
     )
   }
   if (!"where" %in% names(x)) {
@@ -77,8 +77,8 @@ normalize_issues <- function(x) {
 }
 
 #' @export
-print.beagler_result <- function(x, ...) {
-  header <- if (x$ok) "beagler_result: OK" else "beagler_result: NOT OK"
+print.galick_result <- function(x, ...) {
+  header <- if (x$ok) "galick_result: OK" else "galick_result: NOT OK"
   cli::cli_h1(header)
   cli::cli_text(
     "Errors: {nrow(x$errors)}; Warnings: {nrow(x$warnings)}"
@@ -119,7 +119,7 @@ print.beagler_result <- function(x, ...) {
 }
 
 #' @export
-summary.beagler_result <- function(object, ...) {
+summary.galick_result <- function(object, ...) {
   print(object)
   if (nrow(object$errors) > 3L) {
     cli::cli_h3("All errors")
@@ -133,9 +133,9 @@ summary.beagler_result <- function(object, ...) {
 }
 
 #' @export
-format.beagler_result <- function(x, ...) {
+format.galick_result <- function(x, ...) {
   sprintf(
-    "<beagler_result: %s, %d errors, %d warnings>",
+    "<galick_result: %s, %d errors, %d warnings>",
     if (x$ok) "ok" else "not ok",
     nrow(x$errors),
     nrow(x$warnings)
@@ -143,7 +143,7 @@ format.beagler_result <- function(x, ...) {
 }
 
 #' @export
-as.data.frame.beagler_result <- function(x, ...) {
+as.data.frame.galick_result <- function(x, ...) {
   e <- x$errors
   w <- x$warnings
 

@@ -9,13 +9,14 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-beagle_available <- nzchar(Sys.getenv("BEAGLE_PATH"))
-library(beagler)
+beagle_available <- nzchar(Sys.getenv("BEAGLE_PATH")) &&
+  file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))
+library(galick)
 ```
 
 `run_beagle()` wraps Beagle 5.x via `processx`. The function captures
 stdout, stderr, runtime, and a structured run record (input/output
-SHA-256 hashes, command argv, versions) into a `beagler_run` object.
+SHA-256 hashes, command argv, versions) into a `galick_run` object.
 
 This vignette runs against a real Beagle install when `BEAGLE_PATH` is
 set; otherwise it explains the call without executing it.
@@ -34,7 +35,7 @@ If you don't have Beagle yet:
 install_beagle() # downloads pinned 5.4 jar to user cache
 ```
 
-That writes the JAR to `tools::R_user_dir("beagler", "cache")`. Override
+That writes the JAR to `tools::R_user_dir("galick", "cache")`. Override
 with `BEAGLE_PATH` or pass `beagle_jar = ` to `run_beagle()`.
 
 ## A small phasing run
@@ -42,34 +43,32 @@ with `BEAGLE_PATH` or pass `beagle_jar = ` to `run_beagle()`.
 Phase a tiny VCF with no reference panel:
 
 ```{r, eval = beagle_available}
-library(beagler)
+library(galick)
 
-gt <- system.file("extdata", "tiny.vcf", package = "beagler")
-if (!nzchar(gt) || !file.exists(gt)) {
-  # Build a tiny gt VCF on the fly from the bundled CSV fixtures.
-  csv <- system.file("extdata", "tiny.csv", package = "beagler")
-  map <- system.file("extdata", "tiny_map.tsv", package = "beagler")
-  gt <- tempfile(fileext = ".vcf")
-  csv_to_vcf(csv, map, gt)
-}
+csv <- system.file("extdata", "tiny.csv", package = "galick")
+map <- system.file("extdata", "tiny_map.tsv", package = "galick")
+gt <- tempfile(fileext = ".vcf")
+conversion <- csv_to_vcf(csv, map, gt)
+stopifnot(conversion$ok)
 
-out_dir <- tempfile("beagler_demo_")
+out_dir <- tempfile("galick_demo_")
 dir.create(out_dir)
 out_prefix <- file.path(out_dir, "phased")
 
 run <- run_beagle(gt, out_prefix, mode = "phase", nthreads = 2L)
+stopifnot(identical(run$status, 0L))
 run$status
 run$runtime_sec
 run$output_paths
 ```
 
-## What's in `beagler_run`
+## What's in `galick_run`
 
 ```{r, eval = beagle_available}
 run
 ```
 
-`run$run_record` is the path to a JSON v1.0.0 audit record that's safe
+`run$run_record` is the path to a JSON v2.0.0 audit record that's safe
 to share alongside the output:
 
 ```{r, eval = beagle_available}
@@ -99,5 +98,5 @@ run_beagle(
 Pre-flight VCF validation runs `validate_vcf(target = "beagle")` on
 `gt`. If it fails, `run_beagle()` raises immediately and points you at
 `repair_vcf()`. Beagle's own complaints (after Java launches) come back
-as a `beagler_run` with `status != 0` — `print()` shows the tail of
+as a `galick_run` with `status != 0` — `summary()` shows the tail of
 stderr.

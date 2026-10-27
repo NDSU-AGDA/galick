@@ -80,11 +80,11 @@ evaluation_mock_runner <- function(truth, mode = "normal", observer = NULL) {
     write_genotype_vcf(x, output)
     record <- write_run_record_json(run_dir,
       command = c("java", "test.jar"),
-      versions = list(beagler = "0.1.0", r = "4.1.0", os = "test"), runtime_sec = 1,
+      versions = list(galick = "0.1.0", r = "4.1.0", os = "test"), runtime_sec = 1,
       status = if (behavior == "failed" && good) 1L else 0L,
       started_at = "2026-10-21T00:00:00Z", ended_at = "2026-10-21T00:00:01Z"
     )
-    new_beagler_run(
+    new_galick_run(
       status = if (behavior == "failed" && good) 1L else 0L,
       runtime_sec = 1, output_paths = output, run_record = record
     )

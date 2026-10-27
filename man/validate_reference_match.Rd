@@ -25,7 +25,7 @@ to \code{"auto"} minus the warning.}
 reference and disjoint sample IDs, as used by \code{\link[=run_beagle]{run_beagle()}}.}
 }
 \value{
-A \code{beagler_result} S3 object.
+A \code{galick_result} S3 object.
 }
 \description{
 Compares two VCFs for chromosome-label consistency, shared marker

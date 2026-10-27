@@ -40,7 +40,7 @@ are fabricated. Observation settings use a separate RNG stream and cannot alter 
 
 ## Outputs And Validation
 
-`beagler_simulation` inherits from `beagler_result`. Output bundles contain truth,
+`galick_simulation` inherits from `galick_result`. Output bundles contain truth,
 observed and optional reference VCFs, sample roles/populations, pedigree, replay-checked
 homolog switches, a PLINK-format genetic map, observation events and missingness tables,
 marker diagnostics, binned dosage LD and a versioned `simulation.json`.
@@ -50,7 +50,7 @@ refused. The allele-array ceiling is not a total-RAM or ledger-size bound.
 No reference FASTA is checked. LD diagnostics use at most ten adjacent marker lags
 per chromosome; undefined correlations are counted, not replaced by zero.
 
-The installed `vignette("simulate-vcf", package = "beagler")` contains runnable
+The installed `vignette("simulate-vcf", package = "galick")` contains runnable
 examples. Independent development validation uses AlphaSimR 2.1.0 with `v = 1`,
 `p = 0`, `quadProb = 0` and one thread. Results and tolerances are archived in
 `tests/testthat/fixtures/simulation-alphasimr.json`; regenerate them with

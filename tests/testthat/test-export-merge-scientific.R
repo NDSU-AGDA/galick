@@ -33,11 +33,11 @@ test_that("polyploid allele counts are invariant to unphased allele ordering", {
   export_genotypes(input, out, "dosage")
   expect_equal(read.delim(out)$rs, c(2, 2))
   expect_error(export_genotypes(input, tempfile(), "plink"),
-    class = "beagler_error_export_polyploid_refused"
+    class = "galick_error_export_polyploid_refused"
   )
   expect_error(
     export_genotypes(input, tempfile(), "plink", downcode = "first_two"),
-    class = "beagler_error_export_invalid_downcode"
+    class = "galick_error_export_invalid_downcode"
   )
 })
 
@@ -77,7 +77,7 @@ test_that("PED export masks partial calls and refuses multiallelic sites", {
   expect_true("export_partial_calls_missing" %in% report$warnings$code)
   multi <- scientific_vcf("s", "1\t10\trs\tA\tG,T\t.\tPASS\t.\tGT\t1/2")
   expect_error(export_genotypes(multi, tempfile(), "plink"),
-    class = "beagler_error_export_multiallelic"
+    class = "galick_error_export_multiallelic"
   )
 })
 
@@ -148,7 +148,7 @@ test_that("merge refuses incompatible reference dictionaries", {
     "##contig=<ID=1,length=200,assembly=build2>"
   )
   expect_error(merge_vcf(c(a, b), tempfile(fileext = ".vcf")),
-    class = "beagler_error_merge_header_conflict"
+    class = "galick_error_merge_header_conflict"
   )
 })
 
@@ -187,7 +187,7 @@ test_that("ambiguous repeated-coordinate alignments fail without writing", {
   ))
   out <- withr::local_tempfile(fileext = ".vcf")
   expect_error(merge_vcf(c(a, b), out),
-    class = "beagler_error_merge_ambiguous_markers"
+    class = "galick_error_merge_ambiguous_markers"
   )
   expect_false(file.exists(out))
 })
@@ -219,7 +219,7 @@ test_that("coalescing unphased equivalent calls counts each sample once", {
     merge_vcf(c(a, phased), tempfile(fileext = ".vcf"),
       sample_collision = "coalesce"
     ),
-    class = "beagler_error_merge_phase_conflict"
+    class = "galick_error_merge_phase_conflict"
   )
 })
 
@@ -240,14 +240,14 @@ test_that("DS requests reject missing or invalid dosage instead of using GT", {
   input <- scientific_vcf("s", "1\t10\trs\tA\tG\t.\tPASS\t.\tGT\t0/1")
   out <- withr::local_tempfile(fileext = ".tsv")
   expect_error(export_genotypes(input, out, "dosage", field = "DS"),
-    class = "beagler_error_export_missing_ds"
+    class = "galick_error_export_missing_ds"
   )
   for (ds in c("bad", "Inf", "-0.1", "2.1", "0.1,0.9")) {
     input <- scientific_vcf("s", paste0(
       "1\t10\trs\tA\tG\t.\tPASS\t.\tGT:DS\t0/1:", ds
     ))
     expect_error(export_genotypes(input, out, "dosage", field = "DS"),
-      class = "beagler_error_export_invalid_ds"
+      class = "galick_error_export_invalid_ds"
     )
   }
   expect_false(file.exists(out))
@@ -260,7 +260,7 @@ test_that("VCF overwrite removes stale indexes only after successful writing", {
   writeLines("original", out)
   writeLines("old index", paste0(out, ".tbi"))
   expect_error(export_genotypes(input, out, "vcf"),
-    class = "beagler_error_export_output_exists"
+    class = "galick_error_export_output_exists"
   )
   expect_equal(readLines(out), "original")
   expect_true(file.exists(paste0(out, ".tbi")))
@@ -276,7 +276,7 @@ test_that("compressed VCF export never silently substitutes ordinary gzip", {
   writeLines("original", out)
   withr::local_envvar(PATH = "")
   expect_error(export_genotypes(input, out, "vcf", overwrite = TRUE),
-    class = "beagler_error_bgzip_not_found"
+    class = "galick_error_bgzip_not_found"
   )
   expect_equal(readLines(out), "original")
 })
@@ -315,7 +315,7 @@ test_that("merge rejects conflicting typed metadata", {
     "##FORMAT=<ID=DS,Number=R,Type=Float,Description=\"Dosage\">"
   )
   expect_error(merge_vcf(c(a, b), tempfile(fileext = ".vcf")),
-    class = "beagler_error_merge_header_conflict"
+    class = "galick_error_merge_header_conflict"
   )
 })
 
@@ -334,7 +334,7 @@ test_that("malformed FORMAT values are not silently discarded", {
       "1\t10\trs\tA\tG\t.\tPASS\t.\t", record
     ))
     expect_error(export_genotypes(input, tempfile(fileext = ".vcf"), "vcf"),
-      class = "beagler_error_genotype_vcf_invalid"
+      class = "galick_error_genotype_vcf_invalid"
     )
   }
 })

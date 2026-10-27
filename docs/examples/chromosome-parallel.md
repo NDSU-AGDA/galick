@@ -11,7 +11,7 @@ parallel, and merge the outputs.
 ## Build a multi-chrom VCF
 
 ```r
-library(beagler)
+library(galick)
 
 vcf <- tempfile(fileext = ".vcf")
 writeLines(c(
@@ -36,11 +36,9 @@ If you only want per-chromosome files (e.g. to hand off to a
 different tool), use `split_vcf_by_chrom()` directly:
 
 ```r
-split_dir <- tempfile("beagler_split_")
+split_dir <- tempfile("galick_split_")
 res <- split_vcf_by_chrom(vcf, split_dir)
 res$chrom_paths
-#>      chr1                       chr2                       chr3
-#> ".../chr1.vcf"             ".../chr2.vcf"             ".../chr3.vcf"
 ```
 
 `chrom_filter` keeps a subset:
@@ -59,7 +57,7 @@ once per chromosome:
 === "Sequential"
 
     ```r
-    out_dir <- tempfile("beagler_imp_")
+    out_dir <- tempfile("galick_imp_")
     dir.create(out_dir)
     
     results <- run_beagle_by_chrom(
@@ -98,15 +96,12 @@ once per chromosome:
     )
     ```
 
-The result is a named list of `beagler_run` objects:
+The result is a named list of `galick_run` objects:
 
 ```r
 names(results)
-#> [1] "chr1" "chr2" "chr3"
 results$chr1$status
-#> [1] 0
 results$chr2$output_paths
-#> [1] ".../imputed/chr2/imputed.vcf.gz"
 ```
 
 ## Resume after a failure
@@ -134,10 +129,8 @@ merged <- tempfile(fileext = ".vcf.gz")
 merge_beagle_outputs(results, merged)
 
 validate_vcf(merged, target = "beagle")$ok
-#> [1] TRUE
 
 vcf_to_dosage(merged) |> dim()
-#> [1] 3 6      # 3 samples, 6 markers across 3 chromosomes
 ```
 
 `merge_beagle_outputs()` accepts `.vcf` or `.vcf.gz` for the output

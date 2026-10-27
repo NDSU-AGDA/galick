@@ -18,8 +18,8 @@ test_that("panel design confirms an improvement and records fixed scoring eviden
   expect_identical(.Random.seed, rng)
   expect_true(result$ok)
   expect_equal(result$selection$decision, "confirmed")
-  expect_s3_class(result, "beagler_panel_design")
-  expect_s3_class(result, "beagler_result")
+  expect_s3_class(result, "galick_panel_design")
+  expect_s3_class(result, "galick_result")
   expect_equal(result$recommended_panel$pos, c(100, 100))
   expect_lte(length(result$runs), 16)
   expect_true(all(result$metrics$n_eligible == 320))
@@ -139,30 +139,30 @@ test_that("input contracts and budgets reject without launching Beagle", {
     modified <- args
     modified[names(change)] <- change
     expect_error(do.call(design_marker_panel, modified),
-      class = "beagler_error_panel_design_invalid_input", info = paste(names(change), collapse = ",")
+      class = "galick_error_panel_design_invalid_input", info = paste(names(change), collapse = ",")
     )
   }
   expect_length(list.files(args$output_dir), 0)
   writeLines("existing", file.path(args$output_dir, "keep"))
-  expect_error(do.call(design_marker_panel, args), class = "beagler_error_panel_design_invalid_input")
+  expect_error(do.call(design_marker_panel, args), class = "galick_error_panel_design_invalid_input")
 })
 
 test_that("sample groups, blocks and exact marker identities are checked", {
   f <- panel_fixture()
   expect_error(panel_marker_rows(f$candidates[c(1, 1), ], f$truth, "markers"),
-    class = "beagler_error_panel_design_invalid_input"
+    class = "galick_error_panel_design_invalid_input"
   )
-  expect_error(panel_marker_rows(data.frame(), f$truth, "markers"), class = "beagler_error_panel_design_invalid_input")
+  expect_error(panel_marker_rows(data.frame(), f$truth, "markers"), class = "galick_error_panel_design_invalid_input")
   bad <- f$samples
   bad$block <- "same"
-  expect_error(panel_samples(bad, f$truth), class = "beagler_error_panel_design_invalid_input")
-  expect_error(panel_samples(f$samples[-1, ], f$truth), class = "beagler_error_panel_design_invalid_input")
+  expect_error(panel_samples(bad, f$truth), class = "galick_error_panel_design_invalid_input")
+  expect_error(panel_samples(f$samples[-1, ], f$truth), class = "galick_error_panel_design_invalid_input")
   bad <- f$samples
   bad$sample_id[1] <- "unknown"
-  expect_error(panel_samples(bad, f$truth), class = "beagler_error_panel_design_invalid_input")
+  expect_error(panel_samples(bad, f$truth), class = "galick_error_panel_design_invalid_input")
   bad$sample_id[1] <- NA_character_
-  expect_error(panel_samples(bad, f$truth), class = "beagler_error_panel_design_invalid_input")
-  expect_error(panel_samples(data.frame(), f$truth), class = "beagler_error_panel_design_invalid_input")
+  expect_error(panel_samples(bad, f$truth), class = "galick_error_panel_design_invalid_input")
+  expect_error(panel_samples(data.frame(), f$truth), class = "galick_error_panel_design_invalid_input")
   bad <- f$samples
   bad$group <- NULL
   expect_true(all(panel_samples(bad, f$truth)$group == "all"))
@@ -176,13 +176,13 @@ test_that("missing scoring truth and ineligible mandatory markers are rejected",
   expect_error(panel_inputs(
     f$path, f$reference, f$samples, f$candidates, f$scoring,
     f$candidates[1, ], NULL, 1e6
-  ), class = "beagler_error_panel_design_invalid_input")
+  ), class = "galick_error_panel_design_invalid_input")
   x$gt[c(5:6, 11:12), 1:20] <- "./."
   write_genotype_vcf(x, f$path, overwrite = TRUE)
   expect_error(panel_inputs(
     f$path, f$reference, f$samples, f$candidates, f$scoring,
     NULL, NULL, 1e6
-  ), class = "beagler_error_panel_design_invalid_input")
+  ), class = "galick_error_panel_design_invalid_input")
 })
 
 test_that("real Beagle completes a bounded panel experiment", {
@@ -220,7 +220,7 @@ test_that("real Beagle completes a bounded panel experiment", {
 test_that("reference leakage, absent markers and non-SNP input cannot reach execution", {
   f <- panel_fixture()
   expect_error(panel_inputs(f$path, f$path, f$samples, f$candidates, f$scoring, NULL, NULL, 1e6),
-    class = "beagler_error_panel_design_invalid_input"
+    class = "galick_error_panel_design_invalid_input"
   )
   ref <- read_genotype_vcf(f$reference)
   ref$fixed <- ref$fixed[-6]
@@ -228,11 +228,11 @@ test_that("reference leakage, absent markers and non-SNP input cannot reach exec
   ref$formats <- ref$formats[-6]
   write_genotype_vcf(ref, f$reference, overwrite = TRUE)
   expect_error(panel_inputs(f$path, f$reference, f$samples, f$candidates, f$scoring, NULL, NULL, 1e6),
-    class = "beagler_error_panel_design_invalid_input"
+    class = "galick_error_panel_design_invalid_input"
   )
   f$truth$fixed$REF[1] <- "AA"
   write_genotype_vcf(f$truth, f$path, overwrite = TRUE)
   expect_error(panel_inputs(f$path, f$reference, f$samples, f$candidates, f$scoring, NULL, NULL, 1e6),
-    class = "beagler_error_panel_design_invalid_input"
+    class = "galick_error_panel_design_invalid_input"
   )
 })

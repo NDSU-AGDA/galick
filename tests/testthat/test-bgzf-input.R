@@ -9,7 +9,7 @@ test_that("parse_vcf_raw transparently reads .vcf.gz", {
   writeLines(lines, con)
   close(con)
 
-  parsed <- beagler:::parse_vcf_raw(path)
+  parsed <- galick:::parse_vcf_raw(path)
   expect_equal(parsed$samples, "s1")
   expect_length(parsed$body_lines, 1L)
 })

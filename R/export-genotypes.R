@@ -19,7 +19,7 @@
 #'   `"DS"` writes expected ALT dosage without falling back to GT. Both require
 #'   biallelic markers. Partial GT calls become NA.
 #'
-#' @return A `beagler_result` whose summary is the export report.
+#' @return A `galick_result` whose summary is the export report.
 #' @export
 export_genotypes <- function(vcf,
                              output,
@@ -38,7 +38,7 @@ export_genotypes <- function(vcf,
   if (!is.null(downcode)) {
     cli::cli_abort(
       "Allele truncation is unsupported; keep {.arg downcode} NULL.",
-      class = "beagler_error_export_invalid_downcode"
+      class = "galick_error_export_invalid_downcode"
     )
   }
   valid_digits <- is.numeric(digits) && length(digits) == 1L &&
@@ -47,7 +47,7 @@ export_genotypes <- function(vcf,
   if (!valid_digits) {
     cli::cli_abort(
       "{.arg digits} must be a whole number between 1 and 22.",
-      class = "beagler_error_export_invalid_input"
+      class = "galick_error_export_invalid_input"
     )
   }
 
@@ -61,27 +61,27 @@ export_genotypes <- function(vcf,
         "Format {format} cannot represent genotype ploidy ",
         "{gt_ploidy}. Use VCF or complete allele-count output."
       ),
-      class = "beagler_error_export_polyploid_refused"
+      class = "galick_error_export_polyploid_refused"
     )
   }
   multiallelic <- any(grepl(",", x$fixed$ALT, fixed = TRUE))
   if (format %in% c("plink", "hapmap", "dosage") && multiallelic) {
     cli::cli_abort(
       "This export requires biallelic records; split multiallelic sites first.",
-      class = "beagler_error_export_multiallelic"
+      class = "galick_error_export_multiallelic"
     )
   }
   if (format == "hapmap") {
     alleles <- c(x$fixed$REF, x$fixed$ALT)
     if (any(!alleles %in% c("A", "C", "G", "T"))) {
       cli::cli_abort("HapMap export requires biallelic A/C/G/T SNPs.",
-        class = "beagler_error_export_hapmap_alleles"
+        class = "galick_error_export_hapmap_alleles"
       )
     }
     slots <- lengths(strsplit(as.character(x$gt), "[/|]"))
     if (any(slots != 2L & as.character(x$gt) != ".")) {
       cli::cli_abort("HapMap export requires diploid calls or missing values.",
-        class = "beagler_error_export_hapmap_ploidy"
+        class = "galick_error_export_hapmap_ploidy"
       )
     }
   }
@@ -140,7 +140,7 @@ export_genotypes <- function(vcf,
     )
   }
 
-  new_beagler_result(
+  new_galick_result(
     warnings = issues_tibble(warnings),
     summary = list(
       operation = "export",
@@ -169,7 +169,7 @@ assert_export_output <- function(output) {
   if (invalid) {
     cli::cli_abort(
       "{.arg output} must be one non-empty path.",
-      class = "beagler_error_export_invalid_input"
+      class = "galick_error_export_invalid_input"
     )
   }
   invisible(output)
@@ -180,14 +180,14 @@ assert_export_output <- function(output) {
 assert_output_available <- function(paths, overwrite) {
   if (any(dir.exists(paths))) {
     cli::cli_abort("Output paths must be files, not directories.",
-      class = "beagler_error_export_invalid_input"
+      class = "galick_error_export_invalid_input"
     )
   }
   existing <- paths[file.exists(paths)]
   if (length(existing) > 0L && !isTRUE(overwrite)) {
     cli::cli_abort(
       "Output file(s) already exist: {.file {existing}}.",
-      class = "beagler_error_export_output_exists"
+      class = "galick_error_export_output_exists"
     )
   }
   parents <- unique(dirname(paths))
@@ -195,7 +195,7 @@ assert_output_available <- function(paths, overwrite) {
   if (any(bad_parent)) {
     cli::cli_abort(
       "Output directory is not writable: {.file {parents[bad_parent]}}.",
-      class = "beagler_error_export_invalid_input"
+      class = "galick_error_export_invalid_input"
     )
   }
   invisible(paths)
@@ -208,7 +208,7 @@ write_genotype_vcf <- function(x, output, overwrite = FALSE) {
   if (!grepl("\\.vcf(?:\\.gz)?$", output, ignore.case = TRUE)) {
     cli::cli_abort(
       "VCF output must end in {.val .vcf} or {.val .vcf.gz}.",
-      class = "beagler_error_export_extension"
+      class = "galick_error_export_extension"
     )
   }
   paths <- c(output, paste0(output, c(".tbi", ".csi")))
@@ -282,10 +282,10 @@ write_exact_lines <- function(lines, output) {
   if (compressed && !nzchar(bgzip)) {
     cli::cli_abort(
       "BGZF output requires bgzip on PATH; use a plain .vcf otherwise.",
-      class = "beagler_error_bgzip_not_found"
+      class = "galick_error_bgzip_not_found"
     )
   }
-  tmp <- tempfile("beagler_", tmpdir = dirname(output), fileext = ".vcf")
+  tmp <- tempfile("galick_", tmpdir = dirname(output), fileext = ".vcf")
   on.exit(unlink(c(tmp, paste0(tmp, ".gz"))), add = TRUE)
   writeLines(lines, tmp, useBytes = TRUE)
   source <- tmp
@@ -294,7 +294,7 @@ write_exact_lines <- function(lines, output) {
     source <- paste0(tmp, ".gz")
     if (result$status != 0L || !file.exists(source)) {
       cli::cli_abort("bgzip failed: {result$stderr}",
-        class = "beagler_error_bgzip_failed"
+        class = "galick_error_bgzip_failed"
       )
     }
   }
@@ -302,7 +302,7 @@ write_exact_lines <- function(lines, output) {
   existing <- c(output, paste0(output, c(".tbi", ".csi")))
   existing <- existing[file.exists(existing)]
   backups <- vapply(existing, function(path) {
-    tempfile("beagler_backup_", tmpdir = dirname(path))
+    tempfile("galick_backup_", tmpdir = dirname(path))
   }, character(1))
   moved <- logical(length(existing))
   installed <- FALSE
@@ -324,14 +324,14 @@ write_exact_lines <- function(lines, output) {
     moved[i] <- file.rename(existing[i], backups[i])
     if (!moved[i]) {
       cli::cli_abort("Could not stage existing output {.file {existing[i]}}.",
-        class = "beagler_error_export_write_failed"
+        class = "galick_error_export_write_failed"
       )
     }
   }
   if (!file.rename(source, output)) {
     cli::cli_abort(
       "Could not replace {.file {output}} with the completed output.",
-      class = "beagler_error_export_write_failed"
+      class = "galick_error_export_write_failed"
     )
   }
   installed <- TRUE
@@ -358,7 +358,7 @@ write_genotype_delimited <- function(x, output, sep, overwrite = FALSE) {
   if (!grepl(expected, output, ignore.case = TRUE)) {
     cli::cli_abort(
       "Output extension does not match the requested delimited format.",
-      class = "beagler_error_export_extension"
+      class = "galick_error_export_extension"
     )
   }
   assert_output_available(output, overwrite)
@@ -390,7 +390,7 @@ write_genotype_hapmap <- function(x, output, overwrite = FALSE) {
   if (!grepl("\\.(?:hmp\\.txt|hmp|txt|tsv)$", output, ignore.case = TRUE)) {
     cli::cli_abort(
       "HapMap output must end in .hmp.txt, .hmp, .txt, or .tsv.",
-      class = "beagler_error_export_extension"
+      class = "galick_error_export_extension"
     )
   }
   assert_output_available(output, overwrite)
@@ -457,14 +457,14 @@ write_genotype_dosage <- function(x, output, overwrite, digits, field) {
   if (!grepl("\\.(?:csv|tsv|txt)$", output, ignore.case = TRUE)) {
     cli::cli_abort(
       "Dosage output must end in .csv, .tsv, or .txt.",
-      class = "beagler_error_export_extension"
+      class = "galick_error_export_extension"
     )
   }
   assert_output_available(output, overwrite)
   gt <- x$gt
   if (field == "DS" && is.null(x$format_fields$DS)) {
     cli::cli_abort("DS was requested but is absent; no GT fallback is applied.",
-      class = "beagler_error_export_missing_ds"
+      class = "galick_error_export_missing_ds"
     )
   }
   dosage <- matrix(
@@ -487,7 +487,7 @@ write_genotype_dosage <- function(x, output, overwrite, digits, field) {
           (gt[i, ] != "." & values > ploidies)
         if (any(tokens != "." & invalid)) {
           cli::cli_abort("Invalid DS values at record {i}.",
-            class = "beagler_error_export_invalid_ds"
+            class = "galick_error_export_invalid_ds"
           )
         }
         dosage[, i] <- values
@@ -542,7 +542,7 @@ write_plink_ped_map <- function(x, prefix, overwrite) {
   if (any(grepl("[[:space:]]", x$samples))) {
     cli::cli_abort(
       "PLINK sample names cannot contain whitespace.",
-      class = "beagler_error_export_plink_sample_name"
+      class = "galick_error_export_plink_sample_name"
     )
   }
 
@@ -609,7 +609,7 @@ gt_to_plink_pair <- function(gt, ref, alt) {
   if (length(slots) != 2L) {
     cli::cli_abort(
       "PLINK PED requires diploid calls or homozygous-coded haploid calls.",
-      class = "beagler_error_export_plink_ploidy"
+      class = "galick_error_export_plink_ploidy"
     )
   }
   alleles <- vcf_alleles(ref, alt)

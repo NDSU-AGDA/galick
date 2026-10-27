@@ -19,11 +19,11 @@ run_beagle(
   extra_args  = character(),
   run_dir     = NULL,
   overwrite   = FALSE
-) -> beagler_run
+)
 ```
 
-Wraps Beagle 5.x via `processx`. Returns a `beagler_run` even when
-Beagle exits non-zero — call `print(run)` to see the captured stderr.
+Wraps Beagle 5.x via `processx`. Returns a `galick_run` even when
+Beagle exits non-zero. Call `summary(run)` to see the captured stderr tail.
 
 ### Inputs
 
@@ -39,7 +39,7 @@ Beagle exits non-zero — call `print(run)` to see the captured stderr.
 
 `run_beagle()` runs `validate_vcf(gt, target = "beagle")` before
 launching Beagle. If validation finds errors, the function aborts
-with `beagler_error_run_beagle_invalid_input` and points you at
+with `galick_error_run_beagle_invalid_input` and points you at
 `repair_vcf()`.
 
 ### Resource controls
@@ -70,10 +70,10 @@ Beagle validates option names and values beyond those typed arguments.
 Inside `run_dir` (auto-created if `NULL`):
 
 - `stdout.log`, `stderr.log` — captured streams.
-- `run_record.json` — v1.0.0 audit JSON with command, versions,
+- `run_record.json` — v2.0.0 audit JSON with command, versions,
   args, runtime, status, and SHA-256 hashes of inputs and outputs.
 
-The `beagler_run$output_paths` slot lists the validated `<out>.vcf.gz`.
+The `galick_run$output_paths` slot lists the validated `<out>.vcf.gz`.
 Failed runs have no successful output path. On a failed overwrite the previous
 VCF and indexes are restored; a stale file cannot satisfy post-flight checks.
 
@@ -90,16 +90,15 @@ install_beagle(version = "5.4", dest = NULL) -> path
 ```
 
 Downloads a pinned tested Beagle JAR to
-`tools::R_user_dir("beagler", "cache")` (or `dest`).
+`tools::R_user_dir("galick", "cache")` (or `dest`).
 
 ```r
 install_beagle()
 beagle_version()
-#> [1] "5.4"
 ```
 
 `version` must equal `"5.4"` in v0.1.0; other values raise
-`beagler_error_beagle_unsupported_version`. The pinned URL is
+`galick_error_beagle_unsupported_version`. The pinned URL is
 `beagle.29Oct24.c8e.jar` — see [Installation](../getting-started/installation.md#beagle)
 for caveats.
 

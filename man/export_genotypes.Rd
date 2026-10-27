@@ -35,7 +35,7 @@ writers. Values are also written with scientific notation disabled.}
 biallelic markers. Partial GT calls become NA.}
 }
 \value{
-A \code{beagler_result} whose summary is the export report.
+A \code{galick_result} whose summary is the export report.
 }
 \description{
 VCF preserves FORMAT fields and reference metadata. CSV and TSV retain GT

@@ -4,7 +4,7 @@ rscript_bin <- file.path(
 )
 
 test_that("run_cli runs a successful command and captures stdout", {
-  result <- beagler:::run_cli(rscript_bin, c("-e", "cat('hello')"))
+  result <- galick:::run_cli(rscript_bin, c("-e", "cat('hello')"))
   expect_equal(result$status, 0L)
   expect_match(result$stdout, "hello")
   expect_true(result$runtime_sec >= 0)
@@ -13,19 +13,19 @@ test_that("run_cli runs a successful command and captures stdout", {
 })
 
 test_that("run_cli reports non-zero exit status without raising", {
-  result <- beagler:::run_cli(rscript_bin, c("-e", "quit(status = 7)"))
+  result <- galick:::run_cli(rscript_bin, c("-e", "quit(status = 7)"))
   expect_equal(result$status, 7L)
 })
 
 test_that("run_cli aborts with class when executable not found", {
   expect_error(
-    beagler:::run_cli("definitely_not_an_executable_xyzzy"),
-    class = "beagler_error_executable_not_found"
+    galick:::run_cli("definitely_not_an_executable_xyzzy"),
+    class = "galick_error_executable_not_found"
   )
 })
 
 test_that("run_cli respects timeout", {
-  result <- beagler:::run_cli(
+  result <- galick:::run_cli(
     rscript_bin,
     c("-e", "Sys.sleep(5)"),
     timeout = 1
@@ -36,7 +36,7 @@ test_that("run_cli respects timeout", {
 
 test_that("run_cli writes captured stdout to a log file", {
   tmp <- withr::local_tempfile()
-  beagler:::run_cli(
+  galick:::run_cli(
     rscript_bin,
     c("-e", "cat('logged-stdout')"),
     stdout_log = tmp
@@ -48,7 +48,7 @@ test_that("run_cli writes captured stdout to a log file", {
 
 test_that("run_cli writes captured stderr to a log file", {
   tmp <- withr::local_tempfile()
-  beagler:::run_cli(
+  galick:::run_cli(
     rscript_bin,
     c("-e", "writeLines('hi-from-stderr', stderr())"),
     stderr_log = tmp

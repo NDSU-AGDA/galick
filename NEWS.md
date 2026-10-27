@@ -1,6 +1,21 @@
-# beagler 0.1.0
+# galick 0.1.0
 
-First public release. 28 user-facing exports across validation,
+## Package rename and documentation audit
+
+- The package namespace is now `galick`; result classes, condition prefixes,
+  cache paths, development switches and run-record package keys follow the name.
+  Function names are unchanged. See the migration guide for pre-release breaks.
+- The README, website and executable tutorials cover all 28 exports, with
+  explicit GT/DS distinctions, tool requirements and experiment limitations.
+- Repository links, installation sources and Pages configuration now use
+  `DidierMurilloF/galick`.
+
+- Run records use schema 2.0.0 for the required `versions$galick` key and retain
+  JSON array/object types even for a single command or empty arguments.
+- Repair and PLINK output publication guard against failed replacements,
+  stale files and incomplete output sets.
+
+Pre-release version. 28 user-facing exports across validation,
 conversion, repair, Beagle execution, dosage / hardcall extraction,
 PLINK bridge, chromosome workflows, and masked-genotype benchmarking.
 
@@ -42,7 +57,7 @@ PLINK bridge, chromosome workflows, and masked-genotype benchmarking.
   partitions, a fixed run budget and shared resource settings. It selects by
   tuning RMSE with complete predictions and group safeguards, then confirms
   against a baseline without test-set reranking.
-- `beagler_evaluation` retains group and per-marker metrics, failure diagnostics,
+- `galick_evaluation` retains group and per-marker metrics, failure diagnostics,
   held-out manifests, frozen selection and versioned, hashed experiment records.
   A runnable vignette covers paired comparison and failed confirmation.
 
@@ -144,7 +159,7 @@ PLINK bridge, chromosome workflows, and masked-genotype benchmarking.
 
 ## Reports
 
-- `imputation_report()` — Markdown summary of a `beagler_run` (status,
+- `imputation_report()` — Markdown summary of a `galick_run` (status,
   runtime, command, inputs/outputs with truncated SHA-256s, version
   block, log paths).
 
@@ -161,10 +176,10 @@ PLINK bridge, chromosome workflows, and masked-genotype benchmarking.
 
 S3 only (no R6, no S4). Two classes:
 
-- `beagler_result` for validators, repair, conversion, comparison.
+- `galick_result` for validators, repair, conversion, comparison.
   Slots: `ok`, `errors`, `warnings`, `summary`, `metadata`. Methods:
   `print`, `summary`, `format`, `as.data.frame`.
-- `beagler_run` for execution. Slots: `status`, `runtime_sec`,
+- `galick_run` for execution. Slots: `status`, `runtime_sec`,
   `command`, `version`, `output_paths`, `stdout_log`, `stderr_log`,
   `run_record`, `metadata`. Same S3 methods.
 
@@ -189,5 +204,5 @@ S3 only (no R6, no S4). Two classes:
 
 The package was originally a thin R wrapper over a Rust `extendr`
 backend. M0 removed the Rust scaffolding entirely and pivoted to pure R
-with a test-first workflow. See `beagler_roadmap.md` for the M0–M15
+with a test-first workflow. See `galick_roadmap.md` for the M0–M15
 milestone log and `docs/about/conventions.md` for project conventions.

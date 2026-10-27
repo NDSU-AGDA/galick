@@ -9,7 +9,7 @@ test_that("validate_marker_map happy path", {
     pos = c(100, 200, 50)
   )
   result <- validate_marker_map(map)
-  expect_s3_class(result, "beagler_result")
+  expect_s3_class(result, "galick_result")
   expect_true(result$ok)
   expect_equal(result$summary$n_markers_in_map, 3L)
   expect_equal(result$summary$inferred_chrom_style, "chr_prefixed")
@@ -19,36 +19,36 @@ test_that("validate_marker_map happy path", {
 test_that("validate_marker_map aborts on NULL", {
   expect_error(
     validate_marker_map(NULL),
-    class = "beagler_error_marker_map_invalid_input"
+    class = "galick_error_marker_map_invalid_input"
   )
 })
 
 test_that("validate_marker_map aborts on non-data.frame", {
   expect_error(
     validate_marker_map(list(a = 1)),
-    class = "beagler_error_marker_map_invalid_input"
+    class = "galick_error_marker_map_invalid_input"
   )
 })
 
 test_that("validate_marker_map aborts on empty data.frame", {
   expect_error(
     validate_marker_map(data.frame(marker_id = character(), chrom = character(), pos = integer())),
-    class = "beagler_error_marker_map_invalid_input"
+    class = "galick_error_marker_map_invalid_input"
   )
 })
 
 test_that("validate_marker_map aborts on missing required columns", {
   expect_error(
     validate_marker_map(make_map(marker_id = "rs1", chrom = "chr1")),
-    class = "beagler_error_marker_map_missing_required_columns"
+    class = "galick_error_marker_map_missing_required_columns"
   )
   expect_error(
     validate_marker_map(make_map(marker_id = "rs1", pos = 100)),
-    class = "beagler_error_marker_map_missing_required_columns"
+    class = "galick_error_marker_map_missing_required_columns"
   )
   expect_error(
     validate_marker_map(make_map(chrom = "chr1", pos = 100)),
-    class = "beagler_error_marker_map_missing_required_columns"
+    class = "galick_error_marker_map_missing_required_columns"
   )
 })
 
@@ -60,7 +60,7 @@ test_that("validate_marker_map aborts when both genotype_table and marker_ids pa
       genotype_table = make_map(sample_id = "s1", rs1 = "A"),
       marker_ids = c("rs1")
     ),
-    class = "beagler_error_marker_map_invalid_input"
+    class = "galick_error_marker_map_invalid_input"
   )
 })
 

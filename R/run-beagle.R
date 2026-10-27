@@ -1,13 +1,13 @@
 #' Run Beagle for phasing or imputation
 #'
 #' Wraps Beagle 5.x with safe defaults, structured argv (no shell strings),
-#' and a captured run record. Returns a `beagler_run` even when Beagle
+#' and a captured run record. Returns a `galick_run` even when Beagle
 #' itself exits non-zero — callers can inspect stderr via `print()`.
 #'
 #' Pre-flight: `validate_vcf(gt, target = "beagle")` must succeed. Pre-flight
-#' failure raises `beagler_error_run_beagle_invalid_input` (repair the input
+#' failure raises `galick_error_run_beagle_invalid_input` (repair the input
 #' with [repair_vcf()] first). Post-flight failures (Beagle exits non-zero)
-#' come back as a `beagler_run` with `status != 0`.
+#' come back as a `galick_run` with `status != 0`.
 #'
 #' v0.1.0 limitations:
 #' - Targets and references may be `.vcf` or `.vcf.gz`; no index is required.
@@ -34,7 +34,7 @@
 #'   Auto-created if `NULL`.
 #' @param overwrite Refuse to clobber `<out>.vcf.gz` unless `TRUE`.
 #'
-#' @return A `beagler_run` S3 object.
+#' @return A `galick_run` S3 object.
 #' @export
 run_beagle <- function(gt,
                        out,
@@ -55,26 +55,26 @@ run_beagle <- function(gt,
   if (length(gt) != 1L || !is.character(gt) || is.na(gt)) {
     cli::cli_abort(
       "{.arg gt} must be a single non-NA character string.",
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
   if (!file.exists(gt)) {
     cli::cli_abort(
       "{.arg gt} not found: {.file {gt}}",
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
   if (!grepl("\\.vcf$|\\.vcf\\.gz$", gt, ignore.case = TRUE)) {
     cli::cli_abort(
       "{.arg gt} must end in {.val .vcf} or {.val .vcf.gz}.",
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
 
   if (length(out) != 1L || !is.character(out) || is.na(out)) {
     cli::cli_abort(
       "{.arg out} must be a single non-NA character string.",
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
   if (grepl("\\.vcf$|\\.vcf\\.gz$", out, ignore.case = TRUE)) {
@@ -83,14 +83,14 @@ run_beagle <- function(gt,
         "{.arg out} is a Beagle output prefix; it must not end in {.val .vcf} or {.val .vcf.gz}.",
         i = "Beagle appends {.val .vcf.gz} to whatever you pass."
       ),
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
   expected_output <- paste0(out, ".vcf.gz")
   if (file.exists(expected_output) && !overwrite) {
     cli::cli_abort(
       "Output already exists: {.file {expected_output}} (use {.code overwrite = TRUE}).",
-      class = "beagler_error_run_beagle_output_exists"
+      class = "galick_error_run_beagle_output_exists"
     )
   }
 
@@ -98,7 +98,7 @@ run_beagle <- function(gt,
     if (length(ref) != 1L || !is.character(ref) || is.na(ref) || !file.exists(ref)) {
       cli::cli_abort(
         "{.arg ref} must be a path to an existing VCF file.",
-        class = "beagler_error_run_beagle_invalid_input"
+        class = "galick_error_run_beagle_invalid_input"
       )
     }
     if (!grepl("\\.vcf(\\.gz)?$", ref, ignore.case = TRUE)) {
@@ -107,7 +107,7 @@ run_beagle <- function(gt,
           "{.arg ref} must be a {.val .vcf} or {.val .vcf.gz} file.",
           i = "Binary bref3 references are not supported by this VCF validator."
         ),
-        class = "beagler_error_run_beagle_invalid_input"
+        class = "galick_error_run_beagle_invalid_input"
       )
     }
   }
@@ -116,7 +116,7 @@ run_beagle <- function(gt,
                           is.na(map) || !file.exists(map))) {
     cli::cli_abort(
       "{.arg map} not found: {.file {map}}",
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
 
@@ -129,14 +129,14 @@ run_beagle <- function(gt,
         i = "Repair with {.code repair_vcf()} before calling {.fn run_beagle}.",
         i = "Codes: {.val {blocking}}"
       ),
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
   if (!is.null(ref)) {
     preflight <- validate_reference_match(gt, ref, require_phased = TRUE)
     if (!preflight$ok || preflight$summary$n_markers_shared == 0L) {
       cli::cli_abort("Reference preflight failed: {.val {preflight$errors$code}}.",
-        class = "beagler_error_run_beagle_invalid_input"
+        class = "galick_error_run_beagle_invalid_input"
       )
     }
   }
@@ -147,7 +147,7 @@ run_beagle <- function(gt,
   java_path <- job$java
 
   if (is.null(run_dir)) {
-    run_dir <- tempfile("beagler_run_")
+    run_dir <- tempfile("galick_run_")
   }
   if (!dir.exists(run_dir)) {
     dir.create(run_dir, recursive = TRUE, showWarnings = FALSE)
@@ -161,30 +161,33 @@ run_beagle <- function(gt,
   existing <- c(expected_output, paste0(expected_output, c(".tbi", ".csi")))
   existing <- existing[file.exists(existing)]
   backups <- vapply(existing, function(path) {
-    tempfile("beagler_previous_", tmpdir = dirname(path))
+    tempfile("galick_previous_", tmpdir = dirname(path))
   }, character(1))
   moved <- logical(length(existing))
   output_committed <- FALSE
   output_started <- FALSE
-  on.exit({
-    if (output_committed) {
-      unlink(backups)
-    } else {
-      if (output_started) {
-        unlink(c(expected_output, paste0(expected_output, c(".tbi", ".csi"))))
-      }
-      for (i in which(moved)) {
-        if (!file.rename(backups[i], existing[i])) {
-          warning("Could not restore previous output; backup retained at ", backups[i])
+  on.exit(
+    {
+      if (output_committed) {
+        unlink(backups)
+      } else {
+        if (output_started) {
+          unlink(c(expected_output, paste0(expected_output, c(".tbi", ".csi"))))
+        }
+        for (i in which(moved)) {
+          if (!file.rename(backups[i], existing[i])) {
+            warning("Could not restore previous output; backup retained at ", backups[i])
+          }
         }
       }
-    }
-  }, add = TRUE)
+    },
+    add = TRUE
+  )
   for (i in seq_along(existing)) {
     moved[i] <- file.rename(existing[i], backups[i])
     if (!moved[i]) {
       cli::cli_abort("Could not stage previous output {.file {existing[i]}}.",
-        class = "beagler_error_run_beagle_invalid_input"
+        class = "galick_error_run_beagle_invalid_input"
       )
     }
   }
@@ -265,7 +268,7 @@ run_beagle <- function(gt,
     ended_at = ended_at
   )
 
-  new_beagler_run(
+  new_galick_run(
     status = result$status,
     runtime_sec = result$runtime_sec,
     command = c(java_path, args),

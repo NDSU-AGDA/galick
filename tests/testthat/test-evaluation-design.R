@@ -47,7 +47,7 @@ test_that("array design physically removes untyped records and retains heldout d
 test_that("invalid partitions, blocks, candidates and zero eligibility fail before execution", {
   f <- evaluation_fixture()
   expect_error(evaluation_samples(transform(f$samples, block = "one"), f$truth$samples),
-    class = "beagler_error_evaluation_invalid_input"
+    class = "galick_error_evaluation_invalid_input"
   )
   expect_error(evaluation_samples(transform(f$samples, partition = "tune"), f$truth$samples))
   expect_error(evaluation_samples(f$samples[c(1, 1, 5), ], f$truth$samples))
@@ -71,7 +71,7 @@ test_that("model settings and array identities are validated before execution", 
   f <- evaluation_fixture()
   for (argument in c("iterations=bogus", "iterations=0", "em=maybe", "window=1", "err=Inf")) {
     expect_error(evaluation_candidates(list(a = list(), b = list(extra_args = argument)), "a"),
-      class = "beagler_error_evaluation_invalid_input"
+      class = "galick_error_evaluation_invalid_input"
     )
   }
   expect_error(evaluation_candidates(stats::setNames(rep(list(list()), 5), letters[1:5]), "a"))

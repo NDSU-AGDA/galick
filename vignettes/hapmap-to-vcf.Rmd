@@ -19,9 +19,9 @@ columns are per-sample IUPAC genotype codes.
 ## The HapMap input
 
 ```{r}
-library(beagler)
+library(galick)
 
-hmp_path <- system.file("extdata", "tiny.hmp.txt", package = "beagler")
+hmp_path <- system.file("extdata", "tiny.hmp.txt", package = "galick")
 cat(readLines(hmp_path)[1:3], sep = "\n")
 ```
 

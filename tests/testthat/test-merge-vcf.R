@@ -40,7 +40,7 @@ test_that("by_sample reindexes ALT calls and retains duplicate records", {
   output <- withr::local_tempfile(fileext = ".vcf")
 
   report <- merge_vcf(c(a, b), output, mode = "by_sample")
-  parsed <- beagler:::read_genotype_vcf(output)
+  parsed <- galick:::read_genotype_vcf(output)
 
   expect_equal(nrow(parsed$fixed), 3L)
   expect_equal(parsed$fixed$ID, c("dup1", "dup2", "reindex"))
@@ -68,7 +68,7 @@ test_that("by_sample handles sample collisions only by named policy", {
     merge_vcf(c(a, b), withr::local_tempfile(fileext = ".vcf"),
       mode = "by_sample"
     ),
-    class = "beagler_error_merge_sample_collision"
+    class = "galick_error_merge_sample_collision"
   )
 
   suffix_output <- withr::local_tempfile(fileext = ".vcf")
@@ -77,7 +77,7 @@ test_that("by_sample handles sample collisions only by named policy", {
     mode = "by_sample", sample_collision = "suffix"
   )
   expect_equal(
-    beagler:::read_genotype_vcf(suffix_output)$samples,
+    galick:::read_genotype_vcf(suffix_output)$samples,
     c("s", "s.1")
   )
   expect_equal(suffix_report$summary$collisions$resolution, "suffix")
@@ -88,7 +88,7 @@ test_that("by_sample handles sample collisions only by named policy", {
     mode = "by_sample",
     sample_collision = "coalesce"
   )
-  coalesced <- beagler:::read_genotype_vcf(coalesce_output)
+  coalesced <- galick:::read_genotype_vcf(coalesce_output)
   expect_equal(coalesced$samples, "s")
   expect_equal(unname(coalesced$gt[, "s"]), "1/1")
   expect_equal(coalesce_report$summary$samples_out, 1L)
@@ -102,7 +102,7 @@ test_that("by_sample handles sample collisions only by named policy", {
       c(a, conflicting), withr::local_tempfile(fileext = ".vcf"),
       mode = "by_sample", sample_collision = "coalesce"
     ),
-    class = "beagler_error_merge_coalesce_conflict"
+    class = "galick_error_merge_coalesce_conflict"
   )
 })
 
@@ -122,7 +122,7 @@ test_that("by_marker row-binds different markers and aligns sample columns", {
   output <- withr::local_tempfile(fileext = ".vcf")
 
   report <- merge_vcf(c(a, b), output, mode = "by_marker")
-  parsed <- beagler:::read_genotype_vcf(output)
+  parsed <- galick:::read_genotype_vcf(output)
   expect_equal(parsed$fixed$ID, c("a", "b"))
   expect_equal(parsed$samples, c("s1", "s2"))
   expect_equal(
@@ -151,7 +151,7 @@ test_that("merge drops unresolvable calls and reports the reason", {
   output <- withr::local_tempfile(fileext = ".vcf")
 
   report <- merge_vcf(c(a, b), output, mode = "by_sample")
-  expect_equal(beagler:::read_genotype_vcf(output)$fixed$ID, "good")
+  expect_equal(galick:::read_genotype_vcf(output)$fixed$ID, "good")
   expect_true(any(
     report$summary$sites_dropped$reason == "unresolvable alleles"
   ))
@@ -173,6 +173,6 @@ test_that("by_marker refuses the same canonical record across files", {
       withr::local_tempfile(fileext = ".vcf"),
       mode = "by_marker"
     ),
-    class = "beagler_error_merge_marker_contract"
+    class = "galick_error_merge_marker_contract"
   )
 })

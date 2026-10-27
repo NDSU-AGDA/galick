@@ -39,11 +39,11 @@
 #' @param seed Nonnegative master seed. Caller RNG state is restored.
 #' @param nthreads,memory_gb Shared Beagle and JVM resources. Jobs run sequentially.
 #' @param beagle_jar,java Optional Beagle runtime paths.
-#' @return A beagler_panel_design inheriting from beagler_result, with
+#' @return A galick_panel_design inheriting from galick_result, with
 #'   baseline_panel, candidate_panel, recommended_panel (NULL unless confirmed),
 #'   metrics, by_group, search_history, selection, runs and per_marker_paths.
 #'   Execution errors are collected; invalid designs raise
-#'   beagler_error_panel_design_invalid_input. An ok result need not have a winner.
+#'   galick_error_panel_design_invalid_input. An ok result need not have a winner.
 #' @export
 design_marker_panel <- function(truth_vcf, reference_vcf, sample_data,
                                 candidate_markers, scoring_markers, n_markers, output_dir,
@@ -109,5 +109,5 @@ design_marker_panel <- function(truth_vcf, reference_vcf, sample_data,
   )
   plans <- panel_plans(input, repeats, seed, output_dir)
   state <- panel_execute(input, constraints, ld, baseline, initial, plans, config, tracked)
-  new_beagler_panel_design(state, input, baseline, config, the_call)
+  new_galick_panel_design(state, input, baseline, config, the_call)
 }

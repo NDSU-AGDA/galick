@@ -27,7 +27,7 @@ test_that("validate_reference_match returns ok for identical compatible VCFs", {
   t <- make_vcf(simple_vcf(records))
   r <- make_vcf(simple_vcf(records))
   result <- validate_reference_match(t, r)
-  expect_s3_class(result, "beagler_result")
+  expect_s3_class(result, "galick_result")
   expect_true(result$ok)
   expect_equal(result$summary$n_markers_shared, 3L)
   expect_equal(result$summary$n_chroms_shared, 2L)
@@ -102,7 +102,7 @@ test_that("validate_reference_match accepts .vcf.gz inputs", {
 test_that("validate_reference_match aborts on missing file", {
   expect_error(
     validate_reference_match("/tmp/no-such-target.vcf", "/tmp/no-such-ref.vcf"),
-    class = "beagler_error_reference_match_invalid_input"
+    class = "galick_error_reference_match_invalid_input"
   )
 })
 
@@ -111,6 +111,6 @@ test_that("validate_reference_match aborts on bad extension", {
   file.create(bad)
   expect_error(
     validate_reference_match(bad, bad),
-    class = "beagler_error_reference_match_invalid_input"
+    class = "galick_error_reference_match_invalid_input"
   )
 })

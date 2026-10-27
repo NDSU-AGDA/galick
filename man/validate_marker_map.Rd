@@ -32,7 +32,7 @@ checks. \code{"auto"} infers via the M1 detector; \code{"numeric"} and
 \code{"chr_prefixed"} normalize first; \code{"as_is"} uses raw labels.}
 }
 \value{
-A \code{beagler_result} S3 object.
+A \code{galick_result} S3 object.
 }
 \description{
 Checks shape, required columns, marker-id integrity, position and

@@ -1,131 +1,80 @@
 # Quick tour
 
-A 5-minute walkthrough that uses the bundled fixtures, skips Beagle
-when it isn't available, and ends with a dosage matrix you can pass to
-downstream tools.
+Run this example after installing Galick. The bundled five-sample, 20-marker data
+demonstrate conversion and validation; they are not an accuracy benchmark.
 
-## Bundled fixtures
-
-beagler ships three tiny example files in `inst/extdata/`:
+## Convert and inspect
 
 ```r
-library(beagler)
+library(galick)
 
-csv_path <- system.file("extdata", "tiny.csv", package = "beagler")
-map_path <- system.file("extdata", "tiny_map.tsv", package = "beagler")
-hmp_path <- system.file("extdata", "tiny.hmp.txt", package = "beagler")
+csv <- system.file("extdata", "tiny.csv", package = "galick")
+map <- system.file("extdata", "tiny_map.tsv", package = "galick")
+vcf <- tempfile(fileext = ".vcf")
 
-read.csv(csv_path)[1:3, 1:5]
-#>   sample_id rs1 rs2 rs3 rs4
-#> 1        s1   B   A   B   H
-#> 2        s2   A   B   H   B
-#> 3        s3   H   B   A   B
+conversion <- csv_to_vcf(csv, map, vcf, encoding = "AHB")
+stopifnot(conversion$ok)
+
+validation <- validate_vcf(vcf, target = "beagle")
+stopifnot(validation$ok)
+validation$warnings
+
+counts <- vcf_to_dosage(vcf)
+hardcalls <- vcf_to_hardcalls(vcf, encoding = "AHB")
+stopifnot(identical(dim(counts), c(5L, 20L)))
+counts[1:3, 1:4]
 ```
 
-Five samples × 20 markers, AHB encoded.
+Rows are samples and columns are markers. `counts` comes from GT allele counts,
+not expected DS dosage. Warnings do not make `$ok` false; inspect them separately.
 
-## CSV to VCF
-
-```r
-out <- tempfile(fileext = ".vcf")
-result <- csv_to_vcf(csv_path, map_path, out)
-result$ok
-#> [1] TRUE
-result$summary$inferred_encoding
-#> [1] "AHB"
-```
-
-If anything goes wrong, no VCF is written and `result$errors` carries
-classed codes you can dispatch on.
-
-## Validate
-
-`validate_vcf()` reports issues against three targets:
+## Repair a separate dirty fixture
 
 ```r
-validate_vcf(out, target = "general")$ok    # TRUE
-validate_vcf(out, target = "beagle")$ok     # TRUE
-validate_vcf(out, target = "plink")$ok      # TRUE
-```
-
-`target = "beagle"` adds Beagle-specific checks: diploid throughout,
-no multiallelic sites, REF ≠ ALT, BGZF or warning.
-
-## Repair (if needed)
-
-```r
-dirty <- system.file("extdata", "tiny_dirty.vcf", package = "beagler")
-v <- validate_vcf(dirty, target = "beagle")
-v$ok
-#> [1] FALSE
-v$errors$code
-#>  [1] "vcf_invalid_pos"           "vcf_invalid_chrom"
-#>  [3] "vcf_duplicated_marker_ids" "vcf_duplicated_chrom_pos"
-#>  ...
-
+dirty <- system.file("extdata", "tiny_dirty.vcf", package = "galick")
 clean <- tempfile(fileext = ".vcf")
-repair_vcf(dirty, clean)$ok
-#> [1] TRUE
 
-validate_vcf(clean, target = "beagle")$ok
-#> [1] TRUE
+before <- validate_vcf(dirty, target = "beagle")
+before$errors
+
+repair <- repair_vcf(dirty, clean)
+stopifnot(repair$ok)
+stopifnot(validate_vcf(clean, target = "beagle")$ok)
+repair$summary$step_summary
 ```
 
-`repair_vcf()` runs five steps in order and re-validates the result
-before writing — if the requested steps couldn't make the output
-pass, nothing lands and the result reports `repair_vcf_remaining_*`
-errors.
+Repair can remove records and writes a minimal GT-only VCF. It is not a general
+lossless normalization step. Inspect the step summary and warnings before using
+the result; failed post-repair validation prevents publication of the output.
 
-## Run Beagle
+## Run Beagle when configured
 
-The `nzchar()` guard makes this chunk a no-op when Beagle isn't
-configured:
+This section requires Java and a Beagle JAR. It uses the converted VCF directly;
+the preceding dirty-fixture example is independent.
 
 ```r
-if (nzchar(Sys.getenv("BEAGLE_PATH"))) {
-  out_dir <- tempfile("tour_")
-  dir.create(out_dir)
-  out_prefix <- file.path(out_dir, "phased")
+run <- run_beagle(
+  gt = vcf,
+  out = tempfile("tour_phased_"),
+  mode = "phase",
+  nthreads = 1L,
+  seed = 42L
+)
+stopifnot(identical(run$status, 0L))
 
-  run <- run_beagle(out, out_prefix, mode = "phase", nthreads = 2L)
-  run$status
-  #> [1] 0
-  run$output_paths
-  #> [1] ".../phased.vcf.gz"
-}
+calls <- vcf_to_hardcalls(run$output_paths[[1]], encoding = "012")
+record <- jsonlite::fromJSON(run$run_record)
+record$versions
 ```
 
-`run` is a `beagler_run` object with status, runtime, the full argv,
-log paths, and a JSON run record (with SHA-256 hashes of the inputs
-and outputs).
+Keep the JSON run record with the output. It records the command, versions,
+settings, input/output hashes and indexing outcome. `summary(run)` includes the
+stderr tail for a failed run.
 
-## Pull results back
+## Next steps
 
-```r
-imputed <- if (nzchar(Sys.getenv("BEAGLE_PATH"))) run$output_paths[1] else out
-
-dosage <- vcf_to_dosage(imputed)
-dim(dosage)            # samples × markers
-#> [1]  5 20
-dosage[1:3, 1:4]
-#>    rs1 rs2 rs3 rs4
-#> s1   2   0   2   1
-#> s2   0   2   1   2
-#> s3   1   2   0   2
-
-hard <- vcf_to_hardcalls(imputed, encoding = "AHB")
-hard[1:3, 1:4]
-#>    rs1 rs2 rs3 rs4
-#> s1   B   A   B   H
-#> s2   A   B   H   B
-#> s3   H   B   A   B
-```
-
-## What's next
-
-- The [result classes](result-classes.md) page explains the shape of
-  `beagler_result` and `beagler_run`.
-- [Reference](../reference/index.md) lists every export grouped by
-  area.
-- [Examples](../examples/index.md) walk through end-to-end workflows
-  including chromosome-parallel imputation and accuracy benchmarking.
+- [Result classes](result-classes.md): errors, warnings, statuses and decisions.
+- [Linked simulation](../examples/simulate-vcf.md): founder-conditioned data.
+- [Held-out evaluation](../examples/evaluate-imputation.md): tune and test.
+- [Panel design](../examples/design-marker-panel.md): select measured SNPs.
+- [Reference](../reference/index.md): all 28 public functions.

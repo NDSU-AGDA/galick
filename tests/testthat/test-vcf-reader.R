@@ -20,9 +20,9 @@ make_tiny_vcf_args <- function() {
 test_that("read_vcf_minimal round-trips data written by write_vcf_v4_2", {
   out <- withr::local_tempfile(fileext = ".vcf")
   args <- make_tiny_vcf_args()
-  do.call(beagler:::write_vcf_v4_2, c(list(output_path = out), args))
+  do.call(galick:::write_vcf_v4_2, c(list(output_path = out), args))
 
-  parsed <- beagler:::read_vcf_minimal(out)
+  parsed <- galick:::read_vcf_minimal(out)
   expect_equal(parsed$chrom, args$chrom)
   expect_equal(parsed$pos, args$pos)
   expect_equal(parsed$id, args$id)
@@ -36,17 +36,17 @@ test_that("read_vcf_minimal round-trips data written by write_vcf_v4_2", {
 test_that("read_vcf_minimal captures meta lines", {
   out <- withr::local_tempfile(fileext = ".vcf")
   args <- make_tiny_vcf_args()
-  do.call(beagler:::write_vcf_v4_2, c(list(output_path = out), args))
+  do.call(galick:::write_vcf_v4_2, c(list(output_path = out), args))
 
-  parsed <- beagler:::read_vcf_minimal(out)
+  parsed <- galick:::read_vcf_minimal(out)
   expect_true("##fileformat=VCFv4.2" %in% parsed$meta)
   expect_true(any(grepl("^##contig=", parsed$meta)))
 })
 
 test_that("read_vcf_minimal errors on missing file", {
   expect_error(
-    beagler:::read_vcf_minimal(file.path(tempdir(), "no-such-vcf-xyzzy.vcf")),
-    class = "beagler_error_invalid_argument"
+    galick:::read_vcf_minimal(file.path(tempdir(), "no-such-vcf-xyzzy.vcf")),
+    class = "galick_error_invalid_argument"
   )
 })
 
@@ -54,8 +54,8 @@ test_that("read_vcf_minimal errors on missing #CHROM header", {
   out <- withr::local_tempfile(fileext = ".vcf")
   writeLines(c("##fileformat=VCFv4.2", "data\trow\tno\theader"), out)
   expect_error(
-    beagler:::read_vcf_minimal(out),
-    class = "beagler_error_invalid_argument"
+    galick:::read_vcf_minimal(out),
+    class = "galick_error_invalid_argument"
   )
 })
 
@@ -71,7 +71,7 @@ test_that("read_vcf_minimal handles header-only file (no records)", {
     ),
     out
   )
-  parsed <- beagler:::read_vcf_minimal(out)
+  parsed <- galick:::read_vcf_minimal(out)
   expect_equal(parsed$samples, "s1")
   expect_equal(nrow(parsed$gt_matrix), 0L)
 })

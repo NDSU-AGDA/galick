@@ -11,19 +11,19 @@ prepare_beagle_job <- function(gt, out, ref = NULL, map = NULL,
     if (!is.numeric(value) || length(value) != 1L || !is.finite(value) ||
           value < 1 || value != floor(value) || value > .Machine$integer.max) {
       cli::cli_abort("{.arg {name}} must be a positive integer.",
-        class = "beagler_error_run_beagle_invalid_input"
+        class = "galick_error_run_beagle_invalid_input"
       )
     }
   }
   if (!is.null(seed) && (!is.numeric(seed) || length(seed) != 1L ||
                            !is.finite(seed) || seed != floor(seed) || abs(seed) > .Machine$integer.max)) {
     cli::cli_abort("{.arg seed} must be NULL or a finite integer.",
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
   if (!is.character(extra_args)) {
     cli::cli_abort("extra_args must be a character vector of key=value settings.",
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
   keys <- sub("=.*$", "", extra_args)
@@ -32,7 +32,7 @@ prepare_beagle_job <- function(gt, out, ref = NULL, map = NULL,
         any(!grepl("^[A-Za-z][A-Za-z0-9_-]*=[^\r\n]+$", extra_args)) ||
         any(keys %in% reserved) || anyDuplicated(keys)) {
     cli::cli_abort("extra_args must contain unique key=value settings, without overriding typed arguments.",
-      class = "beagler_error_run_beagle_invalid_input"
+      class = "galick_error_run_beagle_invalid_input"
     )
   }
   java_path <- find_java(java)
@@ -54,7 +54,7 @@ prepare_beagle_job <- function(gt, out, ref = NULL, map = NULL,
     seed = seed, extra_args = extra_args
   )
   versions <- list(
-    beagler = as.character(utils::packageVersion("beagler")),
+    galick = as.character(utils::packageVersion("galick")),
     r = as.character(getRversion()), os = R.version$os,
     beagle = beagle_version$raw, java = java_version$raw
   )

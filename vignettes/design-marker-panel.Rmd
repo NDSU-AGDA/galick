@@ -8,7 +8,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-library(beagler)
+library(galick)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 beagle_available <- nzchar(Sys.getenv("BEAGLE_PATH")) &&
   file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))

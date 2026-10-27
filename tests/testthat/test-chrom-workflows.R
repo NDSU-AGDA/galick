@@ -61,7 +61,7 @@ test_that("split_vcf_by_chrom refuses to overwrite by default", {
   split_vcf_by_chrom(vcf, out_dir)
   expect_error(
     split_vcf_by_chrom(vcf, out_dir),
-    class = "beagler_error_split_vcf_output_exists"
+    class = "galick_error_split_vcf_output_exists"
   )
 })
 
@@ -75,7 +75,7 @@ test_that("split_vcf_by_chrom overwrites when overwrite = TRUE", {
 test_that("split_vcf_by_chrom aborts on missing input", {
   expect_error(
     split_vcf_by_chrom("/no-such-file.vcf", tempdir()),
-    class = "beagler_error_split_vcf_invalid_input"
+    class = "galick_error_split_vcf_invalid_input"
   )
 })
 
@@ -84,14 +84,14 @@ test_that("split_vcf_by_chrom aborts on missing #CHROM header", {
   writeLines("##fileformat=VCFv4.2", bad)
   expect_error(
     split_vcf_by_chrom(bad, tempdir()),
-    class = "beagler_error_split_vcf_invalid_input"
+    class = "galick_error_split_vcf_invalid_input"
   )
 })
 
 test_that("split_vcf_by_chrom safe_chrom_filename replaces unsafe chars", {
-  expect_equal(beagler:::safe_chrom_filename("chr1"), "chr1")
-  expect_equal(beagler:::safe_chrom_filename("chr/1"), "chr_1")
-  expect_equal(beagler:::safe_chrom_filename("1A"), "1A")
+  expect_equal(galick:::safe_chrom_filename("chr1"), "chr1")
+  expect_equal(galick:::safe_chrom_filename("chr/1"), "chr_1")
+  expect_equal(galick:::safe_chrom_filename("1A"), "1A")
 })
 
 test_that("merge_beagle_outputs concatenates per-chrom outputs", {
@@ -100,7 +100,7 @@ test_that("merge_beagle_outputs concatenates per-chrom outputs", {
   res <- split_vcf_by_chrom(vcf, out_dir)
 
   fake_runs <- lapply(res$chrom_paths, function(p) {
-    beagler:::new_beagler_run(
+    galick:::new_galick_run(
       status = 0L,
       runtime_sec = 0.1,
       command = "fake",
@@ -126,7 +126,7 @@ test_that("merge_beagle_outputs writes .vcf.gz when output extension matches", {
   out_dir <- withr::local_tempdir()
   res <- split_vcf_by_chrom(vcf, out_dir)
   fake_runs <- lapply(res$chrom_paths, function(p) {
-    beagler:::new_beagler_run(
+    galick:::new_galick_run(
       status = 0L, runtime_sec = 0.1,
       command = "fake", output_paths = p
     )
@@ -137,25 +137,25 @@ test_that("merge_beagle_outputs writes .vcf.gz when output extension matches", {
 })
 
 test_that("merge_beagle_outputs aborts when no output paths exist", {
-  fake_run <- beagler:::new_beagler_run(
+  fake_run <- galick:::new_galick_run(
     status = 0L, runtime_sec = 0.1,
     command = "fake", output_paths = "/no-such-output.vcf.gz"
   )
   expect_error(
     merge_beagle_outputs(list(fake_run), withr::local_tempfile(fileext = ".vcf")),
-    class = "beagler_error_merge_beagle_invalid_input"
+    class = "galick_error_merge_beagle_invalid_input"
   )
 })
 
 test_that("merge_beagle_outputs aborts on bad output extension", {
-  fake <- beagler:::new_beagler_run(status = 0L, output_paths = "/tmp/x.vcf")
+  fake <- galick:::new_galick_run(status = 0L, output_paths = "/tmp/x.vcf")
   expect_error(
     merge_beagle_outputs(list(fake), "/tmp/out.txt"),
-    class = "beagler_error_merge_beagle_invalid_input"
+    class = "galick_error_merge_beagle_invalid_input"
   )
 })
 
-test_that("run_beagle_by_chrom integration: one beagler_run per chrom", {
+test_that("run_beagle_by_chrom integration: one galick_run per chrom", {
   skip_if_no_java()
   skip_if_no_beagle()
   vcf <- withr::local_tempfile(fileext = ".vcf")
@@ -175,7 +175,7 @@ test_that("run_beagle_by_chrom integration: one beagler_run per chrom", {
   results <- run_beagle_by_chrom(vcf, out_dir, mode = "phase")
   expect_setequal(names(results), c("chr1", "chr2"))
   for (r in results) {
-    expect_s3_class(r, "beagler_run")
+    expect_s3_class(r, "galick_run")
     expect_equal(r$status, 0L)
   }
 })

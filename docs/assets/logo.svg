@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="276" viewBox="0 0 240 276" role="img" aria-labelledby="title">
+  <title id="title">Galick</title>
+  <path fill="#173d37" d="M120 4 236 71v134l-116 67L4 205V71Z"/>
+  <path fill="none" stroke="#b5dfce" stroke-width="3" d="m120 15 106 62v122l-106 62L14 199V77Z"/>
+  <path fill="none" stroke="#fff" stroke-width="15" stroke-linecap="square" d="M161 90a57 57 0 1 0 4 80v-35h-44"/>
+  <circle cx="165" cy="90" r="8" fill="#e7b36c"/>
+  <text x="120" y="232" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="600" fill="#fff">GALICK</text>
+</svg>

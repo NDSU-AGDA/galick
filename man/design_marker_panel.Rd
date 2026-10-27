@@ -91,11 +91,11 @@ before genotype allocation. This is not a total RAM limit.}
 \item{beagle_jar, java}{Optional Beagle runtime paths.}
 }
 \value{
-A beagler_panel_design inheriting from beagler_result, with
+A galick_panel_design inheriting from galick_result, with
 baseline_panel, candidate_panel, recommended_panel (NULL unless confirmed),
 metrics, by_group, search_history, selection, runs and per_marker_paths.
 Execution errors are collected; invalid designs raise
-beagler_error_panel_design_invalid_input. An ok result need not have a winner.
+galick_error_panel_design_invalid_input. An ok result need not have a winner.
 }
 \description{
 Constructs an evenly spaced baseline and a local LD-informed panel using

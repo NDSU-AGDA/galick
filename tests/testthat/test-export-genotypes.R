@@ -3,7 +3,7 @@ write_export_fixture <- function(path) {
     "##fileformat=VCFv4.2",
     "##contig=<ID=chr2,length=1000>",
     "##contig=<ID=chr1>",
-    "##beagler-test=preserve-me",
+    "##galick-test=preserve-me",
     paste(
       c(
         "#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER",
@@ -37,18 +37,18 @@ test_that("VCF export preserves GT semantics, metadata, and valid positions", {
   output <- withr::local_tempfile(fileext = ".vcf")
 
   report <- export_genotypes(input, output, format = "vcf")
-  expect_s3_class(report, "beagler_result")
+  expect_s3_class(report, "galick_result")
   expect_equal(report$summary$sites_in, 2L)
   expect_equal(report$summary$sites_out, 2L)
   expect_equal(report$summary$genotype_ploidy, 4L)
 
   lines <- readLines(output)
   expect_identical(lines[1], "##fileformat=VCFv4.2")
-  expect_true("##beagler-test=preserve-me" %in% lines)
+  expect_true("##galick-test=preserve-me" %in% lines)
   expect_true("##contig=<ID=chr1>" %in% lines)
   expect_false(any(grepl("1e\\+08", lines, ignore.case = TRUE)))
 
-  parsed <- beagler:::read_genotype_vcf(output)
+  parsed <- galick:::read_genotype_vcf(output)
   expect_equal(parsed$fixed$ID, c("rs1", "rs2"))
   expect_equal(
     unname(parsed$gt[parsed$fixed$ID == "rs1", ]),
@@ -67,11 +67,11 @@ test_that("diploid formats refuse polyploid GT; counts retain all copies", {
 
   expect_error(
     export_genotypes(input, prefix, format = "plink"),
-    class = "beagler_error_export_polyploid_refused"
+    class = "galick_error_export_polyploid_refused"
   )
   expect_error(
     export_genotypes(input, tempfile(fileext = ".hmp.txt"), format = "hapmap"),
-    class = "beagler_error_export_polyploid_refused"
+    class = "galick_error_export_polyploid_refused"
   )
 
   report <- export_genotypes(input, dosage, format = "dosage")
@@ -117,7 +117,7 @@ test_that("VCF round-trips haploid through hexaploid GT", {
 
   export_genotypes(input, vcf_output, format = "vcf")
 
-  vcf_roundtrip <- beagler:::read_genotype_vcf(vcf_output)
+  vcf_roundtrip <- galick:::read_genotype_vcf(vcf_output)
   expect_equal(unname(vcf_roundtrip$gt[, 1]), calls)
   expect_equal(detect_genotype_ploidy(vcf_output), 6L)
 })

@@ -1,7 +1,7 @@
 # Roadmap
 
 The full milestone log lives in
-[`beagler_roadmap.md`](https://github.com/DidierMurilloF/beagleR/blob/main/beagler_roadmap.md)
+[`galick_roadmap.md`](https://github.com/DidierMurilloF/galick/blob/main/galick_roadmap.md)
 in the repository.
 
 ## v0.1.0 (this release)
@@ -26,11 +26,18 @@ in the repository.
   `run_beagle_by_chrom()`, `merge_beagle_outputs()`.
 - [x] **M15** — Masked-genotype benchmarking: `mask_genotypes()`,
   `compare_imputed_vs_true()`, `benchmark_imputation()`.
+- [x] **Held-out evaluation** — `evaluate_imputation()` with separate tuning
+  and test partitions and group safeguards.
+- [x] **Linked simulation** — `simulate_vcf()` with founder-conditioned
+  diploid scenarios and restricted random-bivalent autotetraploids.
+- [x] **Marker panel design** — `design_marker_panel()` with bounded search
+  and independently confirmed imputation recovery.
+- [x] **Galick rename** — namespace migration, updated documentation and website.
 
 ## Export and merge extension (PR #4)
 
-The proposed `export_genotypes()` and `merge_vcf()` APIs reuse the package's
-raw VCF parser, `beagler_result` reports, and subprocess runner. They do not
+The implemented `export_genotypes()` and `merge_vcf()` APIs reuse the package's
+raw VCF parser, `galick_result` reports, and subprocess runner. They do not
 extend Beagle's imputation model beyond diploid calls.
 
 - VCF export retains FORMAT fields, phase sets, and reference dictionaries.
@@ -53,7 +60,7 @@ extend Beagle's imputation model beyond diploid calls.
 
 These are downstream analytical tasks. Other R packages serve them
 well (`AGHmatrix`, `rrBLUP`, `BGLR`, `sommer`, `GAPIT`, `BWGS`).
-beagler will not add them:
+galick will not add them:
 
 - GRM / kinship-matrix construction
 - GWAS, PCA, mixed models

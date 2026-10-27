@@ -20,7 +20,7 @@ clean_vcf_lines <- function() {
 test_that("validate_vcf happy path returns ok", {
   path <- write_vcf_lines(clean_vcf_lines())
   result <- validate_vcf(path)
-  expect_s3_class(result, "beagler_result")
+  expect_s3_class(result, "galick_result")
   expect_true(result$ok)
   expect_equal(result$summary$n_samples, 2L)
   expect_equal(result$summary$n_records, 3L)
@@ -42,7 +42,7 @@ test_that("validate_vcf rejects unsupported extensions", {
   file.create(path)
   expect_error(
     validate_vcf(path),
-    class = "beagler_error_validate_vcf_unsupported_extension"
+    class = "galick_error_validate_vcf_unsupported_extension"
   )
 })
 

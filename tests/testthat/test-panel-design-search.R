@@ -31,7 +31,7 @@ test_that("LD seed, quotas and swaps preserve every hard constraint", {
   zero <- panel_ld(input, 0, 100)
   expect_equal(zero$n_pairs, 0)
   expect_equal(panel_proxy(informed, zero), 0)
-  expect_error(panel_ld(input, 1000, 1), class = "beagler_error_panel_design_invalid_input")
+  expect_error(panel_ld(input, 1000, 1), class = "galick_error_panel_design_invalid_input")
   input$counts[, ] <- 0
   expect_equal(panel_proxy(informed, panel_ld(input, 1000, 100)), 0)
   input$counts[, ] <- NA_real_
@@ -52,7 +52,7 @@ test_that("mandatory, excluded and distance rules apply to both seed methods", {
     expect_true(panel_feasible(seed, constraints, TRUE))
   }
   input$mandatory <- input$candidates
-  expect_error(panel_constraints(input, 2, 0), class = "beagler_error_panel_design_invalid_input")
+  expect_error(panel_constraints(input, 2, 0), class = "galick_error_panel_design_invalid_input")
   constraints <- panel_constraints(input, length(input$candidates), 0)
   expect_null(panel_proposal(input, constraints, ld, input$candidates, character()))
 })

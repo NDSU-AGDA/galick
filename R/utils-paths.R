@@ -11,7 +11,7 @@ normalize_path_safe <- function(path, must_exist = FALSE) {
   if (length(path) != 1L || !is.character(path) || is.na(path)) {
     cli::cli_abort(
       "Path must be a single non-NA character string.",
-      class = "beagler_error_invalid_path"
+      class = "galick_error_invalid_path"
     )
   }
   expanded <- path.expand(path)
@@ -26,7 +26,7 @@ assert_readable <- function(path) {
   if (file.access(abs, mode = 4L) != 0L) {
     cli::cli_abort(
       "Path is not readable: {.file {abs}}",
-      class = "beagler_error_path_not_readable"
+      class = "galick_error_path_not_readable"
     )
   }
   invisible(abs)
@@ -39,7 +39,7 @@ assert_writable <- function(path) {
   if (length(path) != 1L || !is.character(path) || is.na(path)) {
     cli::cli_abort(
       "Path must be a single non-NA character string.",
-      class = "beagler_error_invalid_path"
+      class = "galick_error_invalid_path"
     )
   }
   expanded <- path.expand(path)
@@ -47,7 +47,7 @@ assert_writable <- function(path) {
     if (file.access(expanded, mode = 2L) != 0L) {
       cli::cli_abort(
         "Path is not writable: {.file {expanded}}",
-        class = "beagler_error_path_not_writable"
+        class = "galick_error_path_not_writable"
       )
     }
   } else {
@@ -55,7 +55,7 @@ assert_writable <- function(path) {
     if (!dir.exists(parent) || file.access(parent, mode = 2L) != 0L) {
       cli::cli_abort(
         "Parent directory is not writable: {.file {parent}}",
-        class = "beagler_error_path_not_writable"
+        class = "galick_error_path_not_writable"
       )
     }
   }

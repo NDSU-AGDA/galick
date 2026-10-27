@@ -8,7 +8,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-library(beagler)
+library(galick)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 beagle_available <- nzchar(Sys.getenv("BEAGLE_PATH")) && file.exists(Sys.getenv("BEAGLE_PATH")) &&
   nzchar(Sys.which("java"))
@@ -28,8 +28,8 @@ for a real study. The function does not infer relatedness or find renamed duplic
 ```{r inputs}
 truth <- tempfile(fileext = ".vcf")
 csv_to_vcf(
-  system.file("extdata", "tiny.csv", package = "beagler"),
-  system.file("extdata", "tiny_map.tsv", package = "beagler"),
+  system.file("extdata", "tiny.csv", package = "galick"),
+  system.file("extdata", "tiny_map.tsv", package = "galick"),
   truth
 )
 samples <- data.frame(
@@ -131,7 +131,7 @@ isolated job logs/run records, per-marker tables, `metrics.tsv`, `by_group.tsv`,
 the frozen `selection.json`, and versioned `evaluation.json`. Source files are
 not modified. Existing nonempty directories are refused; there is no automatic resume.
 
-The returned object inherits from `beagler_result`; `$ok` reports execution/scoring
+The returned object inherits from `galick_result`; `$ok` reports execution/scoring
 errors, not proof of superiority. Inspect `$selection$decision`, completion and
 group results. A result with no winner can still have `$ok = TRUE`.
 

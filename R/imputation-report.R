@@ -1,24 +1,24 @@
-#' Write a Markdown summary report of a `beagler_run`
+#' Write a Markdown summary report of a `galick_run`
 #'
 #' Produces a one-page Markdown file capturing status, runtime, command,
 #' input/output paths, version block, and log/run-record locations.
 #' Pulls SHA-256 hashes from the run record JSON when present.
 #'
-#' @param run A `beagler_run` returned by [run_beagle()].
+#' @param run A `galick_run` returned by [run_beagle()].
 #' @param file Output path (typically ending in `.md`).
 #' @return The output path, invisibly.
 #' @export
 imputation_report <- function(run, file) {
-  if (!inherits(run, "beagler_run")) {
+  if (!inherits(run, "galick_run")) {
     cli::cli_abort(
-      "{.arg run} must be a {.cls beagler_run} object.",
-      class = "beagler_error_imputation_report_invalid_input"
+      "{.arg run} must be a {.cls galick_run} object.",
+      class = "galick_error_imputation_report_invalid_input"
     )
   }
   if (length(file) != 1L || !is.character(file) || is.na(file)) {
     cli::cli_abort(
       "{.arg file} must be a single non-NA character string.",
-      class = "beagler_error_imputation_report_invalid_input"
+      class = "galick_error_imputation_report_invalid_input"
     )
   }
 
@@ -63,7 +63,7 @@ imputation_report <- function(run, file) {
   }
 
   lines <- c(
-    "# beagler run report",
+    "# galick run report",
     "",
     sprintf("**Status:** %s  |  **Runtime:** %s", status_str, runtime_str),
     "",

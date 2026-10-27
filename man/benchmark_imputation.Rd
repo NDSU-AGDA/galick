@@ -32,8 +32,8 @@ benchmark_imputation(
 \code{memory_gb}, \code{ref}, \code{map}).}
 }
 \value{
-A list with three elements: \code{mask} (a \code{beagler_result}),
-\code{run} (a \code{beagler_run}), and \code{comparison} (a \code{beagler_result}).
+A list with three elements: \code{mask} (a \code{galick_result}),
+\code{run} (a \code{galick_run}), and \code{comparison} (a \code{galick_result}).
 }
 \description{
 Convenience orchestrator: treats \code{vcf} as the truth, masks a fraction

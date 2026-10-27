@@ -1,6 +1,6 @@
 #' @keywords internal
 #' @noRd
-simulation_abort <- function(message, class = "beagler_error_simulation_invalid_input") {
+simulation_abort <- function(message, class = "galick_error_simulation_invalid_input") {
   cli::cli_abort(message, class = class)
 }
 

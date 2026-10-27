@@ -23,7 +23,7 @@
 #'   checks. `"auto"` infers via the M1 detector; `"numeric"` and
 #'   `"chr_prefixed"` normalize first; `"as_is"` uses raw labels.
 #'
-#' @return A `beagler_result` S3 object.
+#' @return A `galick_result` S3 object.
 #' @export
 validate_marker_map <- function(map,
                                 genotype_table = NULL,
@@ -39,13 +39,13 @@ validate_marker_map <- function(map,
   if (is.null(map) || !inherits(map, "data.frame")) {
     cli::cli_abort(
       "{.arg map} must be a data.frame or tibble; got {.cls {class(map)[1]}}.",
-      class = "beagler_error_marker_map_invalid_input"
+      class = "galick_error_marker_map_invalid_input"
     )
   }
   if (nrow(map) == 0L) {
     cli::cli_abort(
       "{.arg map} has zero rows.",
-      class = "beagler_error_marker_map_invalid_input"
+      class = "galick_error_marker_map_invalid_input"
     )
   }
   required_cols <- c("marker_id", "chrom", "pos")
@@ -53,13 +53,13 @@ validate_marker_map <- function(map,
   if (length(missing_cols) > 0L) {
     cli::cli_abort(
       "{.arg map} missing required columns: {.field {missing_cols}}",
-      class = "beagler_error_marker_map_missing_required_columns"
+      class = "galick_error_marker_map_missing_required_columns"
     )
   }
   if (!is.null(genotype_table) && !is.null(marker_ids)) {
     cli::cli_abort(
       "Pass either {.arg genotype_table} or {.arg marker_ids}, not both.",
-      class = "beagler_error_marker_map_invalid_input"
+      class = "galick_error_marker_map_invalid_input"
     )
   }
 
@@ -247,7 +247,7 @@ validate_marker_map <- function(map,
     n_markers_in_table = cross_check_results$n_in_table
   )
 
-  new_beagler_result(
+  new_galick_result(
     errors = issues_tibble(errors),
     warnings = issues_tibble(warnings),
     summary = summary_list,
@@ -267,7 +267,7 @@ resolve_cross_check_markers <- function(genotype_table, marker_ids) {
     if (!is.character(marker_ids)) {
       cli::cli_abort(
         "{.arg marker_ids} must be a character vector.",
-        class = "beagler_error_marker_map_invalid_input"
+        class = "galick_error_marker_map_invalid_input"
       )
     }
     return(marker_ids)
@@ -276,13 +276,13 @@ resolve_cross_check_markers <- function(genotype_table, marker_ids) {
     if (!inherits(genotype_table, "data.frame")) {
       cli::cli_abort(
         "{.arg genotype_table} must be a data.frame or tibble.",
-        class = "beagler_error_marker_map_invalid_input"
+        class = "galick_error_marker_map_invalid_input"
       )
     }
     if (ncol(genotype_table) < 2L) {
       cli::cli_abort(
         "{.arg genotype_table} needs at least one sample column and one marker column.",
-        class = "beagler_error_marker_map_invalid_input"
+        class = "galick_error_marker_map_invalid_input"
       )
     }
     sample_col <- detect_sample_col(

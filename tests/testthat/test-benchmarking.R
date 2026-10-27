@@ -53,7 +53,7 @@ test_that("mask_genotypes refuses to overwrite by default", {
   file.create(out)
   expect_error(
     mask_genotypes(vcf, out, fraction = 0.1),
-    class = "beagler_error_mask_genotypes_output_exists"
+    class = "galick_error_mask_genotypes_output_exists"
   )
 })
 
@@ -62,11 +62,11 @@ test_that("mask_genotypes rejects out-of-range fraction", {
   out <- withr::local_tempfile(fileext = ".vcf")
   expect_error(
     mask_genotypes(vcf, out, fraction = 0),
-    class = "beagler_error_mask_genotypes_invalid_input"
+    class = "galick_error_mask_genotypes_invalid_input"
   )
   expect_error(
     mask_genotypes(vcf, out, fraction = 1.5),
-    class = "beagler_error_mask_genotypes_invalid_input"
+    class = "galick_error_mask_genotypes_invalid_input"
   )
 })
 
@@ -98,12 +98,12 @@ test_that("compare_imputed_vs_true with masked_vcf restricts to masked cells", {
 test_that("compare_imputed_vs_true penalises mismatches", {
   vcf <- make_bench_vcf()
   # Build an "imputed" file that flips half the genotypes
-  parsed <- beagler:::parse_vcf_raw(vcf)
-  rec <- beagler:::extract_vcf_records(parsed)
+  parsed <- galick:::parse_vcf_raw(vcf)
+  rec <- galick:::extract_vcf_records(parsed)
   flipped <- rec$gt_matrix
   flipped[1, ] <- c("1/1", "1/1", "0/0", "1/1") # flip rs1 cells
   bad <- withr::local_tempfile(fileext = ".vcf")
-  beagler:::write_vcf_v4_2(
+  galick:::write_vcf_v4_2(
     output_path = bad,
     chrom = rec$metadata$chrom,
     pos = rec$metadata$pos,
@@ -122,7 +122,7 @@ test_that("compare_imputed_vs_true penalises mismatches", {
 test_that("compare_imputed_vs_true aborts on missing input", {
   expect_error(
     compare_imputed_vs_true("/no.vcf", "/also-no.vcf"),
-    class = "beagler_error_compare_imputed_invalid_input"
+    class = "galick_error_compare_imputed_invalid_input"
   )
 })
 
@@ -147,7 +147,7 @@ test_that("benchmark_imputation: integration via Beagle", {
     mode = "phase"
   )
   expect_named(result, c("mask", "run", "comparison"))
-  expect_s3_class(result$run, "beagler_run")
-  expect_s3_class(result$mask, "beagler_result")
-  expect_s3_class(result$comparison, "beagler_result")
+  expect_s3_class(result$run, "galick_run")
+  expect_s3_class(result$mask, "galick_result")
+  expect_s3_class(result$comparison, "galick_result")
 })

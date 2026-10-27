@@ -23,7 +23,7 @@ GT cells marked missing. Only those cells are eligible.}
 DS never falls back to GT. Evaluation requires diploid biallelic calls.}
 }
 \value{
-A \code{beagler_result} with eligible, evaluated and missing counts,
+A \code{galick_result} with eligible, evaluated and missing counts,
 completion, unconditional and conditional GT concordance, RMSE,
 mean defined per-marker \code{dosage_r2}, \code{pooled_dosage_r2}, and \code{per_marker}.
 GT concordance is never obtained by rounding DS.

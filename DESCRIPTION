@@ -1,5 +1,5 @@
-Package: beagler
-Title: Genotype Validation, Conversion, Repair, and Beagle Imputation Workflows
+Package: galick
+Title: Genotype Workflows, Simulation and Imputation Evaluation
 Version: 0.1.0
 Authors@R:
         c(
@@ -42,6 +42,8 @@ Description: An R toolkit for plant- and animal-breeding genotype workflows:
     invoked from R; the package focuses on preprocessing and imputation,
     not downstream analyses.
 License: MIT + file LICENSE
+URL: https://didiermurillof.github.io/galick/, https://github.com/DidierMurilloF/galick
+BugReports: https://github.com/DidierMurilloF/galick/issues
 Depends: R (>= 4.1.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

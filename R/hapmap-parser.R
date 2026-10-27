@@ -18,13 +18,13 @@ read_hapmap <- function(path) {
   if (length(path) != 1L || !is.character(path) || is.na(path)) {
     cli::cli_abort(
       "{.arg path} must be a single non-NA character string.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
   if (!file.exists(path)) {
     cli::cli_abort(
       "File not found: {.file {path}}",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
 
@@ -44,7 +44,7 @@ read_hapmap <- function(path) {
   if (length(missing_required) > 0L) {
     cli::cli_abort(
       "HapMap file missing required column(s): {.field {missing_required}}",
-      class = "beagler_error_hapmap_invalid_input"
+      class = "galick_error_hapmap_invalid_input"
     )
   }
 
@@ -57,7 +57,7 @@ read_hapmap <- function(path) {
   if (length(sample_cols) == 0L) {
     cli::cli_abort(
       "HapMap file has no sample columns (after stripping standard metadata).",
-      class = "beagler_error_hapmap_invalid_input"
+      class = "galick_error_hapmap_invalid_input"
     )
   }
 

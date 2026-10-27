@@ -17,7 +17,7 @@ expects \verb{<prefix>.\{bed,bim,fam\}} to exist.}
 \item{overwrite}{Refuse to clobber existing \code{vcf} unless \code{TRUE}.}
 }
 \value{
-A \code{beagler_run} S3 object.
+A \code{galick_run} S3 object.
 }
 \description{
 Shells out to PLINK 1.9 or 2.0 with \verb{--bfile <prefix> --recode vcf --out <out_prefix>}. PLINK writes \verb{<out_prefix>.vcf}. The \code{vcf} argument is

@@ -27,13 +27,13 @@ parse_vcf_raw <- function(path) {
   if (length(path) != 1L || !is.character(path) || is.na(path)) {
     cli::cli_abort(
       "{.arg path} must be a single non-NA character string.",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
   if (!file.exists(path)) {
     cli::cli_abort(
       "File not found: {.file {path}}",
-      class = "beagler_error_invalid_argument"
+      class = "galick_error_invalid_argument"
     )
   }
 

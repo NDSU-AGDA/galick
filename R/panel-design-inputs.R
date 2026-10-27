@@ -1,7 +1,7 @@
 #' @keywords internal
 #' @noRd
 panel_abort <- function(message) {
-  cli::cli_abort(message, class = "beagler_error_panel_design_invalid_input")
+  cli::cli_abort(message, class = "galick_error_panel_design_invalid_input")
 }
 
 #' @keywords internal

@@ -67,7 +67,7 @@ checked after reading founders but before population-array allocation. This is
 not a bound on total R memory or output size; GT strings and ledgers add overhead.}
 }
 \value{
-A beagler_simulation inheriting from beagler_result, with paths, samples,
+A galick_simulation inheriting from galick_result, with paths, samples,
 observation rates, diagnostics and versioned model/input/output provenance.
 }
 \description{

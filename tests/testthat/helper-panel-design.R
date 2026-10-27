@@ -80,7 +80,7 @@ panel_mock_runner <- function(truth, behavior = "normal", observer = NULL) {
     }
     output <- paste0(out, ".vcf")
     write_genotype_vcf(x, output)
-    new_beagler_run(
+    new_galick_run(
       status = if (behavior == "failed") 1L else 0L,
       runtime_sec = 1, output_paths = output
     )
