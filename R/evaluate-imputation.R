@@ -154,9 +154,10 @@ evaluation_execute <- function(truth, plans, candidates, baseline, output_dir, f
                                min_improvement, max_group_regression) {
   runs <- list()
   errors <- list()
-  metrics <- list()
-  groups <- list()
-  marker_paths <- character()
+  results_env <- new.env(parent = emptyenv())
+  results_env$metrics <- list()
+  results_env$groups <- list()
+  results_env$marker_paths <- character()
   execute_partition <- function(partition, ids) {
     for (id in ids) {
       candidate <- candidates[[id]]
@@ -203,19 +204,19 @@ evaluation_execute <- function(truth, plans, candidates, baseline, output_dir, f
       cells <- data.table::rbindlist(all_cells)
       tables <- evaluation_tables(cells, truth)
       key <- paste(id, partition, sep = "_")
-      metrics[[key]] <<- cbind(tibble::tibble(
+      results_env$metrics[[key]] <- cbind(tibble::tibble(
         candidate = id, partition = partition,
         status = if (success) "ok" else "failed", runtime_sec = runtime
       ), tables$metrics)
-      groups[[key]] <<- cbind(tibble::tibble(candidate = id, partition = partition), tables$by_group)
+      results_env$groups[[key]] <- cbind(tibble::tibble(candidate = id, partition = partition), tables$by_group)
       marker_path <- file.path(output_dir, paste0(key, "_markers.tsv"))
       data.table::fwrite(tables$per_marker, marker_path, sep = "\t", na = "NA")
-      marker_paths[key] <<- marker_path
+      results_env$marker_paths[key] <- marker_path
     }
   }
   execute_partition("tune", names(candidates))
-  tuning <- as.data.frame(data.table::rbindlist(metrics))
-  tuning_groups <- as.data.frame(data.table::rbindlist(groups))
+  tuning <- as.data.frame(data.table::rbindlist(results_env$metrics))
+  tuning_groups <- as.data.frame(data.table::rbindlist(results_env$groups))
   frozen <- evaluation_select(
     tuning, tuning_groups, names(candidates), baseline,
     min_improvement, max_group_regression
@@ -231,8 +232,8 @@ evaluation_execute <- function(truth, plans, candidates, baseline, output_dir, f
     ids <- unique(c(baseline, if (!is.na(frozen$candidate)) frozen$candidate))
     execute_partition("test", ids)
   }
-  metrics <- tibble::as_tibble(data.table::rbindlist(metrics))
-  groups <- tibble::as_tibble(data.table::rbindlist(groups))
+  metrics <- tibble::as_tibble(data.table::rbindlist(results_env$metrics))
+  groups <- tibble::as_tibble(data.table::rbindlist(results_env$groups))
   decision <- if (frozen$decision == "incomplete") {
     "incomplete"
   } else {
@@ -251,7 +252,7 @@ evaluation_execute <- function(truth, plans, candidates, baseline, output_dir, f
   }
   list(
     metrics = metrics, by_group = groups, runs = runs, errors = errors,
-    per_marker_paths = marker_paths, selection = list(
+    per_marker_paths = results_env$marker_paths, selection = list(
       decision = decision,
       candidate = frozen$candidate,
       recommended_candidate = if (decision == "confirmed") frozen$candidate else NA_character_,

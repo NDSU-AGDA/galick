@@ -35,4 +35,4 @@ package versions and fingerprints are part of the computation identity.
 
 The GitHub repository has been renamed to `DidierMurilloF/galick`. GitHub Pages
 configuration now targets `https://didiermurillof.github.io/galick/`; deployment
-occurs through the website workflow after the changes reach the default branch.
+is not automatic. CI builds a downloadable website preview; hosting is configured separately.

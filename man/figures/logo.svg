@@ -1,8 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="240" height="276" viewBox="0 0 240 276" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="592" viewBox="0 0 512 592" role="img" aria-labelledby="title desc">
   <title id="title">Galick</title>
-  <path fill="#173d37" d="M120 4 236 71v134l-116 67L4 205V71Z"/>
-  <path fill="none" stroke="#b5dfce" stroke-width="3" d="m120 15 106 62v122l-106 62L14 199V77Z"/>
-  <path fill="none" stroke="#fff" stroke-width="15" stroke-linecap="square" d="M161 90a57 57 0 1 0 4 80v-35h-44"/>
-  <circle cx="165" cy="90" r="8" fill="#e7b36c"/>
-  <text x="120" y="232" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="600" fill="#fff">GALICK</text>
+  <desc id="desc">An angular linked-marker emblem in violet and cyan above the Galick wordmark, inside an ink-colored hexagon.</desc>
+  <path fill="#111820" d="M256 8 502 150v284L256 576 10 434V150Z"/>
+  <path fill="none" stroke="#647085" stroke-width="3" d="m256 22 234 135v270L256 562 22 427V157Z"/>
+  <path fill="none" stroke="#b39aff" stroke-width="5" d="m30 189 0-27 226-131 64 37"/>
+  <path fill="none" stroke="#75e3dc" stroke-width="5" d="m482 395 0 27-226 131-64-37"/>
+  <path fill="#202b3a" d="m256 91 149 86v172l-149 86-149-86V177Z"/>
+  <path fill="#171f2a" d="m256 91 149 86-149 86-149-86Z"/>
+  <path fill="none" stroke="#43516a" stroke-width="2" d="m256 91 149 86v172l-149 86-149-86V177Z"/>
+  <path fill="none" stroke="#8064cf" stroke-width="2" d="m129 329 98-98m58-58 98-98"/>
+  <path fill="#a98aff" d="m138 320 95-95-49-49 67-67h56l-67 67 49 49-95 95Z"/>
+  <path fill="#75e3dc" d="m221 359 95-95-49-49 67-67h56l-67 67 49 49-95 95Z"/>
+  <path fill="#d8caff" d="m184 176 49 49 28-28-49-49Z"/>
+  <path fill="#c1fff4" d="m267 215 49 49 28-28-49-49Z"/>
+  <path fill="none" stroke="#e9edf5" stroke-width="9" d="m203 281 51 24m-10-65 50 24m-58-71 50 24"/>
+  <g fill="#111820" stroke="#f4f2ff" stroke-width="5">
+    <circle cx="203" cy="281" r="9"/>
+    <circle cx="254" cy="305" r="9"/>
+    <circle cx="244" cy="240" r="9"/>
+    <circle cx="294" cy="264" r="9"/>
+  </g>
+  <path fill="#f4c879" d="m354 94 7 17 18 7-18 7-7 18-7-18-18-7 18-7Z"/>
+  <path fill="#a98aff" d="m124 347 8 8-23 23-8-8Z"/>
+  <path fill="#75e3dc" d="m305 359 8 8-23 23-8-8Z"/>
+  <text x="256" y="476" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="55" font-weight="800" fill="#f4f2ff">GALICK</text>
+  <path fill="none" stroke="#6b798e" stroke-width="3" d="M210 500h92"/>
 </svg>
