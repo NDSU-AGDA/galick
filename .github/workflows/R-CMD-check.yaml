@@ -53,12 +53,18 @@ jobs:
 
       - name: Install R and integration tools
         run: |
+          curl --fail --location --retry 2 --connect-timeout 15 --max-time 120 \
+            https://cdn.rstudio.com/r/ubuntu-2404/pkgs/r-4.5.3_1_amd64.deb \
+            --output "${RUNNER_TEMP}/r-4.5.3.deb"
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends r-base-core r-base-dev bcftools tabix plink1.9
+          sudo apt-get install -y --no-install-recommends "${RUNNER_TEMP}/r-4.5.3.deb" bcftools tabix plink1.9
           sudo ln -sf /usr/bin/plink1.9 /usr/local/bin/plink
+          /opt/R/4.5.3/bin/Rscript --vanilla -e 'stopifnot(getRversion() == "4.5.3")'
+          echo '/opt/R/4.5.3/bin' >> "${GITHUB_PATH}"
 
       - uses: r-lib/actions/setup-r@v2
         with:
+          r-version: '4.5.3'
           install-r: false
           use-public-rspm: true
 
@@ -66,7 +72,7 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
-          cache: always
+          cache: 'true'
           install-quarto: false
 
       - name: Install pinned Beagle
