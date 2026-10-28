@@ -50,6 +50,66 @@ v$warnings$code
 
 ## Repair
 
+### Inspect before changing data
+
+Error entries and affected records are different counts. A single issue entry
+can refer to many records, and the same record can violate several rules.
+`validate_vcf()` groups overlapping findings and counts unique record impact.
+
+For a detailed, read-only investigation, request extended diagnostics:
+
+```r
+diagnosis <- validate_vcf(dirty, target = "beagle", diagnostics = "extended")
+summary(diagnosis)
+
+evidence <- diagnosis$summary$diagnostics
+evidence$issue_impact
+evidence$issue_groups
+evidence$unsupported_alleles
+evidence$allele_usage
+evidence$genotype_counts
+evidence$genotype_summary
+evidence$quality_fields
+evidence$quality_summary
+evidence$quality_comparisons
+evidence$actions
+```
+
+For example, `REF=A, ALT=G,-` defines allele indices `0=A`, `1=G`, and `2=-`.
+A `2/2` call references the unsupported `-` allele twice, but counts as **one**
+dependent genotype cell. A `0/2` or `2|.` call also depends on that allele.
+Deleting `,-` alone leaves those calls unresolved. Even an unused allele
+requires review of allele-numbered INFO/FORMAT annotations before removal.
+
+Extended mode summarizes only unambiguous `Number=1` numeric FORMAT declarations
+(`Integer` or `Float`) on interpretable problem records. Scalar fields with
+arbitrary names are supported; undeclared, string and vector-valued fields are
+not assigned numeric interpretations. Missing, non-finite and nonnumeric
+values are counted separately and excluded from quantiles. Numeric summaries
+are descriptive, not probabilities or universal quality thresholds.
+
+`quality_summary` contains pooled exact quantiles by field and genotype category.
+`quality_by_record` preserves record-level medians. `quality_comparisons` compares
+unsupported-allele calls with fully called supported alleles **at the same
+record**, reporting lower/equal/higher median counts and median differences.
+Non-comparable records and the number of positive baselines used for ratios are
+reported explicitly. Ratios use positive baseline medians only. Low intensity does not prove a
+deletion or justify converting a called genotype into missing data.
+
+Coverage and counts describe only the scanned prefix in a partial scan, not the
+unexamined file. Record-scoped issue groups exclude file/header findings; those
+remain visible in `issue_impact`. Genotype-cell impact counts directly flagged
+calls rather than treating every call in a structurally affected row as invalid.
+Absent GT fields and malformed record/FORMAT shapes limit inspection and are
+reported in the coverage/impact summary.
+
+Standard diagnostics do not collect quality-value arrays. Extended profiling
+retains finite values on problem records for exact quantiles, so it uses more
+memory. It reuses validation's parsed FORMAT/GT data; it does not reread the file.
+The existing parser still loads the full file even for a limited scan.
+
+### Apply a chosen repair
+
 ```r
 clean <- tempfile(fileext = ".vcf")
 result <- repair_vcf(dirty, clean)

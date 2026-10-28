@@ -8,7 +8,8 @@ validate_vcf(
   vcf,
   target = c("general", "beagle", "plink"),
   max_records_to_scan = Inf,
-  progress = interactive()
+  progress = interactive(),
+  diagnostics = c("standard", "extended")
 )
 }
 \arguments{
@@ -25,9 +26,14 @@ at chunk boundaries).}
 
 \item{progress}{Show validation stages and record-level progress. Defaults
 to \code{interactive()}; use \code{FALSE} to silence progress in scripts.}
+
+\item{diagnostics}{\code{"standard"} reports issue overlap and allele usage.
+\code{"extended"} additionally profiles declared scalar numeric FORMAT fields
+on problem records, comparing genotype categories within the same records.}
 }
 \value{
-A \code{galick_result} S3 object.
+A \code{galick_result} S3 object. Structured evidence is available under
+\verb{$summary$diagnostics}. Counts refer to scanned records, not unexamined data.
 }
 \description{
 Reads a \code{.vcf} or \code{.vcf.gz} via the tolerant internal \code{parse_vcf_raw()} and
@@ -39,4 +45,11 @@ specific stricter checks.
 Programmer/shape problems (\code{NULL}, wrong type, unsupported extension)
 raise immediately. Data-quality problems are returned in \verb{$errors} /
 \verb{$warnings} so the result remains inspectable.
+
+Diagnostics never modify the input. Unsupported alleles are not
+automatically interpreted as missing calls or deletions. Numeric fields are
+descriptive evidence, not probabilities or universal quality thresholds.
+Extended profiling retains finite numeric values for problem records to
+compute exact quantiles; it may require additional memory. The parser still
+reads the entire input even when \code{max_records_to_scan} is finite.
 }

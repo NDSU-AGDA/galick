@@ -19,15 +19,27 @@
 #'   at chunk boundaries).
 #' @param progress Show validation stages and record-level progress. Defaults
 #'   to `interactive()`; use `FALSE` to silence progress in scripts.
+#' @param diagnostics `"standard"` reports issue overlap and allele usage.
+#'   `"extended"` additionally profiles declared scalar numeric FORMAT fields
+#'   on problem records, comparing genotype categories within the same records.
 #'
-#' @return A `galick_result` S3 object.
+#' @return A `galick_result` S3 object. Structured evidence is available under
+#'   `$summary$diagnostics`. Counts refer to scanned records, not unexamined data.
+#' @details Diagnostics never modify the input. Unsupported alleles are not
+#'   automatically interpreted as missing calls or deletions. Numeric fields are
+#'   descriptive evidence, not probabilities or universal quality thresholds.
+#'   Extended profiling retains finite numeric values for problem records to
+#'   compute exact quantiles; it may require additional memory. The parser still
+#'   reads the entire input even when `max_records_to_scan` is finite.
 #' @export
 validate_vcf <- function(vcf,
                          target = c("general", "beagle", "plink"),
                          max_records_to_scan = Inf,
-                         progress = interactive()) {
+                         progress = interactive(),
+                         diagnostics = c("standard", "extended")) {
   the_call <- match.call()
   target <- match.arg(target)
+  diagnostics <- match.arg(diagnostics)
   if (!is.logical(progress) || length(progress) != 1L || is.na(progress)) {
     cli::cli_abort("{.arg progress} must be TRUE or FALSE.", class = "galick_error_invalid_argument")
   }
@@ -48,6 +60,8 @@ validate_vcf <- function(vcf,
 
   progress_id <- vcf_validation_progress(progress, "Reading and parsing VCF")
   parsed <- parse_vcf_raw(vcf)
+  diagnostic_state <- new_vcf_diagnostic_state(parsed, diagnostics, 0L)
+  diagnostic_state$target <- target
   if (progress) cli::cli_progress_done(id = progress_id)
   progress_id <- vcf_validation_progress(progress, "Checking VCF structure")
 
@@ -89,7 +103,8 @@ validate_vcf <- function(vcf,
         n_chroms = 0L,
         chromosome_summary = empty_chromosome_summary(),
         inferred_chrom_style = "unknown",
-        has_vcf_gz_extension = has_vcf_gz_extension
+        has_vcf_gz_extension = has_vcf_gz_extension,
+        diagnostics = finish_vcf_diagnostics(diagnostic_state, parsed, errors, warnings, 0L, FALSE)
       ),
       call = the_call
     ))
@@ -154,6 +169,7 @@ validate_vcf <- function(vcf,
   }
 
   good_rows <- scan_idx[body_col_counts_scanned == n_expected_cols]
+  if (n_expected_cols < 8L) good_rows <- integer()
   if (length(good_rows) > 0L) {
     body_mat <- do.call(rbind, parsed$body_split[good_rows])
     chrom <- body_mat[, 1]
@@ -211,6 +227,7 @@ validate_vcf <- function(vcf,
     }
 
     valid_pair_mask <- !bad_chrom_mask & !bad_pos_mask
+    diagnostic_state$coordinate_checks <- !scanned_partial && any(valid_pair_mask)
     if (!scanned_partial && any(valid_pair_mask)) {
       pair_keys <- paste(
         chrom[valid_pair_mask],
@@ -286,15 +303,27 @@ validate_vcf <- function(vcf,
 
     if (progress) cli::cli_progress_done(id = progress_id)
     progress_id <- NULL
+    diagnostic_state$allele_map <- lapply(seq_along(ref), function(i) {
+      list(alleles = c(ref[i], alt_lists[[i]]), supported = c(
+        !bad_ref_mask[i], !is.na(alt_lists[[i]]) & nzchar(trimws(alt_lists[[i]])) &
+          !grepl("[^ACGTNacgtn*]", alt_lists[[i]])
+      ))
+    })
+    diagnostic_state$records <- vcf_diagnostic_records(parsed, n_records_scanned)
+    diagnostic_state$problem_rows <- unique(unlist(lapply(
+      c(errors, warnings), vcf_diagnostic_issue_rows, records = diagnostic_state$records
+    ), use.names = FALSE))
     format_issues <- check_format_and_gt(
-      format_field, sample_cells, n_samples, good_rows, alt, progress = progress
+      format_field, sample_cells, n_samples, good_rows, alt, progress = progress,
+      diagnostic_state = diagnostic_state
     )
     errors <- c(errors, format_issues$errors)
     warnings <- c(warnings, format_issues$warnings)
 
     if (target == "beagle") {
       beagle_issues <- check_beagle_specific(
-        ref, alt_lists, sample_cells, format_field, n_samples, good_rows, progress = progress
+        ref, alt_lists, sample_cells, format_field, n_samples, good_rows, progress = progress,
+        non_diploid_rows = diagnostic_state$non_diploid_rows
       )
       errors <- c(errors, beagle_issues$errors)
       warnings <- c(warnings, beagle_issues$warnings)
@@ -335,7 +364,10 @@ validate_vcf <- function(vcf,
     n_chroms = nrow(chromosome_summary),
     chromosome_summary = chromosome_summary,
     inferred_chrom_style = inferred_chrom_style,
-    has_vcf_gz_extension = has_vcf_gz_extension
+    has_vcf_gz_extension = has_vcf_gz_extension,
+    diagnostics = finish_vcf_diagnostics(
+      diagnostic_state, parsed, errors, warnings, n_records_scanned, scanned_partial
+    )
   )
 
   new_galick_result(
@@ -419,7 +451,7 @@ check_sortedness <- function(chrom, pos, row_numbers) {
 #' @keywords internal
 #' @noRd
 check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbers,
-                                alt = NULL, progress = FALSE) {
+                                alt = NULL, progress = FALSE, diagnostic_state = NULL) {
   errors <- list()
   warnings <- list()
   if (n_samples == 0L) {
@@ -455,6 +487,23 @@ check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbe
     inconsistent <- vapply(cell_subfields, function(s) {
       length(s) != expected_n
     }, logical(1))
+    gt_tokens <- vapply(cell_subfields, function(s) {
+      if (length(s) >= gt_idx[i]) s[gt_idx[i]] else NA_character_
+    }, character(1))
+    unique_gt <- unique(gt_tokens)
+    valid <- if (is.null(alt)) {
+      grepl(gt_token_re, unique_gt)
+    } else {
+      vapply(unique_gt, valid_gt_for_alt, logical(1), alt = alt[i])
+    }
+    bad_gt <- !valid[match(gt_tokens, unique_gt)]
+    if (!is.null(diagnostic_state)) {
+      map <- diagnostic_state$allele_map[[i]]
+      collect_vcf_diagnostic_row(
+        diagnostic_state, row_numbers[i], gt_tokens, cell_subfields, format_subfields[[i]],
+        map$alleles, map$supported, !bad_gt, inconsistent
+      )
+    }
     if (any(inconsistent)) {
       errors[[length(errors) + 1L]] <- list(
         code = "vcf_inconsistent_sample_subfields",
@@ -465,12 +514,6 @@ check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbe
         where = list(row = row_numbers[i])
       )
       next
-    }
-    gt_tokens <- vapply(cell_subfields, function(s) s[gt_idx[i]], character(1))
-    bad_gt <- if (is.null(alt)) {
-      !grepl(gt_token_re, gt_tokens)
-    } else {
-      !vapply(gt_tokens, valid_gt_for_alt, logical(1), alt = alt[i])
     }
     if (any(bad_gt)) {
       bad_gt_rows <- c(bad_gt_rows, row_numbers[i])
@@ -494,7 +537,8 @@ check_format_and_gt <- function(format_field, sample_cells, n_samples, row_numbe
 #' @keywords internal
 #' @noRd
 check_beagle_specific <- function(ref, alt_lists, sample_cells, format_field,
-                                  n_samples, row_numbers, progress = FALSE) {
+                                  n_samples, row_numbers, progress = FALSE,
+                                  non_diploid_rows = NULL) {
   errors <- list()
   warnings <- list()
   progress_id <- vcf_validation_progress(progress, "Beagle checks", length(format_field))
@@ -511,7 +555,7 @@ check_beagle_specific <- function(ref, alt_lists, sample_cells, format_field,
     )
   }
 
-  if (n_samples > 0L) {
+  if (is.null(non_diploid_rows) && n_samples > 0L) {
     format_subfields <- strsplit(format_field, ":", fixed = TRUE)
     gt_idx <- vapply(format_subfields, function(f) {
       pos <- which(f == "GT")
@@ -531,16 +575,16 @@ check_beagle_specific <- function(ref, alt_lists, sample_cells, format_field,
         non_diploid_rows <- c(non_diploid_rows, row_numbers[i])
       }
     }
-    if (length(non_diploid_rows) > 0L) {
-      errors[[length(errors) + 1L]] <- list(
-        code = "vcf_beagle_non_diploid",
-        message = sprintf(
-          "%d record(s) have GT(s) not of ploidy 2.",
-          length(unique(non_diploid_rows))
-        ),
-        where = list(rows = unique(non_diploid_rows))
-      )
-    }
+  }
+  if (length(non_diploid_rows) > 0L) {
+    errors[[length(errors) + 1L]] <- list(
+      code = "vcf_beagle_non_diploid",
+      message = sprintf(
+        "%d record(s) have GT(s) not of ploidy 2.",
+        length(unique(non_diploid_rows))
+      ),
+      where = list(rows = unique(non_diploid_rows))
+    )
   }
   if (progress) cli::cli_progress_update(set = length(format_field), id = progress_id)
 

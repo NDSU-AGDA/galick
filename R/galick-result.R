@@ -78,6 +78,7 @@ normalize_issues <- function(x) {
 
 #' @export
 print.galick_result <- function(x, ...) {
+  if (inherits(x$summary$diagnostics, "galick_vcf_diagnostics")) return(print_vcf_validation(x))
   header <- if (x$ok) "galick_result: OK" else "galick_result: NOT OK"
   cli::cli_h1(header)
   cli::cli_text(
@@ -120,6 +121,9 @@ print.galick_result <- function(x, ...) {
 
 #' @export
 summary.galick_result <- function(object, ...) {
+  if (inherits(object$summary$diagnostics, "galick_vcf_diagnostics")) {
+    return(print_vcf_validation(object, full = TRUE))
+  }
   print(object)
   if (nrow(object$errors) > 3L) {
     cli::cli_h3("All errors")

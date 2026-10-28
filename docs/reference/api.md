@@ -334,7 +334,8 @@ validate_vcf(
   vcf,
   target = c("general", "beagle", "plink"),
   max_records_to_scan = Inf,
-  progress = interactive()
+  progress = interactive(),
+  diagnostics = c("standard", "extended")
 )
 ```
 

@@ -1,5 +1,15 @@
 # galick 0.1.0
 
+## VCF diagnostics
+
+- `validate_vcf()` reports unique record impact, overlapping rules and genotype
+  dependencies on unsupported alleles without changing validation decisions.
+- `diagnostics = "extended"` profiles declared scalar numeric FORMAT fields on
+  problem records, with exact quantiles and within-record comparisons. Field
+  evidence never triggers automatic missing-call or deletion classification.
+- VCF-specific print and summary reports replace nested-list dumps. Structured
+  evidence is available under `$summary$diagnostics`.
+
 ## Validation progress
 
 - `validate_vcf()` shows staged progress in interactive sessions, with

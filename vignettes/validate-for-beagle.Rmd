@@ -11,9 +11,9 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-`validate_vcf()` reports VCF-shape and Beagle-target problems; `repair_vcf()`
-fixes the row-level ones the validator flagged. Both refuse to write
-anything until the input is reasonable.
+`validate_vcf()` reports VCF-shape and Beagle-target problems without modifying
+the input. `repair_vcf()` applies explicitly chosen transformations and only
+publishes a result that passes its output validation.
 
 ## A dirty starting point
 
@@ -37,7 +37,51 @@ v$ok
 v$errors$code
 ```
 
-The codes tell you exactly what `repair_vcf()` will need to address.
+Issue entries are not counts of affected records. One entry can refer to many
+records, and several entries can describe the same record. Inspect the evidence
+and choose a repair policy before discarding data.
+
+## Investigate allele dependencies
+
+For `REF=A, ALT=G,-`, allele indices mean `0=A`, `1=G`, and `2=-`. A `2/2`
+call depends on the unsupported allele; removing it without handling dependent
+calls would leave unresolved genotype indices. This synthetic example uses an
+arbitrary numeric field, not a vendor-specific quality model:
+
+```{r}
+diagnostic_input <- tempfile(fileext = ".vcf")
+writeLines(c(
+  "##fileformat=VCFv4.2",
+  '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">',
+  '##FORMAT=<ID=Q,Number=1,Type=Float,Description="Custom metric, arbitrary units">',
+  "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\ts1\ts2",
+  "1\t100\tm1\tA\tG,-\t.\tPASS\t.\tGT:Q\t2/2:0.8\t0/0:0.9"
+), diagnostic_input)
+
+diagnosis <- validate_vcf(diagnostic_input, target = "beagle", diagnostics = "extended")
+print(diagnosis)
+evidence <- diagnosis$summary$diagnostics
+evidence$issue_groups
+evidence$allele_usage
+evidence$unsupported_alleles
+evidence$genotype_summary
+evidence$quality_summary
+evidence$quality_comparisons
+```
+
+`summary(diagnosis)` adds FORMAT declarations, within-record comparisons,
+genotype categories and action assessments. The structured tables remain
+available for filtering or export. Numeric profiling uses only unambiguous
+scalar numeric declarations from the header; missing, non-finite and nonnumeric
+values are counted separately. Comparisons use supported calls at the same
+record, and ratios require a positive baseline median. No numeric difference
+automatically means a deletion, a missing call, or an inaccurate genotype.
+
+Standard mode reports record impact and allele usage without retaining quality
+arrays. Extended mode retains finite values on problem records for exact
+quantiles and therefore can use additional memory. Partial scans explicitly
+limit all evidence to the scanned prefix and skip full-file coordinate/sort
+checks. The parser still reads the entire file even for a partial scan.
 
 ## Repair
 
