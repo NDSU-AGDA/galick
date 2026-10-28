@@ -33,3 +33,15 @@ aligned by name, compatible headers are combined, and FORMAT fields retained.
 \details{
 Compressed output requires \code{bgzip} and is BGZF, not ordinary gzip.
 }
+\examples{
+\dontshow{if (file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+directory <- tempfile("merged_runs_")
+runs <- run_beagle_by_chrom(vcf, directory, mode = "phase",
+                            nthreads = 1L, memory_gb = 1L)
+output <- file.path(directory, "merged.vcf")
+merge_beagle_outputs(runs, output)
+validate_vcf(output)$ok
+unlink(directory, recursive = TRUE)
+\dontshow{\}) # examplesIf}
+}

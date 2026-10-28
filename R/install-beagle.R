@@ -28,6 +28,12 @@ beagle_pinned_url <- function() {
 #' @param dest Destination path. Defaults to
 #'   `tools::R_user_dir("galick", "cache")/beagle.jar`.
 #' @return The destination path, invisibly.
+#' @examples
+#' # Explicit installation requires network access and Java; never run on checks.
+#' \dontrun{
+#' jar <- install_beagle()
+#' beagle_version(jar)
+#' }
 #' @export
 install_beagle <- function(version = "5.4", dest = NULL) {
   if (!identical(version, "5.4")) {
@@ -94,6 +100,8 @@ install_beagle <- function(version = "5.4", dest = NULL) {
 #'
 #' @param beagle_jar Optional explicit path.
 #' @return A character scalar like `"5.4"`.
+#' @examplesIf file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))
+#' beagle_version(beagle_jar = Sys.getenv("BEAGLE_PATH"))
 #' @export
 beagle_version <- function(beagle_jar = NULL) {
   jar <- find_beagle_jar(beagle_jar)

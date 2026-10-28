@@ -91,4 +91,4 @@ representative founders and biologically appropriate holdouts remain essential.
 
 Version 0.1.0 is pre-release. Galick is MIT licensed; external tools retain their
 own licenses. Source and issues are hosted at
-[DidierMurilloF/galick](https://github.com/DidierMurilloF/galick).
+`NDSU-AGDA/galick` (repository access currently required).

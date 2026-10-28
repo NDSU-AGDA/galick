@@ -35,3 +35,10 @@ A list with \code{output_dir} and a named character vector
 Reads \code{vcf} via the tolerant parser and writes one \code{.vcf} per
 unique CHROM into \code{out_dir}. Pure R; no \code{bcftools} dependency.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+directory <- tempfile("chromosomes_")
+split <- split_vcf_by_chrom(vcf, directory)
+names(split$chrom_paths)
+unlink(directory, recursive = TRUE)
+}

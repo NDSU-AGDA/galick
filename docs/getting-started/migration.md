@@ -1,7 +1,7 @@
 # Migration to Galick
 
 The R package and GitHub repository are now `galick`. Use
-`DidierMurilloF/galick` for installation and repository links.
+`NDSU-AGDA/galick` for installation and repository references.
 
 ## Code and saved results
 
@@ -33,6 +33,6 @@ package versions and fingerprints are part of the computation identity.
 
 ## Repository administration
 
-The GitHub repository has been renamed to `DidierMurilloF/galick`. GitHub Pages
-configuration now targets `https://didiermurillof.github.io/galick/`; deployment
-is not automatic. CI builds a downloadable website preview; hosting is configured separately.
+The GitHub repository is now `NDSU-AGDA/galick`. Repository access is currently
+required. CI builds a downloadable website preview; hosting is configured
+separately. No public documentation deployment is advertised until it is available.

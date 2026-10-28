@@ -15,6 +15,12 @@
 #'
 #' @return A list with `output_dir` and a named character vector
 #'   `chrom_paths` (names are CHROM labels, values are file paths).
+#' @examples
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' directory <- tempfile("chromosomes_")
+#' split <- split_vcf_by_chrom(vcf, directory)
+#' names(split$chrom_paths)
+#' unlink(directory, recursive = TRUE)
 #' @export
 split_vcf_by_chrom <- function(vcf, out_dir,
                                chrom_filter = NULL,
@@ -118,6 +124,13 @@ split_vcf_by_chrom <- function(vcf, out_dir,
 #'   (e.g. `mode`, `nthreads`, `memory_gb`).
 #'
 #' @return A named list of `galick_run` objects (names = chromosome).
+#' @examplesIf file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' directory <- tempfile("chromosome_runs_")
+#' runs <- run_beagle_by_chrom(vcf, directory, mode = "phase",
+#'                             nthreads = 1L, memory_gb = 1L)
+#' vapply(runs, function(run) run$status, integer(1))
+#' unlink(directory, recursive = TRUE)
 #' @export
 run_beagle_by_chrom <- function(gt,
                                 out_dir,
@@ -229,6 +242,15 @@ run_beagle_by_chrom <- function(gt,
 #' @param overwrite Refuse to clobber `output_vcf` unless `TRUE`.
 #'
 #' @return The output path, invisibly.
+#' @examplesIf file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' directory <- tempfile("merged_runs_")
+#' runs <- run_beagle_by_chrom(vcf, directory, mode = "phase",
+#'                             nthreads = 1L, memory_gb = 1L)
+#' output <- file.path(directory, "merged.vcf")
+#' merge_beagle_outputs(runs, output)
+#' validate_vcf(output)$ok
+#' unlink(directory, recursive = TRUE)
 #' @export
 merge_beagle_outputs <- function(run_results, output_vcf,
                                  bcftools = NULL, overwrite = FALSE) {

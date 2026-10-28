@@ -53,3 +53,9 @@ Extended profiling retains finite numeric values for problem records to
 compute exact quantiles; it may require additional memory. The parser still
 reads the entire input even when \code{max_records_to_scan} is finite.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+result <- validate_vcf(vcf, target = "beagle", progress = FALSE)
+result$ok
+result$summary$diagnostics$impact
+}

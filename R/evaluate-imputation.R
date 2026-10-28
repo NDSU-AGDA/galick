@@ -33,6 +33,19 @@
 #'   `by_group`, `selection`, `runs`, `design` and `per_marker_paths`. Missing
 #'   predictions prevent selection. Execution/scoring failures are collected;
 #'   invalid experiment designs raise `galick_error_evaluation_invalid_input`.
+#' @examplesIf identical(Sys.getenv("GALICK_RUN_EXAMPLES"), "true")
+#' # Opt in to this multi-job example with GALICK_RUN_EXAMPLES=true.
+#' truth <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' samples <- data.frame(sample_id = paste0("f", 1:4),
+#'                       partition = c("tune", "tune", "test", "test"))
+#' candidates <- list(baseline = list(extra_args = "iterations=4"),
+#'                    longer = list(extra_args = "iterations=6"))
+#' directory <- tempfile("evaluation_")
+#' study <- evaluate_imputation(truth, samples, candidates, "baseline", directory,
+#'                              repeats = 1L, fraction = 0.2, seed = 42L,
+#'                              nthreads = 1L, memory_gb = 1L)
+#' study$selection
+#' unlink(directory, recursive = TRUE)
 #' @export
 evaluate_imputation <- function(truth_vcf, sample_data, candidates, baseline, output_dir,
                                 design = c("sporadic", "array"), observed_markers = NULL,

@@ -22,6 +22,13 @@
 #'
 #' @return A list with three elements: `mask` (a `galick_result`),
 #'   `run` (a `galick_run`), and `comparison` (a `galick_result`).
+#' @examplesIf file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))
+#' truth <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' directory <- tempfile("benchmark_")
+#' result <- benchmark_imputation(truth, directory, fraction = 0.2, seed = 42L,
+#'                                nthreads = 1L, memory_gb = 1L)
+#' result$comparison$summary
+#' unlink(directory, recursive = TRUE)
 #' @export
 benchmark_imputation <- function(vcf,
                                  output_dir,

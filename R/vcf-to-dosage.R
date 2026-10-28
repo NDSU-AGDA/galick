@@ -14,6 +14,10 @@
 #' @param samples Optional character vector to subset rows (samples).
 #' @param markers Optional character vector to subset columns (marker IDs).
 #' @return A numeric matrix `samples x markers`.
+#' @examples
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' dosage <- vcf_to_dosage(vcf)
+#' dosage[, 1:3]
 #' @export
 vcf_to_dosage <- function(vcf, samples = NULL, markers = NULL) {
   if (length(vcf) != 1L || !is.character(vcf) || is.na(vcf)) {

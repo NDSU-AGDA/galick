@@ -43,3 +43,8 @@ Programmer/input-shape problems (\code{NULL} data, wrong class, missing
 problems (unsupported / mixed encoding, duplicate sample IDs or marker
 names) are returned as \verb{$errors} so the result remains inspectable.
 }
+\examples{
+calls <- data.frame(sample_id = c("plant_1", "plant_2", "plant_3"),
+                    rs1 = c(0, 1, 2), rs2 = c(2, NA, 0))
+validate_genotype_table(calls, sample_col = "sample_id", encoding = "012")
+}

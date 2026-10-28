@@ -78,3 +78,14 @@ the founders. No mutation, migration, selection or read simulation is performed.
 No new runtime dependency is required. Plain VCF bundles are staged and published
 only after validation; nonempty destinations are refused.
 }
+\examples{
+founders <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+map <- data.frame(chrom = "1", pos = seq(100, 1200, 100), cm = seq(0, 55, 5))
+output <- tempfile("simulation_")
+simulation <- simulate_vcf(
+  founders, map, output, scenario = "f2", parents = c("f1", "f2"),
+  n_target = 10L, n_reference = 0L, seed = 42L
+)
+simulation$paths
+unlink(output, recursive = TRUE)
+}

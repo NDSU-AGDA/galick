@@ -25,3 +25,13 @@ Shells out to PLINK 1.9 or 2.0 with \verb{--vcf <vcf> --make-bed --out <prefix>}
 Returns a \code{galick_run} object capturing the command, status, runtime,
 and output paths.
 }
+\examples{
+\dontshow{if (nzchar(Sys.which("plink"))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+directory <- tempfile("plink_")
+dir.create(directory)
+result <- vcf_to_plink(vcf, file.path(directory, "calls"))
+result$status
+unlink(directory, recursive = TRUE)
+\dontshow{\}) # examplesIf}
+}

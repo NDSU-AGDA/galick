@@ -1,7 +1,7 @@
 # Roadmap
 
 The full milestone log lives in
-[`galick_roadmap.md`](https://github.com/DidierMurilloF/galick/blob/main/galick_roadmap.md)
+`galick_roadmap.md` in `NDSU-AGDA/galick` (repository access required)
 in the repository.
 
 ## v0.1.0 (this release)

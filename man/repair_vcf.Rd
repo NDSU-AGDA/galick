@@ -53,3 +53,11 @@ carries \verb{repair_vcf_remaining_*} errors and no VCF is written.
 Repair actions surface as \verb{$warnings} with per-step counts in
 \verb{$summary$step_summary}.
 }
+\examples{
+dirty <- system.file("extdata", "tiny_dirty.vcf", package = "galick")
+output <- tempfile(fileext = ".vcf")
+result <- repair_vcf(dirty, output)
+result$ok
+result$summary$step_summary
+unlink(output)
+}

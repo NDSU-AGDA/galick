@@ -1,8 +1,7 @@
 site_name: Galick
 site_description: Genotype preparation, simulation and imputation evaluation in R
-site_url: https://didiermurillof.github.io/galick/
-repo_url: https://github.com/DidierMurilloF/galick
-repo_name: DidierMurilloF/galick
+repo_url: https://github.com/NDSU-AGDA/galick
+repo_name: NDSU-AGDA/galick
 edit_uri: edit/main/docs/
 
 theme:
@@ -52,7 +51,7 @@ theme:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/DidierMurilloF/galick
+      link: https://github.com/NDSU-AGDA/galick
   generator: false
   status:
     new: recently added

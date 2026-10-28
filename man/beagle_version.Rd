@@ -17,3 +17,8 @@ Resolves the JAR the same way \code{\link[=run_beagle]{run_beagle()}} does (arg,
 \code{BEAGLE_PATH}, then \code{tools::R_user_dir("galick", "cache")}) and parses
 the version banner.
 }
+\examples{
+\dontshow{if (file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+beagle_version(beagle_jar = Sys.getenv("BEAGLE_PATH"))
+\dontshow{\}) # examplesIf}
+}

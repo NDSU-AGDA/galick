@@ -24,6 +24,10 @@
 #'   `"chr_prefixed"` normalize first; `"as_is"` uses raw labels.
 #'
 #' @return A `galick_result` S3 object.
+#' @examples
+#' map <- data.frame(marker_id = c("rs1", "rs2"), chrom = "1",
+#'                   pos = c(100L, 200L), ref = "A", alt = "G")
+#' validate_marker_map(map, marker_ids = c("rs1", "rs2"), require_alleles = TRUE)
 #' @export
 validate_marker_map <- function(map,
                                 genotype_table = NULL,

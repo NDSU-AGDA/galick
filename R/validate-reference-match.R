@@ -17,6 +17,11 @@
 #'   reference and disjoint sample IDs, as used by [run_beagle()].
 #'
 #' @return A `galick_result` S3 object.
+#' @examples
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' # This identity check intentionally reports overlapping sample IDs.
+#' result <- validate_reference_match(vcf, vcf, require_phased = TRUE)
+#' result$errors$code
 #' @export
 validate_reference_match <- function(target_vcf,
                                      reference_vcf,

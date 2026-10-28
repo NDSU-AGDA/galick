@@ -47,3 +47,13 @@ reports success, its input, reference, map, runtime and settings fingerprint
 matches, and the output checksum and VCF validation succeed, the previous
 result is returned. Older records without a fingerprint are rerun.
 }
+\examples{
+\dontshow{if (file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+directory <- tempfile("chromosome_runs_")
+runs <- run_beagle_by_chrom(vcf, directory, mode = "phase",
+                            nthreads = 1L, memory_gb = 1L)
+vapply(runs, function(run) run$status, integer(1))
+unlink(directory, recursive = TRUE)
+\dontshow{\}) # examplesIf}
+}

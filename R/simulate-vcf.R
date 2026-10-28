@@ -36,6 +36,16 @@
 #'   not a bound on total R memory or output size; GT strings and ledgers add overhead.
 #' @return A galick_simulation inheriting from galick_result, with paths, samples,
 #'   observation rates, diagnostics and versioned model/input/output provenance.
+#' @examples
+#' founders <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' map <- data.frame(chrom = "1", pos = seq(100, 1200, 100), cm = seq(0, 55, 5))
+#' output <- tempfile("simulation_")
+#' simulation <- simulate_vcf(
+#'   founders, map, output, scenario = "f2", parents = c("f1", "f2"),
+#'   n_target = 10L, n_reference = 0L, seed = 42L
+#' )
+#' simulation$paths
+#' unlink(output, recursive = TRUE)
 #' @export
 simulate_vcf <- function(founder_vcf, map, output_dir,
                          scenario = c("outbred", "f2", "selfed"),

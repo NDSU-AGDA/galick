@@ -24,3 +24,17 @@ Shells out to PLINK 1.9 or 2.0 with \verb{--bfile <prefix> --recode vcf --out <o
 the \emph{full} desired VCF path (must end in \code{.vcf}); the function strips
 the extension to derive PLINK's \code{--out} prefix.
 }
+\examples{
+\dontshow{if (nzchar(Sys.which("plink"))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+directory <- tempfile("plink_roundtrip_")
+dir.create(directory)
+prefix <- file.path(directory, "calls")
+converted <- vcf_to_plink(vcf, prefix)
+if (identical(converted$status, 0L)) {
+  restored <- plink_to_vcf(prefix, file.path(directory, "restored.vcf"))
+  restored$status
+}
+unlink(directory, recursive = TRUE)
+\dontshow{\}) # examplesIf}
+}

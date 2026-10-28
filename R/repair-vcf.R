@@ -32,6 +32,13 @@
 #'   `summary$output_path` is the written file. Otherwise it is
 #'   `NA_character_`.
 #'
+#' @examples
+#' dirty <- system.file("extdata", "tiny_dirty.vcf", package = "galick")
+#' output <- tempfile(fileext = ".vcf")
+#' result <- repair_vcf(dirty, output)
+#' result$ok
+#' result$summary$step_summary
+#' unlink(output)
 #' @export
 repair_vcf <- function(vcf,
                        output_vcf,

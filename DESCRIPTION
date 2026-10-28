@@ -42,14 +42,13 @@ Description: An R toolkit for plant- and animal-breeding genotype workflows:
     invoked from R; the package focuses on preprocessing and imputation,
     not downstream analyses.
 License: MIT + file LICENSE
-URL: https://didiermurillof.github.io/galick/, https://github.com/DidierMurilloF/galick
-BugReports: https://github.com/DidierMurilloF/galick/issues
 Depends: R (>= 4.1.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-SystemRequirements: Java (>= 8); Beagle (>= 5.x); optional bcftools, tabix,
-    bgzip (required for compressed VCF export), plink
+SystemRequirements: Java (>= 8) and Beagle (>= 5) for Beagle execution;
+    optional bcftools, tabix, bgzip (required for compressed VCF export),
+    PLINK (1.9-compatible command line)
 Imports:
     cli,
     data.table,

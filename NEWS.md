@@ -1,5 +1,13 @@
 # galick 0.1.0
 
+## Release preparation
+
+- Repository administration and installation instructions now use `NDSU-AGDA/galick`.
+- Unavailable public website and issue-tracker URLs are omitted from package
+  metadata while repository access is restricted.
+- Executable help examples use bundled fixtures and temporary output paths;
+  external-tool examples are conditional and never download software.
+
 ## VCF diagnostics
 
 - `validate_vcf()` reports unique record impact, overlapping rules and genotype
@@ -24,7 +32,7 @@
 - The README, website and executable tutorials cover all 28 exports, with
   explicit GT/DS distinctions, tool requirements and experiment limitations.
 - Repository links, installation sources and Pages configuration now use
-  `DidierMurilloF/galick`.
+  `NDSU-AGDA/galick`.
 
 - Run records use schema 2.0.0 for the required `versions$galick` key and retain
   JSON array/object types even for a single command or empty arguments.

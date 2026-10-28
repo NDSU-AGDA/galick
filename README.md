@@ -1,6 +1,5 @@
 # Galick <img src="man/figures/logo.svg" align="right" width="120" alt="Galick" />
 
-[![R CMD check](https://github.com/DidierMurilloF/galick/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/DidierMurilloF/galick/actions/workflows/R-CMD-check.yaml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
 **Genotype preparation, simulation and imputation evaluation in R.**
@@ -18,20 +17,20 @@ engine; Galick provides preparation, experiment design and inspectable results.
 ## Installation
 
 Galick requires R 4.1 or later and is not yet on CRAN. The GitHub repository is
-`DidierMurilloF/galick`; the installed R package is **`galick`**.
+`NDSU-AGDA/galick`; the installed R package is **`galick`**.
+Repository access is currently required to install from GitHub.
 
 ```r
 install.packages("pak")
-pak::pak("DidierMurilloF/galick")
+pak::pak("NDSU-AGDA/galick")
 ```
 
-This installs the default branch. Until the rename is merged, install the
-development branch with `pak::pak("DidierMurilloF/galick@feat/evaluate-imputation")`.
+This installs the default branch. The package rename is complete.
 
 Java 8+ and a Beagle 5 JAR are needed only for Beagle execution. With Java
 installed, `galick::install_beagle()` downloads the pinned Beagle 5.4 build.
 Other functions have their own tool requirements; see
-[Installation](https://didiermurillof.github.io/galick/getting-started/installation/).
+[Installation](docs/getting-started/installation.md).
 
 ## Quick Start
 
@@ -126,9 +125,9 @@ flowchart TD
 
 ## Documentation
 
-- [Quick tour](https://didiermurillof.github.io/galick/getting-started/quick-tour/)
-- [Reference](https://didiermurillof.github.io/galick/reference/)
-- [Worked examples](https://didiermurillof.github.io/galick/examples/)
+- [Quick tour](docs/getting-started/quick-tour.md)
+- [Reference](docs/reference/index.md)
+- [Worked examples](docs/examples/index.md)
 - [Migration to Galick](docs/getting-started/migration.md)
 
 Installed tutorials are available through `browseVignettes("galick")`, including
@@ -136,7 +135,7 @@ Installed tutorials are available through `browseVignettes("galick")`, including
 
 ## Scope and Status
 
-Version 0.1.0 is a pre-release toolkit. Validate representative data before
+Version 0.1.0 is being prepared for its first release. Validate representative data before
 production use. VCF operations are primarily in-memory; workload limits are not
 total-memory guarantees. Beagle workflows and imputation evaluation are diploid.
 The simulator additionally supports restricted random-bivalent autotetraploid
@@ -148,5 +147,6 @@ Use `citation("galick")` for the current authors and version. Cite Beagle and an
 other external methods used in your analysis separately.
 
 Galick is MIT licensed; see [LICENSE.md](LICENSE.md). External tools and R
-dependencies retain their own licenses. Report problems through
-[GitHub issues](https://github.com/DidierMurilloF/galick/issues).
+dependencies retain their own licenses. Repository members can report problems
+through the issue tracker at `NDSU-AGDA/galick`. Other users can contact the
+maintainer listed in `packageDescription("galick")`.

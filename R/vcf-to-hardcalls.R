@@ -12,6 +12,10 @@
 #'   the dosage from the GT field: 0 alleles -> `"0"` / `"A"` / `"AA"`,
 #'   1 -> `"1"` / `"H"` / `"AB"`, 2 -> `"2"` / `"B"` / `"BB"`.
 #' @return A character matrix `samples x markers`.
+#' @examples
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' calls <- vcf_to_hardcalls(vcf, encoding = "AHB")
+#' calls[, 1:3]
 #' @export
 vcf_to_hardcalls <- function(vcf,
                              samples = NULL,

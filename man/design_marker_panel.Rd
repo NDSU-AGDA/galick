@@ -103,3 +103,29 @@ design samples only. A bounded single-swap search measures actual Beagle
 recovery. Tuning selects one frozen challenger; untouched test samples confirm
 it against the baseline. No global optimality or assay feasibility is claimed.
 }
+\examples{
+\dontshow{if (identical(Sys.getenv("GALICK_RUN_EXAMPLES"), "true")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# Instructional data only; opt in with GALICK_RUN_EXAMPLES=true.
+founders <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+map <- data.frame(chrom = "1", pos = seq(100, 1200, 100), cm = seq(0, 55, 5))
+directory <- tempfile("panel_example_")
+dir.create(directory)
+population <- simulate_vcf(founders, map, file.path(directory, "population"),
+                           n_target = 40L, n_reference = 20L,
+                           population_size = 80L, generations = 1L, seed = 42L)
+samples <- as.data.frame(population$samples)
+samples <- samples[samples$role == "target", ]
+samples$partition <- rep(c("design", "tune", "test"), c(20, 10, 10))
+markers <- data.frame(chrom = "1", pos = map$pos, ref = "A", alt = "G")
+study <- design_marker_panel(
+  population$paths[["truth"]], population$paths[["reference"]], samples,
+  candidate_markers = markers[c(1, 3, 5, 7, 9, 11), ],
+  scoring_markers = markers[c(2, 4, 6, 8, 10, 12), ], n_markers = 3L,
+  output_dir = file.path(directory, "design"), field = "GT",
+  repeats = 1L, max_proposals = 0L, max_runs = 6L,
+  nthreads = 1L, memory_gb = 1L, seed = 42L
+)
+study$selection
+unlink(directory, recursive = TRUE)
+\dontshow{\}) # examplesIf}
+}

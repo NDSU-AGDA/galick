@@ -7,6 +7,17 @@
 #' @param run A `galick_run` returned by [run_beagle()].
 #' @param file Output path (typically ending in `.md`).
 #' @return The output path, invisibly.
+#' @examplesIf file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' directory <- tempfile("report_")
+#' dir.create(directory)
+#' run <- run_beagle(vcf, file.path(directory, "phased"), mode = "phase",
+#'                   nthreads = 1L, memory_gb = 1L,
+#'                   run_dir = file.path(directory, "logs"))
+#' report <- file.path(directory, "report.md")
+#' imputation_report(run, report)
+#' readLines(report, n = 5L)
+#' unlink(directory, recursive = TRUE)
 #' @export
 imputation_report <- function(run, file) {
   if (!inherits(run, "galick_run")) {

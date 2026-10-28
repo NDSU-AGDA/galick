@@ -35,6 +35,15 @@
 #' @param overwrite Refuse to clobber `<out>.vcf.gz` unless `TRUE`.
 #'
 #' @return A `galick_run` S3 object.
+#' @examplesIf file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' directory <- tempfile("phasing_")
+#' dir.create(directory)
+#' run <- run_beagle(vcf, file.path(directory, "phased"), mode = "phase",
+#'                   nthreads = 1L, memory_gb = 1L, seed = 42L,
+#'                   run_dir = file.path(directory, "logs"))
+#' run$status
+#' unlink(directory, recursive = TRUE)
 #' @export
 run_beagle <- function(gt,
                        out,

@@ -1,0 +1,17 @@
+##fileformat=VCFv4.2
+##source=galick_instructional_fixture
+##contig=<ID=1>
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	f1	f2	f3	f4
+1	100	rs1	A	G	.	PASS	.	GT	0|0	1|1	0|1	1|0
+1	200	rs2	A	G	.	PASS	.	GT	0|0	1|1	0|1	1|0
+1	300	rs3	A	G	.	PASS	.	GT	0|0	1|1	0|1	1|0
+1	400	rs4	A	G	.	PASS	.	GT	0|0	1|1	0|1	1|0
+1	500	rs5	A	G	.	PASS	.	GT	0|0	1|1	0|1	1|0
+1	600	rs6	A	G	.	PASS	.	GT	0|0	1|1	0|1	1|0
+1	700	rs7	A	G	.	PASS	.	GT	0|0	1|1	1|0	0|1
+1	800	rs8	A	G	.	PASS	.	GT	0|0	1|1	1|0	0|1
+1	900	rs9	A	G	.	PASS	.	GT	0|0	1|1	1|0	0|1
+1	1000	rs10	A	G	.	PASS	.	GT	0|0	1|1	1|0	0|1
+1	1100	rs11	A	G	.	PASS	.	GT	0|0	1|1	1|0	0|1
+1	1200	rs12	A	G	.	PASS	.	GT	0|0	1|1	1|0	0|1

@@ -20,6 +20,12 @@
 #'   biallelic markers. Partial GT calls become NA.
 #'
 #' @return A `galick_result` whose summary is the export report.
+#' @examples
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' output <- tempfile(fileext = ".tsv")
+#' result <- export_genotypes(vcf, output, format = "dosage", field = "GT")
+#' result$ok
+#' unlink(output)
 #' @export
 export_genotypes <- function(vcf,
                              output,

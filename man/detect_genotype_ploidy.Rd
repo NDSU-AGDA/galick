@@ -18,3 +18,7 @@ observed ploidy. Separators and allele values do not affect the count. A
 bare \code{.} is skipped because it may mean haploid missing or whole-call
 missing; if no call establishes ploidy, \code{NA_integer_} is returned.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+detect_genotype_ploidy(vcf)
+}

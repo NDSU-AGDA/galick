@@ -28,3 +28,8 @@ Marker column names use \code{ID} when present; markers with \code{ID = "."} get
 
 Accepts both \code{.vcf} and \code{.vcf.gz}.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+dosage <- vcf_to_dosage(vcf)
+dosage[, 1:3]
+}

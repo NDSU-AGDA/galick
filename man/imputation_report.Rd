@@ -19,3 +19,17 @@ Produces a one-page Markdown file capturing status, runtime, command,
 input/output paths, version block, and log/run-record locations.
 Pulls SHA-256 hashes from the run record JSON when present.
 }
+\examples{
+\dontshow{if (file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+directory <- tempfile("report_")
+dir.create(directory)
+run <- run_beagle(vcf, file.path(directory, "phased"), mode = "phase",
+                  nthreads = 1L, memory_gb = 1L,
+                  run_dir = file.path(directory, "logs"))
+report <- file.path(directory, "report.md")
+imputation_report(run, report)
+readLines(report, n = 5L)
+unlink(directory, recursive = TRUE)
+\dontshow{\}) # examplesIf}
+}

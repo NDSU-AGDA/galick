@@ -28,3 +28,10 @@ page. We call this a "pinned tested 5.4 jar" rather than "the canonical
 this. If your environment requires a different build, set \code{BEAGLE_PATH}
 or pass \verb{beagle_jar = } to \code{run_beagle()}.
 }
+\examples{
+# Explicit installation requires network access and Java; never run on checks.
+\dontrun{
+jar <- install_beagle()
+beagle_version(jar)
+}
+}

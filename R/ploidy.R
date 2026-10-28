@@ -5,6 +5,9 @@
 #'
 #' @param vcf Path to a VCF file.
 #' @return A character vector of observed labels, empty when none match.
+#' @examples
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' detect_subgenome_labels(vcf) # No subgenome suffix in chromosome "1".
 #' @export
 detect_subgenome_labels <- function(vcf) {
   x <- if (inherits(vcf, "galick_genotype_vcf")) {
@@ -40,6 +43,9 @@ detect_subgenome_labels <- function(vcf) {
 #'
 #' @param vcf Path to a VCF file.
 #' @return A single integer maximum observed genotype ploidy.
+#' @examples
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' detect_genotype_ploidy(vcf)
 #' @export
 detect_genotype_ploidy <- function(vcf) {
   x <- if (inherits(vcf, "galick_genotype_vcf")) {

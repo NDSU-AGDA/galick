@@ -7,13 +7,13 @@ some dependencies and external tools contain compiled components.
 
 ```r
 install.packages("pak")
-pak::pak("DidierMurilloF/galick")
+pak::pak("NDSU-AGDA/galick")
 library(galick)
 ```
 
-The installed namespace and repository are both named `galick`.
-Until the package rename reaches the default branch, install
-`DidierMurilloF/galick@feat/evaluate-imputation` instead. See
+The installed namespace and repository are both named `galick`. Installation
+from `NDSU-AGDA/galick` currently requires repository access. The default branch
+contains the completed rename. See
 [Migration](migration.md) for changed classes, caches and records.
 
 Dependencies are `cli`, `data.table`, `digest`, `jsonlite`, `processx`, `tibble`,

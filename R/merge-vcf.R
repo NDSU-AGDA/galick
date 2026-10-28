@@ -20,6 +20,13 @@
 #' @param overwrite Refuse to replace `output_vcf` unless `TRUE`.
 #'
 #' @return A `galick_result` whose summary is the merge report.
+#' @examples
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' output <- tempfile(fileext = ".vcf")
+#' # Explicit suffixes keep both copies of this instructional sample set.
+#' result <- merge_vcf(c(vcf, vcf), output, sample_collision = "suffix")
+#' result$ok
+#' unlink(output)
 #' @export
 merge_vcf <- function(vcfs,
                       output_vcf,

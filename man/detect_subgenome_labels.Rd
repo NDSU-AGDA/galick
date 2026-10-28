@@ -16,3 +16,7 @@ A character vector of observed labels, empty when none match.
 Extracts suffix labels from names such as \code{chr1A}, \code{chr1B}, and \code{chr1D}.
 Labels describe naming only and do not establish species or locus ploidy.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+detect_subgenome_labels(vcf) # No subgenome suffix in chromosome "1".
+}

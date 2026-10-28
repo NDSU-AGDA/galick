@@ -32,3 +32,8 @@ encoding. Rows are samples, columns are markers. \code{NA} for missing GT.
 \details{
 Accepts both \code{.vcf} and \code{.vcf.gz}.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+calls <- vcf_to_hardcalls(vcf, encoding = "AHB")
+calls[, 1:3]
+}

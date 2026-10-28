@@ -74,3 +74,15 @@ sample IDs and compatible shared variants. Binary bref3 is unsupported.
 \code{.vcf.gz} is rejected. Beagle writes \verb{<out>.vcf.gz}.
 }
 }
+\examples{
+\dontshow{if (file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+directory <- tempfile("phasing_")
+dir.create(directory)
+run <- run_beagle(vcf, file.path(directory, "phased"), mode = "phase",
+                  nthreads = 1L, memory_gb = 1L, seed = 42L,
+                  run_dir = file.path(directory, "logs"))
+run$status
+unlink(directory, recursive = TRUE)
+\dontshow{\}) # examplesIf}
+}

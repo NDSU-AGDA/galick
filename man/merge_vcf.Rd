@@ -40,3 +40,11 @@ retains GT/PS only; omitted fields are reported. Independent phase blocks
 receive distinct identifiers. Identical duplicate records retain their
 occurrence order; other repeated-coordinate mappings must be unambiguous.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+output <- tempfile(fileext = ".vcf")
+# Explicit suffixes keep both copies of this instructional sample set.
+result <- merge_vcf(c(vcf, vcf), output, sample_collision = "suffix")
+result$ok
+unlink(output)
+}

@@ -36,3 +36,9 @@ Useful as a pre-flight check before passing a reference panel to
 \details{
 Both inputs may be plain \code{.vcf} or \code{.vcf.gz}.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+# This identity check intentionally reports overlapping sample IDs.
+result <- validate_reference_match(vcf, vcf, require_phased = TRUE)
+result$errors$code
+}

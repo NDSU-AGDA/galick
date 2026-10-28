@@ -47,3 +47,13 @@ Requires Java + Beagle (resolved internally). The seed controls both
 masking and Beagle. Random-cell masking does not establish accuracy for
 population, family or array transfer. Keep truth samples out of references.
 }
+\examples{
+\dontshow{if (file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+truth <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+directory <- tempfile("benchmark_")
+result <- benchmark_imputation(truth, directory, fraction = 0.2, seed = 42L,
+                               nthreads = 1L, memory_gb = 1L)
+result$comparison$summary
+unlink(directory, recursive = TRUE)
+\dontshow{\}) # examplesIf}
+}

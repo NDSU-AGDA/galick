@@ -22,6 +22,10 @@
 #' @param missing_codes Tokens treated as missing before encoding detection.
 #'
 #' @return A `galick_result` S3 object.
+#' @examples
+#' calls <- data.frame(sample_id = c("plant_1", "plant_2", "plant_3"),
+#'                     rs1 = c(0, 1, 2), rs2 = c(2, NA, 0))
+#' validate_genotype_table(calls, sample_col = "sample_id", encoding = "012")
 #' @export
 validate_genotype_table <- function(data,
                                     sample_col = NULL,

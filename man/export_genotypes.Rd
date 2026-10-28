@@ -44,3 +44,10 @@ IUPAC SNP calls; PED requires biallelic
 markers and at most two allele slots. These formats report phase loss and
 conversion of partial calls to missing. Compressed VCF output requires bgzip.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+output <- tempfile(fileext = ".tsv")
+result <- export_genotypes(vcf, output, format = "dosage", field = "GT")
+result$ok
+unlink(output)
+}

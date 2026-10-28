@@ -66,3 +66,11 @@ BGZIP).
 \item \code{output_vcf} exists and \code{overwrite = FALSE} → error.
 }
 }
+\examples{
+csv <- system.file("extdata", "tiny.csv", package = "galick")
+map <- system.file("extdata", "tiny_map.tsv", package = "galick")
+output <- tempfile(fileext = ".vcf")
+result <- csv_to_vcf(csv, map, output, encoding = "AHB")
+result$ok
+unlink(output)
+}

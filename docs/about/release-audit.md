@@ -20,6 +20,9 @@ MkDocs website. The 28 public function names are unchanged.
 | Record serialization could emit a scalar command or an array for empty args. | Preserved JSON types and added regression tests for malformed record fields. |
 | Repair output promotion did not check the final file move. | Reused transactional file publication with rollback. |
 | PLINK could report stale or partial output after a failed overwrite. | Stage fresh outputs, validate the set, then publish with rollback. |
+| Help pages had no executable examples. | Added examples for all 28 exports, a small phased-founder fixture and documentation regression tests. |
+| Repository and installation references still used the previous owner or feature branch. | Updated to `NDSU-AGDA/galick` and the default branch. |
+| Package metadata advertised unavailable public documentation and issue URLs. | Omitted inaccessible URLs while the repository remains private; installed vignettes remain available. |
 
 ## Reproducible checks
 
@@ -46,4 +49,16 @@ calls from strand metadata or validate them against a reference FASTA.
 
 Real-data experiments with appropriate family/generation holdouts remain needed
 before making biological superiority or breeding-value claims. The repository
-has been renamed; Pages deployment and the release tag remain separate steps.
+is now `NDSU-AGDA/galick`; public hosting and the release tag remain separate steps.
+
+## CRAN preparation
+
+Checks are recorded in the repository's `cran-comments.md`, which is excluded
+from the source package. All 28 help examples have been exercised, including
+the optional multi-job examples with `GALICK_RUN_EXAMPLES=true` and configured
+Java/Beagle. The installer example is deliberately not executed; its separate
+network regression test runs only when explicitly enabled.
+
+Windows R-release and R-devel builds have been requested from win-builder.
+Review the reports emailed to the maintainer before CRAN submission. Uploading
+to win-builder does not submit the package to CRAN.

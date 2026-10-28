@@ -36,3 +36,10 @@ Parses the HapMap file, validates the embedded marker map (via
 (biallelic A/C/G/T alleles only; per-cell IUPAC consistency with each
 marker's REF/ALT), and only writes a VCF if zero errors were collected.
 }
+\examples{
+hmp <- system.file("extdata", "tiny.hmp.txt", package = "galick")
+output <- tempfile(fileext = ".vcf")
+result <- hapmap_to_vcf(hmp, output)
+result$ok
+unlink(output)
+}

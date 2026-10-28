@@ -45,3 +45,10 @@ the truth, run Beagle on the masked file, then compare with
 \details{
 Already-missing cells are not counted toward the fraction.
 }
+\examples{
+vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+output <- tempfile(fileext = ".vcf")
+result <- mask_genotypes(vcf, output, fraction = 0.2, seed = 42L)
+result$summary$n_masked
+unlink(output)
+}

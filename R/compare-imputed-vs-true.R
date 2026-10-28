@@ -15,6 +15,14 @@
 #'   completion, unconditional and conditional GT concordance, RMSE,
 #'   mean defined per-marker `dosage_r2`, `pooled_dosage_r2`, and `per_marker`.
 #'   GT concordance is never obtained by rounding DS.
+#' @examples
+#' truth <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' masked <- tempfile(fileext = ".vcf")
+#' mask_genotypes(truth, masked, fraction = 0.2, seed = 42L)
+#' # Identical predictions demonstrate scoring arithmetic, not imputation accuracy.
+#' comparison <- compare_imputed_vs_true(truth, truth, masked_vcf = masked)
+#' comparison$summary
+#' unlink(masked)
 #' @export
 compare_imputed_vs_true <- function(imputed_vcf, true_vcf, masked_vcf = NULL,
                                     field = c("GT", "DS")) {

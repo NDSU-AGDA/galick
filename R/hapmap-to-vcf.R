@@ -14,6 +14,12 @@
 #' @param overwrite Refuse to clobber `output_vcf` unless `TRUE`.
 #'
 #' @return A `galick_result` S3 object.
+#' @examples
+#' hmp <- system.file("extdata", "tiny.hmp.txt", package = "galick")
+#' output <- tempfile(fileext = ".vcf")
+#' result <- hapmap_to_vcf(hmp, output)
+#' result$ok
+#' unlink(output)
 #' @export
 hapmap_to_vcf <- function(hmp,
                           output_vcf,

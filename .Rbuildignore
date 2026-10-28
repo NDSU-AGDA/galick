@@ -13,3 +13,4 @@
 ^docs$
 ^site$
 ^mkdocs\.yml$
+^cran-comments\.md$

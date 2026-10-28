@@ -45,3 +45,8 @@ Programmer/shape problems (\code{NULL}, wrong class, missing required columns)
 raise immediately. Data-quality problems are returned as \verb{$errors};
 advisory issues as \verb{$warnings}.
 }
+\examples{
+map <- data.frame(marker_id = c("rs1", "rs2"), chrom = "1",
+                  pos = c(100L, 200L), ref = "A", alt = "G")
+validate_marker_map(map, marker_ids = c("rs1", "rs2"), require_alleles = TRUE)
+}

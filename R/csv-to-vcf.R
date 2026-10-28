@@ -33,6 +33,13 @@
 #' @return A `galick_result` S3 object. On success, `summary$output_path`
 #'   is the written file. On failure, `output_path` is `NA_character_` and
 #'   no VCF is written.
+#' @examples
+#' csv <- system.file("extdata", "tiny.csv", package = "galick")
+#' map <- system.file("extdata", "tiny_map.tsv", package = "galick")
+#' output <- tempfile(fileext = ".vcf")
+#' result <- csv_to_vcf(csv, map, output, encoding = "AHB")
+#' result$ok
+#' unlink(output)
 #' @export
 csv_to_vcf <- function(csv,
                        marker_map,

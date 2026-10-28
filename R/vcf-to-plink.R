@@ -12,6 +12,13 @@
 #'   `<plink_prefix>.{bed,bim,fam}` unless `TRUE`.
 #'
 #' @return A `galick_run` S3 object.
+#' @examplesIf nzchar(Sys.which("plink"))
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' directory <- tempfile("plink_")
+#' dir.create(directory)
+#' result <- vcf_to_plink(vcf, file.path(directory, "calls"))
+#' result$status
+#' unlink(directory, recursive = TRUE)
 #' @export
 vcf_to_plink <- function(vcf, plink_prefix, plink = NULL, overwrite = FALSE) {
   the_call <- match.call()

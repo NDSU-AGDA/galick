@@ -36,7 +36,7 @@ evaluation and panel-design record schemas remain 1.0.0.
 - CI results are reviewed on the supported operating systems before tagging.
 - Representative breeding datasets support any biological-performance claims.
 
-The GitHub repository is `DidierMurilloF/galick`. Pages deployment and release
+The GitHub repository is `NDSU-AGDA/galick`. Pages deployment and release
 tagging are explicit administrative actions, not consequences of a local check.
 
 ## Next Priorities

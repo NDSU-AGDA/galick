@@ -12,6 +12,17 @@
 #' @param overwrite Refuse to clobber existing `vcf` unless `TRUE`.
 #'
 #' @return A `galick_run` S3 object.
+#' @examplesIf nzchar(Sys.which("plink"))
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' directory <- tempfile("plink_roundtrip_")
+#' dir.create(directory)
+#' prefix <- file.path(directory, "calls")
+#' converted <- vcf_to_plink(vcf, prefix)
+#' if (identical(converted$status, 0L)) {
+#'   restored <- plink_to_vcf(prefix, file.path(directory, "restored.vcf"))
+#'   restored$status
+#' }
+#' unlink(directory, recursive = TRUE)
 #' @export
 plink_to_vcf <- function(plink_prefix, vcf, plink = NULL, overwrite = FALSE) {
   the_call <- match.call()

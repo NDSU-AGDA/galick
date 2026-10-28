@@ -34,3 +34,12 @@ Missing predictions and absent output records remain in the eligible-cell
 denominator. Truth is always GT; \code{field} selects prediction values.
 Correlations are computed per marker; undefined cases are reported explicitly.
 }
+\examples{
+truth <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+masked <- tempfile(fileext = ".vcf")
+mask_genotypes(truth, masked, fraction = 0.2, seed = 42L)
+# Identical predictions demonstrate scoring arithmetic, not imputation accuracy.
+comparison <- compare_imputed_vs_true(truth, truth, masked_vcf = masked)
+comparison$summary
+unlink(masked)
+}

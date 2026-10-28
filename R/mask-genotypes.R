@@ -20,6 +20,12 @@
 #'
 #' @return A `galick_result` with `summary$n_masked`,
 #'   `summary$n_eligible`, and `summary$output_path`.
+#' @examples
+#' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
+#' output <- tempfile(fileext = ".vcf")
+#' result <- mask_genotypes(vcf, output, fraction = 0.2, seed = 42L)
+#' result$summary$n_masked
+#' unlink(output)
 #' @export
 mask_genotypes <- function(vcf,
                            output_vcf,
