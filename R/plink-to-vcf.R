@@ -12,7 +12,7 @@
 #' @param overwrite Refuse to clobber existing `vcf` unless `TRUE`.
 #'
 #' @return A `galick_run` S3 object.
-#' @examplesIf nzchar(Sys.which("plink"))
+#' @examplesIf identical(Sys.getenv("GALICK_RUN_EXAMPLES"), "true")
 #' vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
 #' directory <- tempfile("plink_roundtrip_")
 #' dir.create(directory)

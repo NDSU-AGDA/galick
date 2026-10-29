@@ -211,8 +211,8 @@ parse_beagle_version_output <- function(text) {
 
 #' Locate the PLINK executable
 #'
-#' Resolution order: explicit `plink` arg -> `Sys.which("plink")`.
-#' Aborts with `galick_error_plink_not_found` if nothing usable.
+#' Resolution order: explicit path, then plink1.9 and plink on PATH.
+#' Verify the genetics version banner; PuTTY also ships a program called plink.
 #'
 #' @keywords internal
 #' @noRd
@@ -230,20 +230,37 @@ find_plink <- function(plink = NULL) {
         class = "galick_error_plink_not_found"
       )
     }
-    return(normalize_path_safe(plink, must_exist = TRUE))
+    resolved <- normalize_path_safe(plink, must_exist = TRUE)
+    if (!is_genetics_plink(resolved)) {
+      cli::cli_abort(
+        "{.file {plink}} is not a supported genetics PLINK executable (PuTTY plink is unrelated).",
+        class = "galick_error_plink_incompatible"
+      )
+    }
+    return(resolved)
   }
-  via <- Sys.which("plink")
-  if (nzchar(via)) {
-    return(unname(via))
+  candidates <- unique(unname(Sys.which(c("plink1.9", "plink"))))
+  for (candidate in candidates[nzchar(candidates)]) {
+    if (is_genetics_plink(candidate)) return(candidate)
   }
   cli::cli_abort(
     c(
-      "Could not find {.code plink}.",
-      i = "Install PLINK 1.9 or 2.0 and ensure it is on PATH.",
+      "Could not find genetics PLINK (a PLINK 1.9-compatible command line).",
+      i = "Install genetics PLINK and pass its path via {.arg plink} or place it on PATH.",
+      i = "PuTTY plink is an SSH client and cannot convert genotypes.",
       i = "macOS: {.code brew install plink}; Ubuntu: {.code apt install plink1.9}."
     ),
     class = "galick_error_plink_not_found"
   )
+}
+
+#' @keywords internal
+#' @noRd
+is_genetics_plink <- function(path) {
+  result <- tryCatch(run_cli(path, "--version", timeout = 5), error = function(e) NULL)
+  if (is.null(result) || !identical(result$status, 0L)) return(FALSE)
+  banner <- paste(c(result$stdout, result$stderr), collapse = "\n")
+  grepl("(^|\n)PLINK v(1[.]9|2[.]0)", banner)
 }
 
 #' @keywords internal

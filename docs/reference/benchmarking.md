@@ -1,4 +1,8 @@
-# Benchmarking
+---
+title: Evaluate Beagle imputation accuracy in R
+description: Measure held-out genotype recovery, compare Beagle configurations and inspect completion, concordance, RMSE and dosage correlations.
+---
+# Imputation accuracy and benchmarking
 
 Functions for measuring imputation accuracy on your own data:
 mask known genotypes, run imputation, compare to the truth.

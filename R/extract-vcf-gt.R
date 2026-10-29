@@ -113,8 +113,7 @@ marker_names_from_metadata <- function(metadata) {
 #'
 #' Counts non-zero, non-missing allele indices. NA on missing or malformed
 #' GT. Multiallelic GTs (e.g. "1/2") count both as ALT alleles, giving a
-#' dosage of 2; this is the conservative interpretation when
-#' biallelic/multiallelic disambiguation isn't possible from GT alone.
+#' count of 2. This collapses distinct ALT identities, not allele-specific dosage.
 #'
 #' @keywords internal
 #' @noRd

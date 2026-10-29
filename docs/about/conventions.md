@@ -1,3 +1,7 @@
+---
+title: Galick API conventions and reproducible outputs
+description: Understand Galick argument conventions, errors, reproducibility settings and output handling when building genotype workflows in R.
+---
 # Project conventions
 
 These conventions describe the package's current development practices.

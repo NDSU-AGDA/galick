@@ -1,3 +1,7 @@
+---
+title: Inspect Galick validation reports and experiment results
+description: Read errors, warnings, VCF diagnostics, Beagle run logs and simulation, evaluation or marker-panel results returned by Galick functions.
+---
 # Result classes
 
 Galick uses S3 objects and ordinary lists, matrices and paths. Not every function
@@ -24,8 +28,10 @@ result$errors
 as.data.frame(result)
 ```
 
-`print()` shows up to three issues of each severity. `summary()` also shows
-remaining issues. `as.data.frame()` flattens scalar context when possible and
+For ordinary results, `print()` shows up to three issues of each severity and
+`summary()` also shows remaining issues. VCF validation has a dedicated report
+for issue overlap, affected records, unsupported-allele dependencies and optional
+quality-field comparisons. `as.data.frame()` flattens scalar context when possible and
 otherwise retains JSON context; it is not a genotype matrix.
 
 ## `galick_run`

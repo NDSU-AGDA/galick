@@ -1,6 +1,6 @@
 # Galick <img src="man/figures/logo.svg" align="right" width="120" alt="Galick" />
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/NDSU-AGDA/galick/blob/main/LICENSE.md)
 
 **Genotype preparation, simulation and imputation evaluation in R.**
 
@@ -18,7 +18,7 @@ engine; Galick provides preparation, experiment design and inspectable results.
 
 Galick requires R 4.1 or later and is not yet on CRAN. The GitHub repository is
 `NDSU-AGDA/galick`; the installed R package is **`galick`**.
-Repository access is currently required to install from GitHub.
+The repository is public.
 
 ```r
 install.packages("pak")
@@ -30,7 +30,7 @@ This installs the default branch. The package rename is complete.
 Java 8+ and a Beagle 5 JAR are needed only for Beagle execution. With Java
 installed, `galick::install_beagle()` downloads the pinned Beagle 5.4 build.
 Other functions have their own tool requirements; see
-[Installation](docs/getting-started/installation.md).
+[Installation](https://github.com/NDSU-AGDA/galick/blob/main/docs/getting-started/installation.md).
 
 ## Quick Start
 
@@ -125,10 +125,10 @@ flowchart TD
 
 ## Documentation
 
-- [Quick tour](docs/getting-started/quick-tour.md)
-- [Reference](docs/reference/index.md)
-- [Worked examples](docs/examples/index.md)
-- [Migration to Galick](docs/getting-started/migration.md)
+- [Quick tour](https://github.com/NDSU-AGDA/galick/blob/main/docs/getting-started/quick-tour.md)
+- [Reference](https://github.com/NDSU-AGDA/galick/blob/main/docs/reference/index.md)
+- [Worked examples](https://github.com/NDSU-AGDA/galick/blob/main/docs/examples/index.md)
+- [Migration to Galick](https://github.com/NDSU-AGDA/galick/blob/main/docs/getting-started/migration.md)
 
 Installed tutorials are available through `browseVignettes("galick")`, including
 `simulate-vcf`, `evaluate-imputation` and `design-marker-panel`.
@@ -146,7 +146,6 @@ inheritance; this does not enable polyploid Beagle imputation.
 Use `citation("galick")` for the current authors and version. Cite Beagle and any
 other external methods used in your analysis separately.
 
-Galick is MIT licensed; see [LICENSE.md](LICENSE.md). External tools and R
-dependencies retain their own licenses. Repository members can report problems
-through the issue tracker at `NDSU-AGDA/galick`. Other users can contact the
-maintainer listed in `packageDescription("galick")`.
+Galick is MIT licensed; see [LICENSE.md](https://github.com/NDSU-AGDA/galick/blob/main/LICENSE.md).
+External tools and R dependencies retain their own licenses. Report problems
+through [GitHub issues](https://github.com/NDSU-AGDA/galick/issues).

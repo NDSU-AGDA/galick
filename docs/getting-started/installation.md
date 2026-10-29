@@ -1,4 +1,8 @@
-# Installation
+---
+title: Install Galick and configure Beagle in R
+description: Install the public Galick R package, configure Java and Beagle, and locate optional genetics PLINK, bgzip, tabix and bcftools tools.
+---
+# Install Galick
 
 Galick requires **R 4.1 or later**. The R package has no compiled code of its own;
 some dependencies and external tools contain compiled components.
@@ -11,9 +15,8 @@ pak::pak("NDSU-AGDA/galick")
 library(galick)
 ```
 
-The installed namespace and repository are both named `galick`. Installation
-from `NDSU-AGDA/galick` currently requires repository access. The default branch
-contains the completed rename. See
+The installed namespace and public repository are both named `galick`.
+The default branch contains the current source. See
 [Migration](migration.md) for changed classes, caches and records.
 
 Dependencies are `cli`, `data.table`, `digest`, `jsonlite`, `processx`, `tibble`,
@@ -76,6 +79,11 @@ beagle_version()
 Reading `.vcf.gz` does not require bgzip. The PLINK bridge uses legacy
 `--make-bed` / `--recode vcf` commands; use a compatible executable rather than
 assuming every PLINK 2 build accepts the same options.
+
+On Windows, PuTTY also installs an unrelated SSH client named `plink.exe`.
+Galick verifies the genetics PLINK version banner and rejects that namesake.
+It checks `plink1.9` before `plink` on `PATH`; alternatively pass the full path
+to the genetics executable through `plink =` in the bridge functions.
 
 Check which executables R can find:
 

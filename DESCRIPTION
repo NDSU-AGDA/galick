@@ -42,6 +42,8 @@ Description: An R toolkit for plant- and animal-breeding genotype workflows:
     invoked from R; the package focuses on preprocessing and imputation,
     not downstream analyses.
 License: MIT + file LICENSE
+URL: https://github.com/NDSU-AGDA/galick
+BugReports: https://github.com/NDSU-AGDA/galick/issues
 Depends: R (>= 4.1.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

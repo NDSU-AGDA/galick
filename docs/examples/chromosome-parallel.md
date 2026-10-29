@@ -1,3 +1,7 @@
+---
+title: Run chromosome-parallel Beagle imputation in R
+description: Configure per-chromosome Beagle jobs, explicit parallel resources, resumable run records and validated output merging in Galick.
+---
 # Chromosome-parallel imputation
 
 Split a multi-chromosome VCF, run Beagle on each chromosome in

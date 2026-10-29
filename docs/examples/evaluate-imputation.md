@@ -1,3 +1,7 @@
+---
+title: Compare Beagle configurations on held-out genotypes
+description: Set up paired genotype masking, separate tuning and test samples, and confirm or reject an imputation configuration without test-set reranking.
+---
 # Held-out imputation evaluation
 
 This worked example is also available as an installed vignette. Small constructed

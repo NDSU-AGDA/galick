@@ -1,3 +1,7 @@
+---
+title: Convert CSV and HapMap genotype data to VCF in R
+description: Convert breeder genotype tables and TASSEL HapMap files to validated VCF using explicit encodings, sample IDs and reference-allele maps.
+---
 # Convert to VCF
 
 Two functions that take breeder-style genotype tables and emit VCF v4.2.

@@ -1,3 +1,7 @@
+---
+title: Split, phase and merge VCF chromosomes with Galick
+description: Split VCFs by chromosome, run Beagle sequentially or with explicit parallel workers, and validate merged chromosome outputs in R.
+---
 # Chromosome workflows
 
 Three exports for splitting a VCF, running Beagle in parallel across

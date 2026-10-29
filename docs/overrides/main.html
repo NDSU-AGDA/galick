@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  {% if page and page.canonical_url %}
+    {% set title = page.meta.get("title", page.title) %}
+    {% set description = page.meta.get("description", config.site_description) %}
+    {% set logo = config.site_url ~ "assets/logo.png" %}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Galick">
+    <meta property="og:title" content="{{ title | e }}">
+    <meta property="og:description" content="{{ description | e }}">
+    <meta property="og:url" content="{{ page.canonical_url | e }}">
+    <meta property="og:image" content="{{ logo | e }}">
+    <meta property="og:image:alt" content="Galick R package hex logo">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ title | e }}">
+    <meta name="twitter:description" content="{{ description | e }}">
+    <meta name="twitter:image" content="{{ logo | e }}">
+    {% if page.url == "" %}
+      <script type="application/ld+json">{{ {
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "galick",
+        "url": config.site_url,
+        "codeRepository": config.repo_url,
+        "programmingLanguage": "R",
+        "runtimePlatform": "R >= 4.1",
+        "version": config.extra.version,
+        "license": "https://opensource.org/license/mit",
+        "description": config.site_description
+      } | tojson }}</script>
+    {% endif %}
+  {% endif %}
+{% endblock %}

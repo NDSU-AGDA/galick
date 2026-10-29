@@ -1,4 +1,8 @@
-# Marker panel design
+---
+title: Design low-density SNP panels for imputation in R
+description: Select constrained SNP panels using design-only linkage disequilibrium and Beagle recovery, then confirm performance on separate test samples.
+---
+# SNP marker-panel design
 
 `design_marker_panel()` uses an existing densely genotyped population to choose
 a smaller panel for **future** individuals. It does not save genotyping already
@@ -36,7 +40,7 @@ flowchart TD
 
 </div>
 
-Mandatory and excluded sites, chromosome quotas and minimum spacing constrain
+Mandatory and excluded sites, chromosome coverage and minimum spacing constrain
 the search. Scoring markers never enter the measured panel. All panels use the
 same original-call masks within a partition. Repeats vary engine seeds, not
 individuals or the panel.

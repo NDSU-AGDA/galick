@@ -8,7 +8,7 @@ test_that("PLINK imports PED exports with partially missing calls", {
   prefix <- file.path(dir, "exported")
   export_genotypes(input, prefix, "plink")
   out <- file.path(dir, "checked")
-  result <- run_cli(Sys.which("plink"), c(
+  result <- run_cli(find_plink(), c(
     "--file", prefix, "--make-bed", "--out", out,
     "--threads", "1", "--memory", "128"
   ))

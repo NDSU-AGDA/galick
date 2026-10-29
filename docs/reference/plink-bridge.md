@@ -1,3 +1,7 @@
+---
+title: Convert between VCF and genetics PLINK files in R
+description: Use Galick to convert VCF and PLINK BED, BIM and FAM files with executable checks, staged outputs and explicit conversion status.
+---
 # PLINK bridge
 
 Two thin wrappers around PLINK 1.9 / 2.0. Both shell out via

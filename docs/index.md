@@ -1,6 +1,10 @@
+---
+title: Galick | VCF tools and genotype imputation in R
+description: Validate VCFs, run Beagle, simulate linked breeding genotypes, evaluate imputation accuracy and design SNP panels with the Galick R package.
+---
 # Galick
 
-**Genotype preparation, simulation and imputation evaluation in R.**
+**VCF tools, breeding-genotype simulation and Beagle imputation in R.**
 
 Prepare breeding genotype data for Beagle, inspect conversion losses and validate
 imputation experiments. Galick adds linked-genotype simulation, held-out comparison
@@ -47,6 +51,28 @@ counts, not expected DS dosage.
 | Compare Beagle configurations | [Held-out evaluation](examples/evaluate-imputation.md) |
 | Choose a lower-density SNP panel | [Panel design](examples/design-marker-panel.md) |
 
+## Genotype imputation for plant and animal breeding
+
+Galick connects the preparation and evaluation steps around Beagle. Convert
+CSV or HapMap tables to VCF, investigate unsupported alleles and genotype
+quality fields, and run reproducible diploid imputation or phasing jobs.
+Keep GT allele counts distinct from expected DS dosage when exporting results.
+
+Three experimental workflows extend that foundation:
+
+- [Simulate linked genotypes](reference/simulation.md) from representative phased
+  founders and a genetic map, with diploid crosses or restricted autotetraploid
+  inheritance. Initial LD and population structure come from the founders.
+- [Evaluate imputation accuracy](examples/evaluate-imputation.md) with paired
+  masking or array thinning, separate tuning and test samples, and explicit
+  completion, RMSE and concordance metrics.
+- [Design a low-density SNP panel](reference/panel-design.md) for genotyping
+  future individuals, using design-only local LD and independently tested
+  Beagle recovery rather than trait-association scores.
+
+These tools support experiment design; they do not establish biological
+superiority, perform GWAS or predict breeding values.
+
 ## From data to a checked experiment
 
 <div class="diagram" markdown>
@@ -90,5 +116,5 @@ enabling polyploid imputation. Most VCF operations are in-memory. Trusted truth,
 representative founders and biologically appropriate holdouts remain essential.
 
 Version 0.1.0 is pre-release. Galick is MIT licensed; external tools retain their
-own licenses. Source and issues are hosted at
-`NDSU-AGDA/galick` (repository access currently required).
+own licenses. [Source code](https://github.com/NDSU-AGDA/galick) and
+[issue tracking](https://github.com/NDSU-AGDA/galick/issues) are public.

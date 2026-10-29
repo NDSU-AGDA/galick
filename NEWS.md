@@ -1,5 +1,15 @@
 # galick 0.1.0
 
+## Public documentation and Windows portability
+
+- Public repository and issue-tracker links now point to `NDSU-AGDA/galick`.
+- The MkDocs workflow checks search metadata and deploys its existing build
+  artifact to GitHub Pages; pull requests remain preview-only.
+- Documentation now has source-aligned VCF diagnostic details, distinct page
+  descriptions, canonical URLs, a sitemap and software metadata.
+- PLINK discovery verifies the genetics executable's version banner and rejects
+  PuTTY's unrelated `plink` SSH client, including on Windows check hosts.
+
 ## Release preparation
 
 - Repository administration and installation instructions now use `NDSU-AGDA/galick`.

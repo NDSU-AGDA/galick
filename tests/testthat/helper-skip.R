@@ -12,9 +12,11 @@ skip_if_no_beagle <- function() {
 }
 
 skip_if_no_plink <- function() {
-  if (Sys.which("plink") == "") {
-    testthat::skip("plink not found on PATH")
+  resolved <- tryCatch(find_plink(), galick_error_plink_not_found = function(e) NULL)
+  if (is.null(resolved)) {
+    testthat::skip("genetics PLINK not found on PATH (PuTTY plink is not supported)")
   }
+  invisible(resolved)
 }
 
 skip_if_no_bcftools <- function() {

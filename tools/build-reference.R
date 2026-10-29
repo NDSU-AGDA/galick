@@ -3,6 +3,11 @@ pkgload::load_all(".", quiet = TRUE)
 exports <- sort(getNamespaceExports("galick"))
 exports <- exports[!grepl(".", exports, fixed = TRUE)]
 lines <- c(
+  "---",
+  "title: Galick API signatures for all exported R functions",
+  paste0("description: Inspect source-generated signatures and default arguments for every public Galick ",
+         "validation, conversion, execution and experiment function."),
+  "---",
   "# API signatures", "",
   "Generated from the package source by `tools/build-reference.R`.",
   "Use `?function_name` in R for complete parameter documentation.",

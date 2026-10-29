@@ -18,13 +18,15 @@ A numeric matrix \verb{samples x markers}.
 }
 \description{
 Returns a numeric matrix of ALT-allele counts. Rows are samples, columns
-are markers. Values are \code{0}, \code{1}, \code{2}, or \code{NA} (missing GT). Multiallelic
-GTs (e.g. \code{1/2}) are counted as 2 ALT alleles — the conservative
-interpretation when REF/ALT disambiguation isn't possible from GT alone.
+are markers. Diploid counts are \code{0}, \code{1}, \code{2}, or \code{NA} (missing GT);
+complete polyploid calls can have larger counts. Multiallelic GTs such as
+\code{1/2} count as two non-reference copies, collapsing distinct ALT identities.
+This is not allele-specific dosage for a particular ALT allele.
 }
 \details{
 Marker column names use \code{ID} when present; markers with \code{ID = "."} get
-\code{chrom_pos_ref_alt} fallbacks so the matrix has unique column names.
+\code{chrom_pos_ref_alt} fallbacks. Duplicate IDs or variant identities can still
+produce repeated column names.
 
 Accepts both \code{.vcf} and \code{.vcf.gz}.
 }

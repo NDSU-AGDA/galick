@@ -1,3 +1,7 @@
+---
+title: Benchmark masked-genotype imputation with Beagle and R
+description: Mask verified genotype calls, run Beagle and measure concordance, dosage RMSE, correlation and prediction completion with Galick.
+---
 # Benchmark imputation accuracy
 
 This instructional example masks known GT calls, runs Beagle and compares the

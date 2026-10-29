@@ -1,3 +1,7 @@
+---
+title: Worked Galick examples for genotype data in R
+description: Follow source-aligned tutorials for VCF conversion, diagnosis, repair, Beagle imputation, linked simulation, accuracy evaluation and marker panels.
+---
 # Examples
 
 Examples use bundled fixtures or explicitly constructed instructional data.

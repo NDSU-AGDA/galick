@@ -1,4 +1,8 @@
-# Validate
+---
+title: Validate VCF files and genotype tables in R
+description: Inspect VCF structure, genotype encodings, unsupported alleles, chromosome positions and reference compatibility before Beagle imputation.
+---
+# Validate VCFs and genotype tables
 
 Four validators. Each returns a `galick_result` with `$errors`,
 `$warnings`, and a function-specific `$summary`.
@@ -79,7 +83,9 @@ catches `chr1` vs `1` collisions.
 validate_vcf(
   vcf,
   target              = c("general", "beagle", "plink"),
-  max_records_to_scan = Inf
+  max_records_to_scan = Inf,
+  progress            = interactive(),
+  diagnostics         = c("standard", "extended")
 )
 ```
 
@@ -95,11 +101,30 @@ Accepts plain `.vcf` or `.vcf.gz` (read transparently via `gzfile()`).
 
 **Performance**
 
-Full validation walks every record. For very large files, set
-`max_records_to_scan` to bound the scan. Sortedness and duplicate
-`(chrom, pos)` checks are skipped in partial-scan mode (they would
-false-positive at chunk boundaries) and `summary$scanned_partial`
-is `TRUE`.
+Full validation walks every record. `max_records_to_scan` limits the records
+examined, not file reading or peak memory: the parser still reads the entire
+file. Sortedness and duplicate-coordinate checks are skipped in partial mode,
+and `summary$scanned_partial` is `TRUE`. A prefix scan is not full-file approval.
+
+### Read-only VCF diagnostics
+
+Standard diagnostics report distinct affected records, overlapping issue codes,
+allele usage and genotype cells that depend on unsupported alleles. Twenty
+issues need not mean twenty different markers. Inspect the structured tables
+under `$summary$diagnostics`, or use `summary(result)` for the detailed report.
+
+`diagnostics = "extended"` additionally profiles declared scalar numeric FORMAT
+fields on problem records. It compares unsupported-allele calls with supported
+calls at the same marker and reports records without a comparable baseline.
+It does not infer that an unsupported `-` allele means a deletion or a missing
+call. It never edits the file or interprets an arbitrary score as a probability.
+Exact quality-field quantiles require additional memory.
+
+Interactive progress is enabled by default. Set `progress = FALSE` in scripts
+or `progress = TRUE` to request it explicitly. See the
+[diagnostic and repair example](../examples/validate-and-repair.md) before
+choosing any data-removal policy. General validation is not a complete VCF
+conformance checker for every structural-variant representation.
 
 ## `validate_reference_match()`
 

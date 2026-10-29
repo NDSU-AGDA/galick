@@ -1,3 +1,7 @@
+---
+title: Run Beagle genotype imputation and phasing from R
+description: Configure Beagle and Java, validate target and reference VCFs, control threads and JVM memory, and capture reproducible imputation run records.
+---
 # Run Beagle
 
 Three exports: the runner plus two convenience helpers.

@@ -1,3 +1,7 @@
+---
+title: Convert TASSEL HapMap calls to VCF with Galick
+description: Follow a HapMap-to-VCF example using declared marker alleles, IUPAC genotype decoding and validation before publishing the converted file.
+---
 # HapMap to VCF
 
 TASSEL HapMap (`.hmp.txt`) is the most common format coming out of

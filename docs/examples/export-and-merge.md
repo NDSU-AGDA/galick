@@ -1,3 +1,7 @@
+---
+title: Export genotype tables and merge VCF callsets in R
+description: Export VCF calls to exchange formats and merge samples or markers with explicit allele reconciliation, phase boundaries and loss reporting.
+---
 # Export and merge VCFs
 
 Export one VCF to several exchange formats, then combine callsets by

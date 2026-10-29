@@ -1,4 +1,8 @@
-# Simulation
+---
+title: Simulate linked breeding genotypes and VCF files in R
+description: Generate founder-conditioned diploid crosses, selfed lines and restricted autotetraploid genotypes using Haldane meiosis and genetic maps.
+---
+# Linked genotype simulation
 
 `simulate_vcf()` models descendants conditional on a phased founder VCF and an
 exact cM map. It does not invent founder LD, species histories or novel alleles.

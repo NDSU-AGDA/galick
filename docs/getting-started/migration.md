@@ -1,3 +1,7 @@
+---
+title: Migrate from beagleR to Galick
+description: Update package calls, result classes, cache paths and run records after the pre-release rename from beagleR to Galick.
+---
 # Migration to Galick
 
 The R package and GitHub repository are now `galick`. Use
@@ -33,6 +37,6 @@ package versions and fingerprints are part of the computation identity.
 
 ## Repository administration
 
-The GitHub repository is now `NDSU-AGDA/galick`. Repository access is currently
-required. CI builds a downloadable website preview; hosting is configured
-separately. No public documentation deployment is advertised until it is available.
+The public GitHub repository is now `NDSU-AGDA/galick`. The MkDocs workflow
+builds pull-request previews and deploys checked documentation from `main`
+to GitHub Pages. See [Website publishing](../about/publishing.md) for setup.

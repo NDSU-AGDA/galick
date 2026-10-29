@@ -6,7 +6,7 @@ on:
     paths:
       - 'R/**'
       - 'tests/**'
-      - 'tools/**'
+      - 'tools/**/*.R'
       - 'DESCRIPTION'
       - 'NAMESPACE'
       - '.lintr'
@@ -16,7 +16,7 @@ on:
     paths:
       - 'R/**'
       - 'tests/**'
-      - 'tools/**'
+      - 'tools/**/*.R'
       - 'DESCRIPTION'
       - 'NAMESPACE'
       - '.lintr'

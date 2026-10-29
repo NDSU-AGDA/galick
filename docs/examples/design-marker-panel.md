@@ -1,3 +1,7 @@
+---
+title: Design and test an imputation SNP panel with Galick
+description: Build a constrained low-density marker panel, compare Beagle recovery on tuning samples and independently confirm the frozen panel on test samples.
+---
 # Marker panel design
 
 This worked example is also available as an installed vignette. Small constructed

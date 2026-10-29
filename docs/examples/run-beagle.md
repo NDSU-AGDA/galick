@@ -1,3 +1,7 @@
+---
+title: A reproducible Beagle phasing example in R
+description: Prepare a valid target VCF, run a small Beagle phasing job and inspect the returned status, output files, logs and reproducibility records.
+---
 # Run Beagle
 
 This example requires Java 8+ and a configured Beagle 5 JAR. It demonstrates

@@ -1,7 +1,11 @@
+---
+title: Galick roadmap and package scope
+description: Review the scope and development priorities of the Galick R package for breeding-genotype preparation, simulation and imputation experiments.
+---
 # Roadmap
 
 The full milestone log lives in
-`galick_roadmap.md` in `NDSU-AGDA/galick` (repository access required)
+[`galick_roadmap.md`](https://github.com/NDSU-AGDA/galick/blob/main/galick_roadmap.md)
 in the repository.
 
 ## v0.1.0 (this release)

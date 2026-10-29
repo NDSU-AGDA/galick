@@ -1,3 +1,7 @@
+---
+title: Galick R function reference for genotype workflows
+description: Browse all 28 Galick functions for VCF validation, format conversion, Beagle execution, simulation, imputation benchmarking and SNP-panel design.
+---
 # Reference
 
 Function reference grouped by area. Every export listed here is

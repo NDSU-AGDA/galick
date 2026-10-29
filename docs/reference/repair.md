@@ -1,7 +1,13 @@
-# Repair
+---
+title: Repair VCF files for Beagle in R
+description: Sort VCF records, fill missing marker IDs and apply explicit duplicate or invalid-record filters, with post-repair validation and loss reporting.
+---
+# Repair VCF files
 
-One function. Five steps. Rewrites a minimal VCF that's guaranteed to
-pass `validate_vcf(target = "beagle")` — or refuses to write.
+`repair_vcf()` applies five selectable technical steps and publishes a minimal
+VCF only if Galick's Beagle-target validation passes. This is not a guarantee
+of biological correctness: filtering can remove genuine variation, and the
+meaning of unsupported alleles must be established before recoding them.
 
 ## `repair_vcf()`
 

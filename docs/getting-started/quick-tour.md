@@ -1,3 +1,7 @@
+---
+title: Get started with Galick genotype workflows in R
+description: Convert bundled CSV genotypes to VCF, validate inputs, run Beagle and extract allele counts in a concise Galick quick-start workflow.
+---
 # Quick tour
 
 Run this example after installing Galick. The bundled five-sample, 20-marker data

@@ -1,3 +1,7 @@
+---
+title: Diagnose unsupported VCF alleles before repairing records
+description: Investigate VCF issue overlap, unsupported-allele genotype counts and numeric FORMAT evidence before applying explicit repair steps in Galick.
+---
 # Validate and repair
 
 The `validate_vcf` → `repair_vcf` → `validate_vcf` workflow on a

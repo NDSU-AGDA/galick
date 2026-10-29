@@ -1,3 +1,7 @@
+---
+title: CSV-to-VCF conversion example for breeding genotypes
+description: Turn a wide sample-by-marker CSV table into VCF with Galick, checking genotype encodings, marker-map coverage and allele orientation.
+---
 # CSV to VCF
 
 Convert a wide breeder genotype table to VCF v4.2 with explicit

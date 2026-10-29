@@ -1,3 +1,7 @@
+---
+title: Galick release checks and documented limitations
+description: Inspect source-aligned documentation checks, CRAN preparation, external-tool boundaries and remaining biological validation limits in Galick.
+---
 # Release audit
 
 ## Scope
@@ -22,7 +26,8 @@ MkDocs website. The 28 public function names are unchanged.
 | PLINK could report stale or partial output after a failed overwrite. | Stage fresh outputs, validate the set, then publish with rollback. |
 | Help pages had no executable examples. | Added examples for all 28 exports, a small phased-founder fixture and documentation regression tests. |
 | Repository and installation references still used the previous owner or feature branch. | Updated to `NDSU-AGDA/galick` and the default branch. |
-| Package metadata advertised unavailable public documentation and issue URLs. | Omitted inaccessible URLs while the repository remains private; installed vignettes remain available. |
+| Package metadata advertised unavailable public documentation and issue URLs. | Public repository and issue URLs are now restored after publication; installed vignettes remain available. |
+| Windows checks selected PuTTY's unrelated `plink` SSH client. | Probe the genetics PLINK version banner, try `plink1.9` before `plink`, and reject unsupported executables. |
 
 ## Reproducible checks
 
@@ -49,7 +54,8 @@ calls from strand metadata or validate them against a reference FASTA.
 
 Real-data experiments with appropriate family/generation holdouts remain needed
 before making biological superiority or breeding-value claims. The repository
-is now `NDSU-AGDA/galick`; public hosting and the release tag remain separate steps.
+is now public at `NDSU-AGDA/galick`; website deployment is handled by the MkDocs
+workflow, while the package release tag remains a separate step.
 
 ## CRAN preparation
 

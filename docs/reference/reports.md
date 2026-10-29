@@ -1,3 +1,7 @@
+---
+title: Generate Beagle imputation run reports with Galick
+description: Write concise Markdown reports of Beagle status, commands, versions, runtime, output files and hashed run-record provenance.
+---
 # Reports
 
 `imputation_report(run, file)` writes a plain Markdown summary and invisibly

@@ -1,3 +1,7 @@
+---
+title: Galick API signatures for all exported R functions
+description: Inspect source-generated signatures and default arguments for every public Galick validation, conversion, execution and experiment function.
+---
 # API signatures
 
 Generated from the package source by `tools/build-reference.R`.

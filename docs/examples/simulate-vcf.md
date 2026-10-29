@@ -1,3 +1,7 @@
+---
+title: Simulate breeding populations from phased founder VCFs
+description: Use a genetic map and phased founders to simulate linked descendants, observed SNP panels, missing calls and calling errors with Galick.
+---
 # Linked genotype simulation
 
 This worked example is also available as an installed vignette. Small constructed

@@ -1,3 +1,7 @@
+---
+title: Extract VCF genotype matrices and ALT allele counts in R
+description: Extract VCF genotypes as R matrices of non-reference allele counts or encoded hardcalls, distinguishing GT counts from expected DS dosage.
+---
 # Convert from VCF
 
 Pull genotype data out of a VCF as an R matrix for downstream
@@ -30,9 +34,11 @@ sites:
 | `1/1` | `2` |
 | `./.` | `NA` |
 
-For multiallelic GTs (e.g. `1/2`), the function counts non-zero
-alleles, giving dosage `2` — the conservative interpretation when
-ALT-allele identity isn't disambiguated by GT alone.
+For multiallelic GTs (e.g. `1/2`), the function counts all non-reference
+allele copies, giving `2`. This collapses distinct ALT identities; it is not
+dosage for one particular ALT allele and must not be interpreted as a biallelic
+genotype. Complete polyploid calls can have counts above two. Use a
+ploidy-appropriate downstream analysis; AHB/AABB encode only counts zero to two.
 
 **Example**
 
@@ -52,7 +58,8 @@ d <- vcf_to_dosage(vcf,
 ```
 
 Marker columns use the VCF `ID` field. If `ID` is `.`, the function
-falls back to `chrom_pos_ref_alt` so the matrix has unique column names.
+falls back to `chrom_pos_ref_alt`. Duplicate IDs or variant identities can still
+produce repeated column names; validate the input before matching by name.
 
 ## `vcf_to_hardcalls()`
 

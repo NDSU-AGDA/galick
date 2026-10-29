@@ -1,12 +1,14 @@
 #' Extract a dosage matrix from a VCF
 #'
 #' Returns a numeric matrix of ALT-allele counts. Rows are samples, columns
-#' are markers. Values are `0`, `1`, `2`, or `NA` (missing GT). Multiallelic
-#' GTs (e.g. `1/2`) are counted as 2 ALT alleles — the conservative
-#' interpretation when REF/ALT disambiguation isn't possible from GT alone.
+#' are markers. Diploid counts are `0`, `1`, `2`, or `NA` (missing GT);
+#' complete polyploid calls can have larger counts. Multiallelic GTs such as
+#' `1/2` count as two non-reference copies, collapsing distinct ALT identities.
+#' This is not allele-specific dosage for a particular ALT allele.
 #'
 #' Marker column names use `ID` when present; markers with `ID = "."` get
-#' `chrom_pos_ref_alt` fallbacks so the matrix has unique column names.
+#' `chrom_pos_ref_alt` fallbacks. Duplicate IDs or variant identities can still
+#' produce repeated column names.
 #'
 #' Accepts both `.vcf` and `.vcf.gz`.
 #'

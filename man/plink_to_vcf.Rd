@@ -25,7 +25,7 @@ the \emph{full} desired VCF path (must end in \code{.vcf}); the function strips
 the extension to derive PLINK's \code{--out} prefix.
 }
 \examples{
-\dontshow{if (nzchar(Sys.which("plink"))) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (identical(Sys.getenv("GALICK_RUN_EXAMPLES"), "true")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 vcf <- system.file("extdata", "tiny_founders.vcf", package = "galick")
 directory <- tempfile("plink_roundtrip_")
 dir.create(directory)
