@@ -4,6 +4,10 @@
 
 **Genotype preparation, simulation and imputation evaluation in R.**
 
+[Documentation](https://ndsu-agda.github.io/galick/) ·
+[Installation](https://ndsu-agda.github.io/galick/getting-started/installation/) ·
+[Function reference](https://ndsu-agda.github.io/galick/reference/)
+
 Galick supports plant- and animal-breeding genotype workflows: convert CSV and
 HapMap to VCF, validate and repair records, run Beagle, and extract genotypes.
 It also simulates linked descendants, compares Beagle configurations using
@@ -30,7 +34,7 @@ This installs the default branch. The package rename is complete.
 Java 8+ and a Beagle 5 JAR are needed only for Beagle execution. With Java
 installed, `galick::install_beagle()` downloads the pinned Beagle 5.4 build.
 Other functions have their own tool requirements; see
-[Installation](https://github.com/NDSU-AGDA/galick/blob/main/docs/getting-started/installation.md).
+[Installation](https://ndsu-agda.github.io/galick/getting-started/installation/).
 
 ## Quick Start
 
@@ -125,10 +129,10 @@ flowchart TD
 
 ## Documentation
 
-- [Quick tour](https://github.com/NDSU-AGDA/galick/blob/main/docs/getting-started/quick-tour.md)
-- [Reference](https://github.com/NDSU-AGDA/galick/blob/main/docs/reference/index.md)
-- [Worked examples](https://github.com/NDSU-AGDA/galick/blob/main/docs/examples/index.md)
-- [Migration to Galick](https://github.com/NDSU-AGDA/galick/blob/main/docs/getting-started/migration.md)
+- [Quick tour](https://ndsu-agda.github.io/galick/getting-started/quick-tour/)
+- [Reference](https://ndsu-agda.github.io/galick/reference/)
+- [Worked examples](https://ndsu-agda.github.io/galick/examples/)
+- [Migration to Galick](https://ndsu-agda.github.io/galick/getting-started/migration/)
 
 Installed tutorials are available through `browseVignettes("galick")`, including
 `simulate-vcf`, `evaluate-imputation` and `design-marker-panel`.
