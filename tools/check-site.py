@@ -55,8 +55,8 @@ def check(directory):
         relative = path.relative_to(directory).as_posix()
         if relative == "404.html":
             continue
-        if "overrides/" in relative:
-            raise AssertionError("Theme source must not be published as content")
+        if relative.startswith(("overrides/", "about/")):
+            raise AssertionError("Theme source and internal maintainer pages must not be published")
         head = Head()
         head.feed(path.read_text(encoding="utf-8"))
         url = urljoin(BASE, relative.removesuffix("index.html"))

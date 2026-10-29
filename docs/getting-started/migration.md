@@ -39,4 +39,4 @@ package versions and fingerprints are part of the computation identity.
 
 The public GitHub repository is now `NDSU-AGDA/galick`. The MkDocs workflow
 builds pull-request previews and deploys checked documentation from `main`
-to GitHub Pages. See [Website publishing](../about/publishing.md) for setup.
+to GitHub Pages.

@@ -43,10 +43,10 @@ vignette rebuilding passed.
   The installer help example is marked dontrun; checks do not download software.
 - lintr: no lints.
 - urlchecker: all remaining package URLs valid.
-- Website: mkdocs build --strict passed; 153 R fences across 35 documentation
+- Website: mkdocs build --strict passed; 153 R fences across 36 documentation
   files parsed and checked against public function arguments. A separate static
   check validates canonical URLs, unique metadata, sitemap and search coverage
-  for all 34 pages and 28 exported functions.
+  for all 30 pages and 28 exported functions.
 
 ## External software and access
 

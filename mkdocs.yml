@@ -6,6 +6,7 @@ repo_name: NDSU-AGDA/galick
 edit_uri: edit/main/docs/
 exclude_docs: |
   /overrides/
+  /about/
 
 theme:
   name: material
@@ -138,9 +139,4 @@ nav:
     - Linked simulation: examples/simulate-vcf.md
     - Held-out evaluation: examples/evaluate-imputation.md
     - Marker panel design: examples/design-marker-panel.md
-  - About:
-    - Roadmap: about/roadmap.md
-    - Conventions: about/conventions.md
-    - Changelog: about/changelog.md
-    - Release audit: about/release-audit.md
-    - Website publishing: about/publishing.md
+  - Changelog: changelog.md
