@@ -27,11 +27,14 @@ secretly.
 
 | Step | What it does |
 |---|---|
-| `drop_invalid_records` | Drops rows with bad column count, invalid POS, empty CHROM, invalid REF/ALT, REF == ALT, missing/malformed/non-diploid GT, or inconsistent FORMAT/sample subfields. |
+| `drop_invalid_records` | Drops rows with bad column count, invalid POS, empty CHROM, invalid REF/ALT, REF == ALT, an absent GT field, malformed/non-diploid GT, or inconsistent FORMAT/sample subfields. |
 | `filter_biallelic` | Drops rows whose ALT contains a comma. |
 | `fix_marker_ids` | Replaces missing `ID` values (`.`, empty, whitespace) with `chrom_pos_ref_alt`. |
 | `remove_duplicates` | Drops duplicate `marker_id` rows and duplicate `(chrom, pos)` rows, keeping the first occurrence after prior steps. |
 | `sort` | Orders by `(chrom, pos)`. |
+
+Missing diploid calls such as `./.` are retained; this is not complete-case
+filtering. Dropping an invalid record removes that marker for all samples.
 
 ## What's **not** repairable
 

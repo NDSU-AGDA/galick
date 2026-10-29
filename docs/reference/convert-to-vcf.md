@@ -34,9 +34,9 @@ on marker IDs.
 
 **Pipeline**
 
-1. `validate_genotype_table()` (M2)
-2. `validate_marker_map(map, genotype_table = csv, require_alleles = TRUE)` (M3)
-3. M4-specific checks (additive on top of M2/M3):
+1. Validate the genotype table with `validate_genotype_table()`.
+2. Check marker-map columns, positions, alleles and coverage with `validate_marker_map()`.
+3. Apply conversion-specific checks:
     - `csv_to_vcf_unmappable_markers` — markers in CSV but not in map.
     - `csv_to_vcf_invalid_alleles` — REF/ALT outside `{A, C, G, T}`.
     - `csv_to_vcf_unsupported_extension` — `output_vcf` not ending in `.vcf`.
@@ -50,15 +50,15 @@ on marker IDs.
 For non-DNA encodings, `ahb_ref` and `aabb_ref_homo` swap which token
 codes homo-REF:
 
-```r
-csv_to_vcf(csv, map, "out.vcf", encoding = "AHB",
-           ahb_ref = "B")     # data 'A' now codes homo-ALT
-csv_to_vcf(csv, map, "out.vcf", encoding = "AABB",
-           aabb_ref_homo = "BB")
-```
+| Encoding | Default homo-REF token | To reverse the convention |
+|---|---|---|
+| AHB | `A` | `ahb_ref = "B"` |
+| AABB | `AA` | `aabb_ref_homo = "BB"` |
 
 For `IUPAC`, the REF/ALT pair comes from `marker_map` per marker, so
 no convention argument is needed.
+
+See the [bundled CSV example](../examples/csv-to-vcf.md) for runnable calls.
 
 ## `hapmap_to_vcf()`
 

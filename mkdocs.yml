@@ -113,7 +113,6 @@ nav:
   - Home: index.md
   - Get started:
     - Installation: getting-started/installation.md
-    - Migration to Galick: getting-started/migration.md
     - Quick tour: getting-started/quick-tour.md
     - The result classes: getting-started/result-classes.md
   - Reference:

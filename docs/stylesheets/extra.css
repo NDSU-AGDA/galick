@@ -41,3 +41,66 @@
 .md-typeset details {
   border-radius: 4px;
 }
+
+.md-typeset .home-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 176px;
+  align-items: start;
+  gap: 1.4rem;
+  margin-top: 0.2rem;
+}
+
+.md-typeset .home-intro h1 {
+  margin: 0 0 0.8rem;
+}
+
+.md-typeset .home-intro p:last-child {
+  margin-bottom: 0;
+}
+
+.md-typeset .home-hex {
+  width: 176px;
+  aspect-ratio: 512 / 592;
+  margin-top: 0.2rem;
+}
+
+.md-typeset .home-maintainer {
+  margin: 1.25rem 0 1rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset .home-maintainer span {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.72rem;
+}
+
+.md-typeset .home-maintainer a {
+  display: block;
+  font-weight: 600;
+}
+
+@media (max-width: 650px) {
+  .md-typeset .home-intro {
+    position: relative;
+    display: block;
+  }
+
+  .md-typeset .home-intro h1 {
+    display: flex;
+    align-items: center;
+    min-height: 112px;
+    padding-right: 112px;
+  }
+
+  .md-typeset .home-hex {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 96px;
+    margin: 0;
+  }
+}

@@ -26,10 +26,11 @@ created inside it.}
 \item{chrom_filter}{Optional character vector to restrict which
 chromosomes are run.}
 
-\item{parallel}{\code{"none"} (default), \code{"future"}, or \code{"mclapply"}. When
-not \code{"none"}, \code{workers} controls parallelism.}
+\item{parallel}{\code{"none"} (default), \code{"future"}, or \code{"mclapply"}.
+Future execution uses the caller's active \code{future::plan()}.}
 
-\item{workers}{Number of workers for parallel execution.}
+\item{workers}{Number of workers for \code{"mclapply"}. Ignored for \code{"future"};
+configure that worker count with \code{future::plan()} instead.}
 
 \item{...}{Extra args passed verbatim to each \code{\link[=run_beagle]{run_beagle()}} call
 (e.g. \code{mode}, \code{nthreads}, \code{memory_gb}).}

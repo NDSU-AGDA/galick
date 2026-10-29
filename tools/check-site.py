@@ -58,7 +58,7 @@ def check(directory):
         relative = path.relative_to(directory).as_posix()
         if relative == "404.html":
             continue
-        if relative.startswith(("overrides/", "about/")):
+        if relative.startswith(("overrides/", "about/")) or relative == "getting-started/migration/index.html":
             raise AssertionError("Theme source and internal maintainer pages must not be published")
         head = Head()
         head.feed(path.read_text(encoding="utf-8"))

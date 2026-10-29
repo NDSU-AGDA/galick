@@ -2,6 +2,10 @@
 title: Galick | VCF tools and genotype imputation in R
 description: Validate VCFs, run Beagle, simulate linked breeding genotypes, evaluate imputation accuracy and design SNP panels with the Galick R package.
 ---
+<div class="home-intro" markdown>
+
+<div markdown>
+
 # Galick
 
 **VCF tools, breeding-genotype simulation and Beagle imputation in R.**
@@ -11,10 +15,20 @@ imputation experiments. Galick adds linked-genotype simulation, held-out compari
 of Beagle configurations and constrained marker-panel design to the core VCF
 workflow. It does not estimate trait effects or breeding values.
 
+</div>
+
+<img class="home-hex" src="assets/logo.svg" alt="Galick R package hex logo" width="176" height="204">
+
+</div>
+
+<p class="home-maintainer">
+  <span>Developed and maintained by</span>
+  <a href="https://www.ndsu.edu/agricultural-data-analytics">Agricultural Data Analytics at North Dakota State University</a>
+</p>
+
 [Installation](getting-started/installation.md) ·
 [Quick tour](getting-started/quick-tour.md) ·
-[Function reference](reference/index.md) ·
-[Migration](getting-started/migration.md)
+[Function reference](reference/index.md)
 
 ## Start with bundled data
 

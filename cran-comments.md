@@ -1,17 +1,19 @@
 ## Submission status
 
 Preparation for the first CRAN submission of galick 0.1.0. Not submitted.
-Windows reports must be reviewed before submission.
+Final release checks must be reviewed before submission.
 
 ## Test environments
 
 - macOS 27.0.1, arm64, R 4.5.3.
-- Windows R-release 4.6.1: the 2026-10-28 build exposed a PuTTY/genetics PLINK
-  executable-name collision. Discovery now verifies the genetics version banner;
-  tests skip an unavailable genetics executable rather than invoking PuTTY.
-  The prior Windows report does not validate the corrected source.
-- Updated Windows R-release and R-devel checks were uploaded on 2026-10-29; review the
-  new reports at the maintainer email address before submission.
+- Windows Server 2022, R-release 4.6.2: 0 errors, 0 warnings, 1 NOTE.
+  Report: https://win-builder.r-project.org/OHvHX53J40HA/00check.log
+  The NOTE contains "New submission" and valid domain terms flagged by spelling
+  checks (HapMap, PLINK, VCF/VCFs and autotetraploid). Tests, vignettes and both
+  manual formats passed. The earlier PuTTY/genetics PLINK collision is resolved.
+- R-devel report: pending. The Windows report above covers the archived source
+  checksum below; subsequent documentation and diagnostic-wording changes are
+  being checked locally.
 
 ## R CMD check --as-cran
 
@@ -35,18 +37,22 @@ vignette rebuilding passed.
 
 ## Additional checks
 
-- Full test suite with Java/Beagle, PLINK, bcftools, bgzip and tabix available:
-  1,647 assertions passed; 0 failures, 0 warnings, 0 skips. The opt-in installer
-  download test was enabled and passed using a temporary destination.
+- Latest full test suite with Java/Beagle, PLINK, bcftools, bgzip and tabix:
+  1,646 assertions passed; 0 failures, 0 warnings, 1 expected skip for the
+  opt-in installer download test. That unchanged network test passed in the
+  earlier preflight run using a temporary destination.
 - All 28 exported functions have help examples. The multi-job evaluation and
   marker-panel examples were explicitly enabled and exercised separately.
   The installer help example is marked dontrun; checks do not download software.
 - lintr: no lints.
 - urlchecker: all remaining package URLs valid.
-- Website: mkdocs build --strict passed; 153 R fences across 36 documentation
+- Website: mkdocs build --strict passed; 154 R fences across 35 documentation
   files parsed and checked against public function arguments. A separate static
   check validates canonical URLs, unique metadata, sitemap and search coverage
-  for all 30 pages and 28 exported functions.
+  for all 29 pages and 28 exported functions.
+- Executed 68 runnable tutorial blocks, including simulation, evaluation,
+  panel design and sequential/multicore/future chromosome jobs. Installation
+  commands and templates requiring user data are explicitly excluded.
 
 ## External software and access
 
@@ -70,3 +76,8 @@ SHA-256:
     674098e205490966cc1ce97b810d6c13f801164daa77639ba349a0a569e51932
 
 Only instructional fixtures are bundled; local research VCF files are excluded.
+
+Latest local R CMD check archive after the documentation audit (0 errors,
+0 warnings, 0 notes), SHA-256:
+
+    1877f3671a2c08d708e5bcf8c1eb140dfa1da7d3d55a703acfc04ee1f53409c8

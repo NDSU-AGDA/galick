@@ -90,7 +90,7 @@ record marks indexing as `skipped` (not an error).
 ## `install_beagle()`
 
 ```r
-install_beagle(version = "5.4", dest = NULL) -> path
+jar <- install_beagle(version = "5.4", dest = NULL)
 ```
 
 Downloads a pinned tested Beagle JAR to
@@ -109,7 +109,7 @@ for caveats.
 ## `beagle_version()`
 
 ```r
-beagle_version(beagle_jar = NULL) -> character(1)
+version <- beagle_version(beagle_jar = NULL)
 ```
 
 Resolves the JAR the same way `run_beagle()` does and parses its

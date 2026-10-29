@@ -252,6 +252,6 @@
       splitting or filtering requires genotype and annotation handling.
       vcf_unsorted_records [ordering_only]: Sort records after resolving invalid
       coordinates; do not change genotype calls.
-      vcf_beagle_not_bgzf [storage_only]: Plain VCF is usable as gt=; reference-panel
-      input needs verified BGZF compression and indexing.
+      vcf_beagle_not_bgzf [storage_only]: Plain and compressed VCF are accepted as
+      gt= or ref=; the runner does not require an input index.
 

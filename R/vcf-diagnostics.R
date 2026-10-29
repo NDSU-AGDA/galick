@@ -374,7 +374,7 @@ finish_vcf_diagnostics <- function(state, parsed, errors, warnings, n_scanned, p
     } else if (code == "vcf_multiallelic") {
       "Review target-specific representation; splitting or filtering requires genotype and annotation handling."
     } else if (code == "vcf_beagle_not_bgzf") {
-      "Plain VCF is usable as gt=; reference-panel input needs verified BGZF compression and indexing."
+      "Plain and compressed VCF are accepted as gt= or ref=; the runner does not require an input index."
     } else {
       "Inspect the reported locations and original source before changing data."
     }

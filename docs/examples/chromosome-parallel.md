@@ -12,26 +12,21 @@ parallel, and merge the outputs.
     Like the [Run Beagle](run-beagle.md) example, this needs Beagle
     on `BEAGLE_PATH` or in the user cache.
 
-## Build a multi-chrom VCF
+## Prepare a two-chromosome VCF
+
+The bundled fixture has five samples and twenty markers across two chromosomes.
+It demonstrates the workflow, not biological imputation performance.
 
 ```r
 library(galick)
 
 vcf <- tempfile(fileext = ".vcf")
-writeLines(c(
-  "##fileformat=VCFv4.2",
-  "##contig=<ID=chr1>",
-  "##contig=<ID=chr2>",
-  "##contig=<ID=chr3>",
-  "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">",
-  "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\ts1\ts2\ts3",
-  "chr1\t100\trs1\tA\tT\t.\tPASS\t.\tGT\t0/0\t0/1\t1/1",
-  "chr1\t200\trs2\tC\tG\t.\tPASS\t.\tGT\t0/1\t1/1\t0/0",
-  "chr1\t300\trs3\tG\tT\t.\tPASS\t.\tGT\t0/0\t0/1\t1/1",
-  "chr2\t50\trs4\tT\tA\t.\tPASS\t.\tGT\t1/1\t0/0\t0/1",
-  "chr2\t100\trs5\tA\tC\t.\tPASS\t.\tGT\t0/0\t1/1\t0/1",
-  "chr3\t75\trs6\tG\tT\t.\tPASS\t.\tGT\t0/1\t0/1\t1/1"
-), vcf)
+conversion <- csv_to_vcf(
+  system.file("extdata", "tiny.csv", package = "galick"),
+  system.file("extdata", "tiny_map.tsv", package = "galick"),
+  vcf, encoding = "AHB"
+)
+stopifnot(conversion$ok)
 ```
 
 ## Just split
@@ -49,7 +44,7 @@ res$chrom_paths
 
 ```r
 split_vcf_by_chrom(vcf, split_dir,
-                   chrom_filter = c("chr1", "chr3"),
+                   chrom_filter = "chr1",
                    overwrite = TRUE)
 ```
 
@@ -57,6 +52,10 @@ split_vcf_by_chrom(vcf, split_dir,
 
 `run_beagle_by_chrom()` splits internally, then calls `run_beagle()`
 once per chromosome:
+
+Choose one of the following modes. Each tab creates its own output directory.
+Use `mclapply` only on Unix-like systems. The future option requires
+`future.apply`; its multisession plan also works on Windows.
 
 === "Sequential"
 
@@ -68,42 +67,48 @@ once per chromosome:
       gt = vcf,
       out_dir = out_dir,
       mode = "phase",
-      nthreads = 2L
+      nthreads = 1L,
+      memory_gb = 1L
     )
     ```
 
 === "mclapply (UNIX)"
 
     ```r
+    out_dir <- tempfile("galick_multicore_")
     results <- run_beagle_by_chrom(
       gt = vcf,
       out_dir = out_dir,
       mode = "phase",
-      nthreads = 2L,
+      nthreads = 1L,
+      memory_gb = 1L,
       parallel = "mclapply",
-      workers = 4L
+      workers = 2L
     )
     ```
 
 === "future"
 
     ```r
-    library(future)
-    plan(multisession, workers = 4)
+    out_dir <- tempfile("galick_future_")
+    previous_plan <- future::plan(future::multisession, workers = 2)
     
     results <- run_beagle_by_chrom(
       gt = vcf,
       out_dir = out_dir,
       mode = "phase",
-      nthreads = 2L,
+      nthreads = 1L,
+      memory_gb = 1L,
       parallel = "future"
     )
+    future::plan(previous_plan)
     ```
 
 The result is a named list of `galick_run` objects:
 
 ```r
 names(results)
+stopifnot(all(vapply(results, function(run) identical(run$status, 0L), logical(1))))
 results$chr1$status
 results$chr2$output_paths
 ```
@@ -115,11 +120,10 @@ the input), call `run_beagle_by_chrom()` again with the same
 `out_dir`. Successful chromosomes are skipped:
 
 ```r
-# Suppose chr2 failed; you fixed it and rerun:
+# With unchanged successful inputs, both chromosomes reuse their results.
 results <- run_beagle_by_chrom(vcf, out_dir, mode = "phase",
-                               nthreads = 2L)
-# chr1 and chr3 reuse their previous run records (status == 0,
-# complete job fingerprint and output checksum match). Only chr2 executes.
+                               nthreads = 1L, memory_gb = 1L)
+# If only chr2's input or settings changed, only chr2 would run again.
 ```
 
 Resume requires success, a matching complete job fingerprint (inputs, reference,
@@ -129,7 +133,7 @@ Changing any computational input invalidates the cached chromosome.
 ## Merge
 
 ```r
-merged <- tempfile(fileext = ".vcf.gz")
+merged <- tempfile(fileext = ".vcf")
 merge_beagle_outputs(results, merged)
 
 validate_vcf(merged, target = "beagle")$ok

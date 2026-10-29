@@ -75,12 +75,19 @@ run_beagle_by_chrom(gt, out_dir,
                     parallel = "mclapply", workers = 4L)
 
 # future.apply (declared in Suggests)
-future::plan(future::multisession, workers = 4)
+previous_plan <- future::plan(future::multisession, workers = 2)
 run_beagle_by_chrom(gt, out_dir, parallel = "future")
+future::plan(previous_plan)
 ```
 
 `parallel = "future"` requires the `future.apply` package; install it
 with `install.packages("future.apply")`.
+
+`workers` controls only `parallel = "mclapply"`, which is for Unix-like systems.
+For `parallel = "future"`, the configured `future::plan()` controls worker count;
+the function's `workers` argument does not change that plan. Budget for up to
+`workers * nthreads` Beagle threads and `workers * memory_gb` GiB of JVM heap
+across concurrent jobs, in addition to R and JVM overhead.
 
 ## `merge_beagle_outputs()`
 

@@ -20,16 +20,28 @@ engine; Galick provides preparation, experiment design and inspectable results.
 
 ## Installation
 
-Galick requires R 4.1 or later and is not yet on CRAN. The GitHub repository is
-`NDSU-AGDA/galick`; the installed R package is **`galick`**.
-The repository is public.
+Galick requires R 4.1 or later.
+
+### CRAN
+
+Galick is not yet published on CRAN. This command becomes available after its
+first CRAN release; use GitHub for now.
 
 ```r
-install.packages("pak")
-pak::pak("NDSU-AGDA/galick")
+# Available only after Galick is published on CRAN.
+install.packages("galick")
 ```
 
-This installs the default branch. The package rename is complete.
+### GitHub
+
+Install the current default branch from the public repository:
+
+```r
+if (!requireNamespace("pak", quietly = TRUE)) {
+  install.packages("pak")
+}
+pak::pak("NDSU-AGDA/galick")
+```
 
 Java 8+ and a Beagle 5 JAR are needed only for Beagle execution. With Java
 installed, `galick::install_beagle()` downloads the pinned Beagle 5.4 build.
@@ -132,7 +144,6 @@ flowchart TD
 - [Quick tour](https://ndsu-agda.github.io/galick/getting-started/quick-tour/)
 - [Reference](https://ndsu-agda.github.io/galick/reference/)
 - [Worked examples](https://ndsu-agda.github.io/galick/examples/)
-- [Migration to Galick](https://ndsu-agda.github.io/galick/getting-started/migration/)
 
 Installed tutorials are available through `browseVignettes("galick")`, including
 `simulate-vcf`, `evaluate-imputation` and `design-marker-panel`.

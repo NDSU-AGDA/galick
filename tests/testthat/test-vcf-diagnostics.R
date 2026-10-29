@@ -32,6 +32,8 @@ capture_vcf_report <- function(x, full = FALSE) {
 test_that("diagnostics distinguish issue entries, unique records and dependent calls", {
   result <- validate_vcf(diagnostic_vcf(), target = "beagle", progress = FALSE)
   d <- result$summary$diagnostics
+  storage <- d$actions$action[d$actions$code == "vcf_beagle_not_bgzf"]
+  expect_match(storage, "the runner does not require an input index", fixed = TRUE)
   expect_s3_class(result, "galick_result")
   expect_s3_class(d, "galick_vcf_diagnostics")
   expect_equal(nrow(result$errors), 3)

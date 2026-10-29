@@ -25,6 +25,7 @@ read.delim(map_path)[1:5, ]
 ```r
 out <- tempfile(fileext = ".vcf")
 result <- csv_to_vcf(csv_path, map_path, out)
+stopifnot(result$ok)
 
 result$ok
 result$summary$inferred_encoding
@@ -64,6 +65,7 @@ bad_map <- data.frame(
 
 bad_out <- tempfile(fileext = ".vcf")
 result <- csv_to_vcf(bad_csv, bad_map, bad_out, sample_col = "sample_id")
+stopifnot(!result$ok, !file.exists(bad_out))
 
 result$ok
 result$errors$code
@@ -98,5 +100,7 @@ csv_to_vcf(csv_path, map_path, tempfile(fileext = ".vcf"),
            encoding = "AHB", ahb_ref = "B")
 ```
 
-Same idea for `aabb_ref_homo` with `AABB` encoding. Other encodings
-infer REF/ALT from the marker map directly.
+`aabb_ref_homo` controls the equivalent convention for AABB encoding.
+Numeric, VCF and REFHET tokens use their stated REF/ALT coding; the marker map
+provides the nucleotide identities. IUPAC tokens are decoded against that
+marker's REF/ALT pair.

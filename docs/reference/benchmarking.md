@@ -7,38 +7,8 @@ description: Measure held-out genotype recovery, compare Beagle configurations a
 Functions for measuring imputation accuracy on your own data:
 mask known genotypes, run imputation, compare to the truth.
 
-## `design_marker_panel()`
-
-Select an exact number of diploid SNPs with mandatory/excluded sites and minimum
-spacing. Supply disjoint candidate and scoring identity tables (`chrom`, `pos`,
-`ref`, `alt`), trusted genotypes, a fully called phased reference with no truth
-sample IDs, and sample partitions `design`, `tune`, `test`.
-
-Design-only local LD proposes panels; bounded Beagle runs measure recovery.
-Scoring sites never enter any panel, and all comparisons use the same original
-called-genotype masks. A challenger is frozen before tuning; the tuning choice
-is frozen before test confirmation. No engine parameters are optimized.
-
-Every group requires 20 design and 10 tuning/test samples. Declared blocks cannot
-cross partitions. Candidate eligibility uses design-only call rate >=95 percent
-and pooled MAF >=1 percent. Reference relatedness and renamed duplicates are not
-inferred. Without a genetic map Beagle assumes 1 cM/Mb; sparse observed sites can
-fail Beagle's per-window requirements.
-
-`(max_proposals + 6) * repeats` jobs must fit `max_runs` before launching. Repeats
-change paired engine seeds, not biological samples. Cell and local-pair ceilings
-are workload bounds, not total RAM limits. No global optimum or assay feasibility
-is claimed. `recommended_panel` is NULL unless test confirmation succeeds.
-Inspect metrics, group scores, search history and hashed `panel_design.json`.
-See `vignette("design-marker-panel", package = "galick")` for a runnable example.
-
-The development fixture `tools/profile-panel-design.R` records performance, not
-biological accuracy. On an arm64 development machine with R 4.5.3 and Beagle 5.4,
-120 truth samples, 120 reference samples, 160 candidate sites, 80 scoring sites,
-20 selected markers, two proposals and one repeat completed in 16.6 seconds
-(seven jobs); the R process reached approximately 206 MiB resident memory.
-JVM heap was capped at 1 GiB; the R resident-memory figure is not aggregate
-R-plus-Java peak memory. Genome-scale studies require separate profiling.
+For selecting a lower-density SNP panel rather than comparing Beagle settings,
+see [marker-panel design](panel-design.md).
 
 ## `evaluate_imputation()`
 
@@ -47,6 +17,9 @@ partitions. Candidate lists accept `ref`, `map` and supported `extra_args`.
 The baseline must be named explicitly. Use sporadic cell masking or an actual
 array marker panel; array evaluation physically removes untyped input records
 and requires a reference for every configuration.
+
+The next call is a template for your own data. For an executable example using
+bundled inputs, see [held-out evaluation](../examples/evaluate-imputation.md).
 
 ```r
 study <- evaluate_imputation(
@@ -200,4 +173,5 @@ Returns a list with three slots:
 - `$comparison` — `galick_result` from `compare_imputed_vs_true()`,
   with the masked-cells filter applied.
 
-Beagle has to actually run, so this requires a working `BEAGLE_PATH`.
+This requires Java and a Beagle JAR resolved through an explicit path,
+`BEAGLE_PATH`, or Galick's user cache. See [Installation](../getting-started/installation.md).

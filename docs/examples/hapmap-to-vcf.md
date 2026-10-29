@@ -4,9 +4,10 @@ description: Follow a HapMap-to-VCF example using declared marker alleles, IUPAC
 ---
 # HapMap to VCF
 
-TASSEL HapMap (`.hmp.txt`) is the most common format coming out of
-GBS pipelines for plant breeding. It encodes a marker's REF/ALT
-inline (`A/T`) and uses single-character IUPAC codes for genotypes.
+TASSEL HapMap (`.hmp.txt`) stores marker alleles inline (`A/T`) and can use
+single-character IUPAC codes for genotypes. Galick interprets the first declared
+allele as REF and the second as ALT; this alone does not establish reference-genome
+orientation.
 
 ## A peek at the format
 
@@ -38,6 +39,7 @@ Each cell is a single character:
 ```r
 out <- tempfile(fileext = ".vcf")
 result <- hapmap_to_vcf(hmp_path, out)
+stopifnot(result$ok)
 
 result$ok
 result$summary$n_samples
@@ -61,8 +63,9 @@ hapmap_to_vcf(hmp_path, out, build = "GRCh38")
 grep("^##reference", readLines(out), value = TRUE)
 ```
 
-It lands as `##reference=` in the VCF header. Beagle ignores it; it's
-there for downstream tools and audit trails.
+It records `##reference=` in the VCF header. This labels the file; it does not
+convert coordinates or verify alleles against that assembly. The example label
+does not identify the assembly of these artificial fixtures.
 
 ## Failure modes
 
@@ -80,6 +83,7 @@ writeLines(c(
 
 bad_out <- tempfile(fileext = ".vcf")
 result <- hapmap_to_vcf(bad_hmp, bad_out)
+stopifnot(!result$ok, !file.exists(bad_out))
 result$ok
 result$errors$code
 file.exists(bad_out)

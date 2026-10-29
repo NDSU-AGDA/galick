@@ -9,8 +9,8 @@ deliberately broken fixture.
 
 ## A dirty starting point
 
-`inst/extdata/tiny_dirty.vcf` ships nine records that exercise every
-drop condition `repair_vcf()` knows about:
+`inst/extdata/tiny_dirty.vcf` ships nine records covering several common
+validation and repair conditions:
 
 ```r
 library(galick)
@@ -168,6 +168,8 @@ If your VCF mixes `chr1` and `1` for the same chromosome, the default
 `chrom_style = "auto"` keeps them separate. Pass `"numeric"` or
 `"chr_prefixed"` to normalize labels in the output **and** use the
 normalized form for duplicate detection:
+
+The next call is a template: replace `messy.vcf` with your own existing input.
 
 ```r
 # chr1 + 1 with the same POS → seen as duplicates under "numeric"

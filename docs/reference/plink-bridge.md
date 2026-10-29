@@ -4,10 +4,13 @@ description: Use Galick to convert VCF and PLINK BED, BIM and FAM files with exe
 ---
 # PLINK bridge
 
-Two thin wrappers around PLINK 1.9 / 2.0. Both shell out via
-`processx::run()` and return `galick_run` objects.
+These functions require a genetics PLINK executable supporting the PLINK 1.9
+commands shown below. They return `galick_run` objects with status, command
+and output paths. Do not assume every PLINK 2 build supports these legacy commands.
 
-PLINK must be on `PATH` or passed explicitly via the `plink = ` argument.
+Galick checks `plink1.9`, then `plink` on `PATH`, or accepts an explicit
+`plink =` path. It verifies the genetics version banner and rejects PuTTY's
+unrelated `plink.exe` SSH client.
 
 ## `vcf_to_plink()`
 
@@ -20,8 +23,10 @@ vcf_to_plink(
 )
 ```
 
-Runs `plink --vcf <vcf> --make-bed --out <plink_prefix>`. PLINK writes
-`<prefix>.bed`, `<prefix>.bim`, `<prefix>.fam`, plus a `.log` file.
+Runs the equivalent of `plink --vcf <vcf> --make-bed --out <plink_prefix>`.
+Successful conversion publishes `<prefix>.bed`, `<prefix>.bim` and `<prefix>.fam`.
+Files are staged before publication; PLINK's temporary `.log` file and a separate
+JSON run record are not retained by this bridge.
 
 ```r
 result <- vcf_to_plink("data.vcf.gz", "data")
@@ -43,8 +48,9 @@ plink_to_vcf(
 )
 ```
 
-Runs `plink --bfile <plink_prefix> --recode vcf --out <derived_prefix>`
-where `derived_prefix` is `vcf` with the `.vcf` extension stripped.
+Runs the equivalent of `plink --bfile <plink_prefix> --recode vcf`, then publishes
+the validated VCF at the requested `vcf` path. The actual subprocess command
+uses a temporary output prefix rather than writing directly over the destination.
 
 ```r
 result <- plink_to_vcf("data", "data.vcf")
@@ -52,20 +58,7 @@ result$status
 file.exists("data.vcf")
 ```
 
-## What's not in v0.1.0
+## Scope
 
-A generic `run_plink()` is **explicitly out of scope**. PLINK has
-hundreds of flags; wrapping them all would be a separate package.
-For PLINK QC steps (`--maf`, `--geno`, `--mind`, `--hwe`, etc.),
-shell out via `processx::run()` directly:
-
-```r
-processx::run(
-  "plink",
-  args = c("--bfile", "data",
-           "--maf", "0.05",
-           "--geno", "0.1",
-           "--make-bed",
-           "--out", "data_qc")
-)
-```
+These functions convert files. They do not perform PLINK quality-control
+analyses or expose arbitrary PLINK flags; use genetics PLINK directly for those tasks.

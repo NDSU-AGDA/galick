@@ -6,7 +6,9 @@ description: Generate founder-conditioned diploid crosses, selfed lines and rest
 
 `simulate_vcf()` models descendants conditional on a phased founder VCF and an
 exact cM map. It does not invent founder LD, species histories or novel alleles.
-No new runtime dependency is required.
+Simulation needs no external software beyond the package's R dependencies.
+For a runnable example, use the [linked simulation tutorial](../examples/simulate-vcf.md).
+The following call is a template for your own founder VCF and map.
 
 ```r
 result <- simulate_vcf(
@@ -54,15 +56,7 @@ refused. The allele-array ceiling is not a total-RAM or ledger-size bound.
 No reference FASTA is checked. LD diagnostics use at most ten adjacent marker lags
 per chromosome; undefined correlations are counted, not replaced by zero.
 
-The installed `vignette("simulate-vcf", package = "galick")` contains runnable
-examples. Independent development validation uses AlphaSimR 2.1.0 with `v = 1`,
-`p = 0`, `quadProb = 0` and one thread. Results and tolerances are archived in
-`tests/testthat/fixtures/simulation-alphasimr.json`; regenerate them with
-`tools/validate-simulation-alphasimr.R` in a development environment containing
-AlphaSimR and pkgload. Neither is added as a simulation runtime dependency.
-
-`tools/profile-simulation.R` provides a reproducible development workload: 1,000
-SNPs on two chromosomes, 20 founders, census 200, three generations, 100 targets
-and 50 references. On the development machine it took 11.7 seconds, with 266 MiB
-maximum resident memory and a 2.4 MB output bundle. These are workload-specific
-measurements, not a whole-genome performance guarantee.
+Development checks compare inheritance summaries against AlphaSimR under
+matching model assumptions. The [validation fixtures](https://github.com/NDSU-AGDA/galick/blob/main/tests/testthat/fixtures/simulation-alphasimr.json)
+and [comparison script](https://github.com/NDSU-AGDA/galick/blob/main/tools/validate-simulation-alphasimr.R)
+are available in the source repository. AlphaSimR is not required to run Galick.

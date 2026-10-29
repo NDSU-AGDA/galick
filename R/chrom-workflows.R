@@ -117,9 +117,10 @@ split_vcf_by_chrom <- function(vcf, out_dir,
 #' @param ref,map Passed verbatim to [run_beagle()] for each chromosome.
 #' @param chrom_filter Optional character vector to restrict which
 #'   chromosomes are run.
-#' @param parallel `"none"` (default), `"future"`, or `"mclapply"`. When
-#'   not `"none"`, `workers` controls parallelism.
-#' @param workers Number of workers for parallel execution.
+#' @param parallel `"none"` (default), `"future"`, or `"mclapply"`.
+#'   Future execution uses the caller's active `future::plan()`.
+#' @param workers Number of workers for `"mclapply"`. Ignored for `"future"`;
+#'   configure that worker count with `future::plan()` instead.
 #' @param ... Extra args passed verbatim to each [run_beagle()] call
 #'   (e.g. `mode`, `nthreads`, `memory_gb`).
 #'

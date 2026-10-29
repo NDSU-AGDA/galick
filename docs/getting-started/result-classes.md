@@ -76,5 +76,3 @@ tryCatch(
   }
 )
 ```
-
-See [Migration](migration.md) before reusing pre-rename objects or run records.

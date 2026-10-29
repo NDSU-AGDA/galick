@@ -10,9 +10,6 @@ inputs demonstrate the API; they are not evidence of biological performance.
 
 ```r
 library(galick)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-beagle_available <- nzchar(Sys.getenv("BEAGLE_PATH")) &&
-  file.exists(Sys.getenv("BEAGLE_PATH")) && nzchar(Sys.which("java"))
 ```
 
 `design_marker_panel()` chooses a fixed number of observed SNPs and measures
@@ -83,6 +80,9 @@ eligibility is calculated only on design samples: call rate at least 95 percent
 and pooled minor allele frequency at least 1 percent. Mandatory sites must pass.
 
 ## Bounded search and confirmation
+
+This section requires Java and a configured Beagle JAR and runs real jobs.
+The setup above is pure R; it does not install or download external software.
 
 ```r
 result <- design_marker_panel(

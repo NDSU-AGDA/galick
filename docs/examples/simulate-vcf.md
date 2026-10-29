@@ -10,7 +10,6 @@ inputs demonstrate the API; they are not evidence of biological performance.
 
 ```r
 library(galick)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 `simulate_vcf()` creates linked descendants from supplied phased founders and a

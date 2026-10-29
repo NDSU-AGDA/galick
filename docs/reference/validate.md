@@ -71,7 +71,7 @@ validate_marker_map(
 - `marker_id` is non-empty (NA / "" / whitespace = error).
 - Duplicates on `marker_id` and `(chrom, pos)` — both errors.
 - Sortedness within chromosome — warning.
-- Optional `genotype_table` (M2 wide format) or `marker_ids` (bare
+- Optional `genotype_table` (samples in rows, markers in columns) or `marker_ids` (bare
   list) — cross-checks coverage.
 
 `chrom_style != "auto"` normalizes labels first, so duplicate detection

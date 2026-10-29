@@ -10,9 +10,6 @@ inputs demonstrate the API; they are not evidence of biological performance.
 
 ```r
 library(galick)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-beagle_available <- nzchar(Sys.getenv("BEAGLE_PATH")) && file.exists(Sys.getenv("BEAGLE_PATH")) &&
-  nzchar(Sys.which("java"))
 ```
 
 `evaluate_imputation()` compares two to four Beagle configurations on paired
@@ -50,7 +47,8 @@ holdout blocks. Each partition/group needs at least one held-out called genotype
 
 ## Run a paired comparison
 
-This chunk executes when Java and `BEAGLE_PATH` are available; no download occurs.
+This section requires Java and a configured Beagle JAR. It launches real Beagle
+jobs and does not download software. Run the blocks in order.
 
 ```r
 study <- evaluate_imputation(
@@ -105,6 +103,10 @@ The margins are practical thresholds, not confidence intervals or significance t
 
 For array-to-dense evaluation, every candidate needs a fully called, phased
 reference with no evaluation sample IDs. Supply exact marker identities:
+
+The following block is a template for your own data, not a continuation using
+the bundled fixture. Replace `truth`, `samples`, the panel coordinates and both
+reference paths with compatible inputs before running it.
 
 ```r
 panel <- data.frame(chrom = "chr1", pos = c(100, 2100), ref = c("A", "G"), alt = c("T", "A"))
