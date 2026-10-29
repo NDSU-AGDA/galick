@@ -11,17 +11,17 @@ Authors@R:
          comment = c(ORCID = "0000-0003-3685-4959")
         ),
         person(
+            given = "Andres",
+            family = "Quintero",
+            email = "afquinteromoreano@gmail.com",
+            role = "aut"
+        ),
+        person(
             given = "Sikiru",
             family = "Atanda",
             email = "sikiru.atanda@ndsu.edu",
             role = "aut",
             comment = c(ORCID = "0000-0001-8758-2063")
-        ),
-        person(
-            given = "Andres",
-            family = "Quintero",
-            email = "afquinteromoreano@gmail.com",
-            role = "aut"
         ),
         person(
             given = "Muyideen",
@@ -39,8 +39,7 @@ Description: An R toolkit for plant- and animal-breeding genotype workflows:
     Design constrained marker panels using local linkage disequilibrium,
     measured imputation recovery, and separate tuning and test samples.
     Beagle and PLINK are external command-line tools
-    invoked from R; the package focuses on preprocessing and imputation,
-    not downstream analyses.
+    invoked from R.
 License: MIT + file LICENSE
 URL: https://github.com/NDSU-AGDA/galick
 BugReports: https://github.com/NDSU-AGDA/galick/issues
