@@ -3,6 +3,9 @@ site_description: R tools for VCF validation, Beagle genotype imputation, linked
 site_url: https://ndsu-agda.github.io/galick/
 repo_url: https://github.com/NDSU-AGDA/galick
 repo_name: NDSU-AGDA/galick
+copyright: >-
+  Developed and maintained by
+  <a href="https://www.ndsu.edu/agricultural-data-analytics">Agricultural Data Analytics at North Dakota State University</a>.
 edit_uri: edit/main/docs/
 exclude_docs: |
   /overrides/

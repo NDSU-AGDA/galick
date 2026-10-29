@@ -21,6 +21,7 @@ class Head(HTMLParser):
         self.meta = {}
         self.canonical = []
         self.h1 = 0
+        self.links = set()
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -33,6 +34,8 @@ class Head(HTMLParser):
             self.meta.setdefault(key, []).append(attrs.get("content", ""))
         if tag == "link" and attrs.get("rel") == "canonical":
             self.canonical.append(attrs.get("href"))
+        if tag == "a":
+            self.links.add(attrs.get("href", ""))
         if tag == "script" and attrs.get("type") == "application/ld+json":
             self.in_schema = True
 
@@ -69,6 +72,7 @@ def check(directory):
         assert head.meta.get("og:url") == [url], f"{relative}: incorrect sharing URL"
         assert head.meta.get("og:description") == description, relative
         assert head.meta.get("twitter:card") == ["summary"], relative
+        assert "https://www.ndsu.edu/agricultural-data-analytics" in head.links, relative
         assert "noindex" not in ",".join(head.meta.get("robots", [])), relative
         titles.add(head.title)
         descriptions.add(description[0])
