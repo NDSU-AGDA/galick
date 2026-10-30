@@ -1,7 +1,18 @@
 ## Submission status
 
-Preparation for the first CRAN submission of galick 0.1.0. Not submitted.
-Final release checks must be reviewed before submission.
+Resubmission preparation for galick 0.1.0 following CRAN feedback.
+The revised archive has not yet been resubmitted.
+
+## Changes requested by CRAN
+
+- Enclosed 'HapMap', 'Beagle' and 'PLINK' in single quotes in Description.
+  Title contains no software names and is unchanged.
+- Added Browning, Zhou and Browning (2018)
+  <doi:10.1016/j.ajhg.2018.07.015> as the reference for the external
+  'Beagle' imputation method, not for the package's simulation or panel design.
+
+The check results and archive checksums below describe previous checks,
+before these metadata revisions.
 
 ## Test environments
 

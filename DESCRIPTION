@@ -31,14 +31,16 @@ Authors@R:
         )
        )
 Description: An R toolkit for plant- and animal-breeding genotype workflows:
-    convert CSV and HapMap genotype tables to VCF, validate and repair VCFs
-    for Beagle, run Beagle imputation and phasing from R, and capture
-    structured run records. Simulate linked breeding genotypes conditional
+    convert CSV and 'HapMap' genotype tables to VCF, validate and repair VCFs
+    for 'Beagle', run 'Beagle' imputation and phasing from R, and capture
+    structured run records. The imputation method is described by Browning,
+    Zhou and Browning (2018) <doi:10.1016/j.ajhg.2018.07.015>.
+    Simulate linked breeding genotypes conditional
     on phased founder haplotypes and genetic maps using explicit diploid
     and random-bivalent autotetraploid inheritance models.
     Design constrained marker panels using local linkage disequilibrium,
     measured imputation recovery, and separate tuning and test samples.
-    Beagle and PLINK are external command-line tools
+    'Beagle' and 'PLINK' are external command-line tools
     invoked from R.
 License: MIT + file LICENSE
 URL: https://github.com/NDSU-AGDA/galick
